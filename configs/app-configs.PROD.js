@@ -40,7 +40,7 @@ export default {
     userService: {
         url: "http://l2_user_service_prod:5000/",
     },
-    enableCorsWs: false,
+    enableCorsWs: true,
     corsUrls: [
         "https://v-gaming.net",
         "https://www.v-gaming.net",

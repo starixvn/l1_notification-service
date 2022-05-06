@@ -40,7 +40,7 @@ export default {
     userService: {
         url: "http://l2_user_service_sit:5000/",
     },
-    enableCorsWs: false,
+    enableCorsWs: true,
     corsUrls: [
         "http://l2sit.sgamesuat.com",
         "https://l2sit.sgamesuat.com",

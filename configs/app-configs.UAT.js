@@ -40,7 +40,7 @@ export default {
     userService: {
         url: "http://l2_user_service_uat:5000/",
     },
-    enableCorsWs: false,
+    enableCorsWs: true,
     corsUrls: [
         "http://l2uat.sgamesuat.com",
         "https://l2uat.sgamesuat.com",
