@@ -8,8 +8,8 @@ export default {
     },
     apiSettings: {
         enabledApi: true,
-        apiUrl: "http://l2-api.lumigame.com",
-        authUrl: "http://l2-auth.lumigame.com",
+        apiUrl: "http://l1-api.lumigame.com",
+        authUrl: "http://l1-auth.lumigame.com",
         client: {
             id: "game-server",
             secret: "gameserver@20luminet&",
@@ -35,7 +35,7 @@ export default {
         env: "LOCAL",
     },
     userService: {
-        url: "https://l2-proxy.lumigame.com/user/",
+        url: "https://l1-proxy.lumigame.com/user/",
     },
     authenticateSettings: {
         audiences: ["api", "admin-api", "game-services"],

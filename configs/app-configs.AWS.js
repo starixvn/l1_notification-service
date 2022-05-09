@@ -24,7 +24,7 @@ export default {
     },
     enabledLogs: true,
     database: {
-        url: "mongodb://lmn_backend:ilthODrRz8C4s2%5D%7B%7CLV%3Du%5D2vsf6o%5Ex0m@10.99.99.56:37101/?replicaSet=L2_Sabaaws",
+        url: "mongodb://lmn_backend:Sb%7B5r%40Xy4X%256%28%24%5Bt%252HsOxJ%7CQt9jdR%26t@10.99.99.56:27101/?replicaSet=L1_SabaAWS",
         options: {
             dbName: "minigame",
             useNewUrlParser: true,
@@ -33,15 +33,15 @@ export default {
         },
     },
     sentry: {
-        sentryUrl: "http://b3f44a40c9ca4d7c96d59da86f37e9b7@10.99.99.187:803/107",
+        sentryUrl: "http://58fc00e79ab34a3bab04a79038760cb8@sentry.sabagame.com/8",
         logIdentifier: "notification-service",
         env: "AWS",
     },
     userService: {
-        url: "http://l2_user_service_AWS:5000/",
+        url: "http://l1_user_service_AWS:5000/",
     },
-    enableCorsWs: false,
-    corsUrls: ["https://sc2-games.sportsfun.app", "https://sc2-adm.sportsfun.app"],
+    enableCorsWs: true,
+    corsUrls: ["https://sc1-games.sportsfun.app", "https://sc1-adm.sportsfun.app"],
     metrics: {
         enable: true,
         secretKey: "6c1f0f28-70f2-46ae-b031-22624a6cd8df",

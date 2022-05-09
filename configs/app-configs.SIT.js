@@ -8,8 +8,8 @@ export default {
     },
     apiSettings: {
         enabledApi: true,
-        apiUrl: "http://l2_game_api_sit:5000",
-        authUrl: "http://l2_auth_api_sit:5000",
+        apiUrl: "http://l1_game_api_sit:5000",
+        authUrl: "http://l1_auth_api_sit:5000",
         client: {
             id: "game-server",
             secret: "gameserver@20luminet&",
@@ -24,7 +24,7 @@ export default {
     },
     enabledLogs: true,
     database: {
-        url: "mongodb://lmn_backend:LmnBackend%40517@10.99.99.187:37301/?replicaSet=SabaL2SIT",
+        url: "mongodb://lmn_backend:LmnBackend%40517@10.99.99.187:27301/?replicaSet=SabaSIT",
         options: {
             dbName: "minigame",
             useNewUrlParser: true,
@@ -33,21 +33,23 @@ export default {
         },
     },
     sentry: {
-        sentryUrl: "http://8ac47fca6d3e4a41908896a64ef201ac@10.2.190.51:9009/53",
+        sentryUrl: "http://52368c4019044019885440599c180bda@10.2.189.51:9009/24",
         logIdentifier: "notification-service",
         env: "SIT",
     },
     userService: {
-        url: "http://l2_user_service_sit:5000/",
+        url: "http://l1_user_service_sit:5000/",
     },
     enableCorsWs: true,
     corsUrls: [
-        "http://l2sit.sgamesuat.com",
-        "https://l2sit.sgamesuat.com",
-        "http://l2sitadm.sgamesuat.com",
-        "https://l2sitadm.sgamesuat.com",
-        "http://l2sitm.sgamesuat.com",
-        "https://l2sitm.sgamesuat.com",
+        "http://l1sit.sgamesuat.com",
+        "https://l1sit.sgamesuat.com",
+        "https://l1sitadm.sgamesuat.com",
+        "http://l1sitadm.sgamesuat.com",
+        "http://l1sitm.sgamesuat.com",
+        "https://l1sitm.sgamesuat.com",
+        "http://l1minisit.sgamesuat.com",
+        "https://l1minisit.sgamesuat.com",
     ],
     metrics: {
         enable: true,
