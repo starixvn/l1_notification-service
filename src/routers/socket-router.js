@@ -22,8 +22,6 @@ const initSocketClient = (socketClient) => {
     const gameNotificationEvent = "gameNotification";
     const emitMessage = emitMessageToClient(socketClient);
 
-    socketClient.on("getWinners", (payload) => JackpotHandler.getWinners(socketClient, payload));
-    socketClient.on("getPools", () => JackpotHandler.getPools(socketClient));
     socketClient.on("disconnect", () => socketClientHandler.disconnectUser(socketClient.id));
     socketClient.on(gameNotificationEvent, (payload) => findNotifications(emitMessage(gameNotificationEvent))(socketClient, payload));
 };

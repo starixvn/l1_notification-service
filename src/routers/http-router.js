@@ -1,6 +1,5 @@
 import { utils } from "sc-common";
 import appConfigs from "../app-configs";
-import { notifyJackpotWinner } from "../features/jackpots/jackpot-handler";
 import { broadcastReload } from "../features/reload/reload-handler";
 import { handleUmRequest } from "../features/um/um-handler";
 import { handleMetrics } from "../features/metrics/metric-handler";
@@ -16,7 +15,6 @@ const init = (app) => {
         audiences: appConfigs.authenticateSettings.audiences,
     };
 
-    app.post("/api/jackpotWinner", utils.authentication.useAuthenticate(authConfig), notifyJackpotWinner);
     app.post("/api/reload", utils.authentication.useAuthenticate(authConfig), broadcastReload);
     app.post("/api/um", utils.authentication.useAuthenticate(authConfig), handleUmRequest);
     app.get("/api/connectedClients", utils.authentication.useAuthenticate(authConfig), getTotalClients);

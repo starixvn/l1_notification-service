@@ -1,6 +1,5 @@
 import * as httpRouter from "../../../src/routers/http-router";
 import { utils } from "sc-common";
-import { notifyJackpotWinner } from "../../../src/features/jackpots/jackpot-handler";
 import { broadcastReload } from "../../../src/features/reload/reload-handler";
 import { handleUmRequest } from "../../../src/features/um/um-handler";
 import { handleMetrics } from "../../../src/features/metrics/metric-handler";
@@ -8,7 +7,6 @@ import { getTotalClients } from "../../../src/features/socket-clients/socket-cli
 import appConfigs from "../../../src/app-configs";
 
 jest.mock("sc-common");
-jest.mock("../../../src/features/jackpots/jackpot-handler");
 jest.mock("../../../src/features/reload/reload-handler");
 jest.mock("../../../src/features/um/um-handler");
 jest.mock("../../../src/features/metrics/metric-handler");
@@ -25,13 +23,6 @@ describe("httpRouter", () => {
         audiences: appConfigs.authenticateSettings.audiences,
     };
 
-    it("should register api/jackpotWinner handler", () => {
-        // Act
-        httpRouter.init(app);
-
-        // Assert
-        expect(app.post).toBeCalledWith("/api/jackpotWinner", utils.authentication.useAuthenticate(authConfig), notifyJackpotWinner);
-    });
     it("should register api/reload handler", () => {
         // Act
         httpRouter.init(app);
