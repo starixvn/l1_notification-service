@@ -1,4 +1,3 @@
-import * as JackpotHandler from "../features/jackpots/jackpot-handler";
 import { authenticate } from "../middleware/authorize-handler";
 import { findNotifications } from "../features/game-notifications";
 import * as socketClientHandler from "../features/socket-clients/socket-client-handler";
