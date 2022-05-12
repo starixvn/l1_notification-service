@@ -38,7 +38,7 @@ export default {
         env: "PROD",
     },
     userService: {
-        url: "http://l2_user_service_prod:5000/",
+        url: "http://l1_user_service_prod:5000/",
     },
     enableCorsWs: true,
     corsUrls: [
