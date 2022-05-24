@@ -38,7 +38,7 @@ export default {
         env: "LOCAL-3",
     },
     userService: {
-        url: "http://l2_user_service_local_3:5000/",
+        url: "http://l1_user_service_local_3:5000/",
     },
     enableCorsWs: false,
     corsUrls: [

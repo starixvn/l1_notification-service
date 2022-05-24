@@ -57,7 +57,7 @@ export default {
     },
     enableMsgpackParser: true,
     marqueeDurations: {
-        intervalTimeInMinute: 10,
-        timeToDisplayMessageInMinute: 2,
+        intervalTimeInMinute: 0.5,
+        timeToDisplayMessageInMinute: 0.5,
     },
 };
