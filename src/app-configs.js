@@ -21,7 +21,7 @@ export default {
     },
     enabledLogs: true,
     database: {
-        url: "mongodb://lmn_backend:LmnBackend@10.10.50.13:37101/?replicaSet=L1Local",
+        url: "mongodb://localhost:27017",
         options: {
             dbName: "minigame",
             useNewUrlParser: true,
@@ -30,9 +30,9 @@ export default {
         },
     },
     sentry: {
-        sentryUrl: "https://4c06d217eb0043c18b5334108ed22ce4@sentry.lumigame.com/24",
+        sentryUrl: "https://13f39b8359404ed5aec23655e64ccf78@sentry.lumigame.com/2",
         logIdentifier: "notification-service",
-        env: "LOCAL",
+        env: "DEV",
     },
     userService: {
         url: "https://l1-proxy.lumigame.com/user/",
