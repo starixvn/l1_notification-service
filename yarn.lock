@@ -5664,10 +5664,21 @@ sc-base-database@^1.9.2:
     mongoose "^5.9.25"
     sc-common "^1.6.0"
 
-sc-common@^1.6.0, sc-common@^1.8.0:
+sc-common@^1.6.0:
   version "1.8.0"
   resolved "https://npm.lumigame.com/sc-common/-/sc-common-1.8.0.tgz"
   integrity sha512-QVUpBms9Vt0Bmm2GcFaf44pYQvbXB7odI+vZJqnr0ainWWLgVynK4wxcKn6y7bNhTxP6MGIX8lFHcpgilXn3eQ==
+  dependencies:
+    "@sentry/node" "^5.19.1"
+    jsonwebtoken "^8.5.1"
+    jwks-rsa "^1.8.1"
+    mongoose-long "^0.3.0"
+    numeral "^2.0.6"
+
+sc-common@^1.8.1:
+  version "1.8.1"
+  resolved "http://npm.lumigame.com/sc-common/-/sc-common-1.8.1.tgz#c79e6131011b541baab8d775ff53b3b081ff8221"
+  integrity sha512-78bocqv9txbr8jyi83CjANBpLN+ZFcyvRQVQJvsBU+8ZNnqibx9m5p/yUMPNX1miMyi53+4ELQtB5kmr689Q5Q==
   dependencies:
     "@sentry/node" "^5.19.1"
     jsonwebtoken "^8.5.1"

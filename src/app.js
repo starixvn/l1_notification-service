@@ -8,6 +8,8 @@ import appConfigs from "./app-configs";
 import { logger, middlewares } from "sc-common";
 import { init as initBaseDatabase } from "sc-base-database";
 import { setMarquee } from "./features/marquee/marquee-handler";
+import { setPromotions } from "./features/promotions/promotions-handler";
+import { setPromotionNotifications } from "./features/promotion-notifications/promotion-notification-handler";
 
 const run = async () => {
     const app = express();
@@ -16,6 +18,8 @@ const run = async () => {
     RouterConfig.init(app, httpServer);
 
     setMarquee();
+    setPromotionNotifications();
+    setPromotions();
     middlewares.processErrorHandler.handle(httpServer, process);
 
     httpServer.listen(app.get("port"), async () => {

@@ -1,7 +1,11 @@
-import { find, findWithProjection } from "../../../src/features/game-notifications/game-notification-repository";
+import { find, findWithProjection, getPromotionNotification } from "../../../src/features/game-notifications/game-notification-repository";
 import { gameNotifications } from "sc-base-database";
+import notifications from "../../../src/features/game-notifications/notifications";
+import { stubMongoose } from "jest-micro-auto-stub";
 
 jest.mock("sc-base-database");
+jest.mock("../../../src/features/game-notifications/notifications");
+notifications.find = stubMongoose(notifications).find;
 
 describe("find", () => {
     describe("when called", () => {
@@ -27,5 +31,24 @@ describe("findWithProjection", () => {
             // Assert
             expect(gameNotifications.find).toHaveBeenCalledWith("filter", defaultProjection, "callback");
         });
+    });
+});
+
+describe("getPromotionNotifications", () => {
+    it("should call  promotion notification find", async () => {
+        // Arrange
+        const notificationType = 3;
+        const notificationFilter = {
+            displayKind: notificationType,
+            startTime: { $lte: new Date(Date.now()) },
+            endTime: { $gte: new Date(Date.now()) },
+            enabled: true,
+        };
+
+        // Act
+        await getPromotionNotification(notificationType);
+
+        // Assert
+        expect(notifications.find).toBeCalledWith(notificationFilter);
     });
 });
