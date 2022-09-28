@@ -1,0 +1,579 @@
+import * as handler from "../../../src/features/jackpots/jackpot-handler";
+import { logger } from "sc-common";
+import { userInfos } from "sc-base-database";
+import { UserSession } from "jest-auto-fixture/src/models/index";
+import * as currencyRepository from "../../../src/features/jackpots/currency-repository";
+import * as partnerConfigRepository from "../../../src/features/jackpots/partner-config-repository";
+import * as jackpotRepository from "../../../src/features/jackpots/jackpot-repository";
+import * as socketClientHandler from "../../../src/features/socket-clients/socket-client-handler";
+
+import Chance from "chance";
+import { stubMongoose } from "jest-micro-auto-stub";
+
+jest.mock("../../../src/features/jackpots/currency-repository");
+jest.mock("../../../src/features/jackpots/partner-config-repository");
+jest.mock("../../../src/features/jackpots/jackpot-repository");
+jest.mock("../../../src/features/socket-clients/socket-client-handler");
+jest.mock("sc-common");
+userInfos.find = stubMongoose(userInfos).find;
+
+const chance = new Chance();
+const socketClient = {
+    id: chance.guid(),
+    emit: jest.fn(),
+};
+
+describe("jackpotHandler", () => {
+    beforeEach(() => {
+        __rewire_reset_all__();
+        jest.clearAllMocks();
+    });
+
+    describe("getWinners", () => {
+        const limit = chance.integer({ min: 1, max: 500 });
+
+        beforeEach(() => {
+            jackpotRepository.getJackPotWinners = jest.fn();
+            handler.default.__set__("getOfferedGames", jest.fn());
+            handler.default.__set__("getJackpotWinnersMapAvatar", jest.fn());
+            socketClientHandler.getClientSession = jest.fn().mockReturnValueOnce(socketClient.session);
+        });
+
+        it("should call getClientSession", async () => {
+            // Act
+            await handler.getWinners(socketClient, { limit });
+
+            // Assert
+            expect(socketClientHandler.getClientSession).toBeCalledWith(socketClient.id);
+        });
+
+        it("should call getOfferGames", async () => {
+            // Arrange
+            const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
+
+            // Act
+            await handler.getWinners(socketClient, { limit });
+
+            // Assert
+            expect(getOfferedGamesFunc).toBeCalledWith(socketClient.session);
+        });
+
+        it("should call jackpotRepository.getJackpotWinners", async () => {
+            //Arrange
+            const offerGames = chance.unique(chance.integer, chance.integer({ min: 0, max: 100 }), { min: 0, max: 100 });
+            const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
+            getOfferedGamesFunc.mockResolvedValueOnce(offerGames);
+
+            // Act
+            await handler.getWinners(socketClient, { limit });
+
+            // Assert
+            expect(jackpotRepository.getJackPotWinners).toBeCalledWith(offerGames, limit);
+        });
+
+        it("should call getJackpotWinnersMapAvatar", async () => {
+            // Arrange
+            const getJackpotWinnersMapAvatarFunc = handler.default.__get__("getJackpotWinnersMapAvatar");
+            const winners = getFakeJackpotWinners();
+            jackpotRepository.getJackPotWinners.mockResolvedValueOnce(winners);
+
+            // Act
+            await handler.getWinners(socketClient, { limit });
+
+            // Assert
+            expect(getJackpotWinnersMapAvatarFunc).toBeCalledWith(winners);
+        });
+
+        it("should emit jackpotWinners to client", async () => {
+            // Arrange
+            const winners = getFakeJackpotWinners();
+            const getJackpotWinnersMapAvatarFunc = handler.default.__get__("getJackpotWinnersMapAvatar");
+            getJackpotWinnersMapAvatarFunc.mockResolvedValueOnce(winners);
+
+            // Act
+            await handler.getWinners(socketClient, { limit });
+
+            // Assert
+            expect(socketClient.emit).toBeCalledWith("jackpotWinners", winners);
+        });
+    });
+
+    describe("getPools", () => {
+        beforeEach(() => {
+            jackpotRepository.getRunningPools = jest.fn();
+            handler.default.__set__("getOfferedGames", jest.fn());
+        });
+
+        it("should call getClientSession", async () => {
+            // Act
+            await handler.getPools(socketClient);
+
+            // Assert
+            expect(socketClientHandler.getClientSession).toBeCalledWith(socketClient.id);
+        });
+
+        it("should call getOfferGames", async () => {
+            // Arrange
+            const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
+
+            // Act
+            await handler.getPools(socketClient);
+
+            // Assert
+            expect(getOfferedGamesFunc).toBeCalledWith(socketClient.session);
+        });
+
+        it("should call jackpotRepository.getRunningPools", async () => {
+            // Arrange
+            const offerGames = chance.unique(chance.integer, chance.integer({ min: 0, max: 100 }), { min: 0, max: 100 });
+            handler.default.__get__("getOfferedGames").mockResolvedValueOnce(offerGames);
+
+            // Act
+            await handler.getPools(socketClient);
+
+            // Assert
+            expect(jackpotRepository.getRunningPools).toBeCalledWith(offerGames);
+        });
+
+        it("should emit jackpotPools to client", async () => {
+            // Arrange
+            const numOfPools = chance.integer({ min: 1, max: 10 });
+            const runningPools = [...new Array(numOfPools)].map(() => ({
+                gameId: chance.integer({ min: 1, max: 100 }),
+                pool: chance.integer({ min: 1, max: 50 }),
+                amount: chance.natural(),
+            }));
+            jackpotRepository.getRunningPools.mockResolvedValueOnce(runningPools);
+
+            // Act
+            await handler.getPools(socketClient);
+
+            // Assert
+            expect(socketClient.emit).toBeCalledWith("jackpotPools", runningPools);
+        });
+    });
+
+    describe("notifyJackpotWinner", () => {
+        const req = { body: {} };
+        const res = { send: jest.fn() };
+
+        beforeEach(() => {
+            handler.default.__set__("validateParams", jest.fn());
+            handler.default.__set__("sendAllUserExceptExclusionSite", jest.fn());
+        });
+
+        it("should call validateParams", () => {
+            // Arrange
+            const validateParamsFunc = handler.default.__get__("validateParams");
+
+            // Act
+            handler.notifyJackpotWinner(req, res);
+
+            // Assert
+            expect(validateParamsFunc).toBeCalledWith(req.body);
+        });
+
+        describe("when request params is valid", () => {
+            beforeEach(() => {
+                handler.default.__get__("validateParams").mockReturnValueOnce(true);
+            });
+
+            it("should call sendAllUserExceptExclusionSite", () => {
+                // Arrange
+                const sendAllUserExceptExclusionSiteFunc = handler.default.__get__("sendAllUserExceptExclusionSite");
+
+                // Act
+                handler.notifyJackpotWinner(req, res);
+
+                // Assert
+                expect(sendAllUserExceptExclusionSiteFunc).toBeCalledWith(req.body);
+            });
+
+            it("should send received message to client", () => {
+                // Act
+                handler.notifyJackpotWinner(req, res);
+
+                // Assert
+                expect(res.send).toBeCalledWith({ received: true });
+            });
+        });
+    });
+
+    describe("validateParams", () => {
+        const validateParamsFunc = handler.default.__get__("validateParams");
+        const validParams = {
+            gameId: chance.integer({ min: 1, max: 100 }),
+            pool: chance.integer({ min: 1, max: 50 }),
+            winnerName: chance.name_suffix(),
+            amount: chance.natural(),
+        };
+        describe("when params is valid", () => {
+            it("should return true", () => {
+                // Act
+                const actualResult = validateParamsFunc(validParams);
+
+                // Assert
+                expect(actualResult).toBeTruthy();
+            });
+        });
+
+        describe("when params is not valid", () => {
+            const testCases = [
+                { failure: "params", params: undefined },
+                { failure: "gameId", params: { ...validParams, gameId: undefined } },
+                { failure: "pool", params: { ...validParams, pool: undefined } },
+                { failure: "winnerName", params: { ...validParams, winnerName: undefined } },
+                { failure: "amount", params: { ...validParams, amount: undefined } },
+            ];
+
+            testCases.forEach(({ failure, params }) => {
+                describe(`when ${failure} is not valid`, () => {
+                    it("should return false", () => {
+                        // Act
+                        const actualResult = validateParamsFunc(params);
+
+                        // Assert
+                        expect(actualResult).toBeFalsy();
+                    });
+
+                    it("should log critical", () => {
+                        // Act
+                        validateParamsFunc(params);
+
+                        // Assert
+                        expect(logger.logCritical).toBeCalledWith(
+                            `The jackpot winner information is invalid, details: ${JSON.stringify(params)}`
+                        );
+                    });
+                });
+            });
+        });
+    });
+
+    describe("sendAllUserExceptExclusionSite", () => {
+        const sendAllUserExceptExclusionSiteFunc = handler.default.__get__("sendAllUserExceptExclusionSite");
+        const payload = { gameId: chance.integer({ min: 1, max: 100 }) };
+
+        beforeEach(() => {
+            handler.default.__set__("sendJackpotWinnerWhenNotExcluded", jest.fn());
+            partnerConfigRepository.getSiteExclusions = jest.fn();
+            socketClientHandler.getClients = jest.fn();
+        });
+
+        it("should call partnerRepository.getSiteExclusions", async () => {
+            // Arrange
+            socketClientHandler.getClients.mockReturnValueOnce({});
+
+            // Act
+            await sendAllUserExceptExclusionSiteFunc(payload);
+
+            // Assert
+            expect(partnerConfigRepository.getSiteExclusions).toBeCalled();
+        });
+    });
+
+    describe("sendJackpotWinnerWhenNotExcluded", () => {
+        const sendJackpotWinnerWhenNotExcludedFunc = handler.default.__get__("sendJackpotWinnerWhenNotExcluded");
+        const siteExclusions = { type: "game_site_exclusions" };
+        const payload = { gameId: chance.integer({ min: 1, max: 100 }) };
+
+        beforeEach(() => {
+            handler.default.__set__("isExcludeOnGame", jest.fn());
+        });
+
+        describe("when session is not valid", () => {
+            it("should NOT emit jackpotWinners to client", () => {
+                // Arrange
+                const client = { ...socketClient, data: {} };
+
+                // Act
+                sendJackpotWinnerWhenNotExcludedFunc(client, siteExclusions, payload);
+
+                // Assert
+                expect(client.emit).not.toBeCalled();
+            });
+        });
+
+        describe("when user is excluded on game", () => {
+            it("should NOT emit jackpotWinners to client", () => {
+                // Arrange
+                handler.default.__get__("isExcludeOnGame").mockReturnValueOnce(true);
+
+                // Act
+                sendJackpotWinnerWhenNotExcludedFunc(socketClient, siteExclusions, payload);
+
+                // Assert
+                expect(socketClient.emit).not.toBeCalled();
+            });
+        });
+
+        describe("when session is valid and user is NOT excluded on game", () => {
+            it("should emit jackpotWinners to client", () => {
+                // Arrange
+                handler.default.__get__("isExcludeOnGame").mockReturnValueOnce(false);
+                const client = {
+                    session: {},
+                    socketClient: { emit: jest.fn() },
+                };
+
+                // Act
+                sendJackpotWinnerWhenNotExcludedFunc(client, siteExclusions, payload);
+
+                // Assert
+                expect(client.socketClient.emit).toBeCalledWith("jackpotWinner", payload);
+            });
+        });
+    });
+
+    describe("isExcludeOnGame", () => {
+        const isExcludeOnGameFunc = handler.default.__get__("isExcludeOnGame");
+        const partnerId = chance.string();
+        const siteName = chance.url();
+        const gameId = chance.integer({ min: 1, max: 100 });
+        const session = UserSession({ partnerId, siteName });
+
+        describe("when is NOT excluded", () => {
+            it("should return false", () => {
+                // Arrange
+                const siteExclusions = [{ partnerId: partnerId, value: [] }];
+
+                // Act
+                const actualResult = isExcludeOnGameFunc(session, gameId, siteExclusions);
+
+                // Assert
+                expect(actualResult).toBeFalsy();
+            });
+        });
+
+        describe("when is excluded", () => {
+            it("should return true", () => {
+                // Arrange
+                const siteExclusions = [{ partnerId: partnerId, value: [gameId] }];
+
+                // Act
+                const actualResult = isExcludeOnGameFunc(session, gameId, siteExclusions);
+
+                // Assert
+                expect(actualResult).toBeFalsy();
+            });
+        });
+    });
+
+    describe("getOfferedGames", () => {
+        const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
+        const session = UserSession();
+
+        beforeEach(() => {
+            handler.default.__set__("getGamesExcludedByPartnerSite", jest.fn());
+            currencyRepository.getCurrencyGroup = jest.fn();
+            currencyRepository.getCurrency = jest.fn();
+            currencyRepository.getOfferedGames = jest.fn();
+        });
+
+        it("should be call currencyRepository.getCurrencyGroup", async () => {
+            // Act
+            await getOfferedGamesFunc(session);
+
+            // Assert
+            expect(currencyRepository.getCurrencyGroup).toBeCalledWith(session.currencyGroupId);
+        });
+
+        it("should be call currencyRepository.getCurrency", async () => {
+            // Act
+            await getOfferedGamesFunc(session);
+
+            // Assert
+            expect(currencyRepository.getCurrency).toBeCalledWith(session.currencyName, session.partnerId);
+        });
+
+        describe("when currency is disabled", () => {
+            it("should return empty array", async () => {
+                // Arrange
+                currencyRepository.getCurrencyGroup.mockResolvedValueOnce({ enabled: true });
+                currencyRepository.getCurrency.mockResolvedValueOnce({ enabled: false });
+
+                // Act
+                const actualResult = await getOfferedGamesFunc(session);
+
+                // Assert
+                expect(actualResult.length).toBe(0);
+            });
+        });
+
+        describe("when currency group is disabled", () => {
+            it("should return empty array", async () => {
+                // Arrange
+                currencyRepository.getCurrencyGroup.mockResolvedValueOnce({ enabled: false });
+                currencyRepository.getCurrency.mockResolvedValueOnce({ enabled: true });
+
+                // Act
+                const actualResult = await getOfferedGamesFunc(session);
+
+                // Assert
+                expect(actualResult.length).toBe(0);
+            });
+        });
+
+        describe("when currency and currency group is enabled", () => {
+            beforeEach(() => {
+                currencyRepository.getCurrencyGroup.mockResolvedValueOnce({ enabled: true });
+                currencyRepository.getCurrency.mockResolvedValueOnce({ enabled: true });
+                handler.default.__set__("getGamesExcludedByPartnerSite", jest.fn().mockResolvedValueOnce([]));
+            });
+
+            it("should call currencyRepository.getOfferedGames", async () => {
+                // Act
+                await getOfferedGamesFunc(session);
+
+                // Assert
+                expect(currencyRepository.getOfferedGames).toBeCalledWith(session.currencyGroupId);
+            });
+
+            it("should call getGamesExcludedByPartnerSite", async () => {
+                // Arrange
+                const getGamesExcludedByPartnerSiteFunc = handler.default.__get__("getGamesExcludedByPartnerSite");
+
+                // Act
+                await getOfferedGamesFunc(session);
+
+                // Assert
+                expect(getGamesExcludedByPartnerSiteFunc).toBeCalledWith(session.partnerId, session.siteName);
+            });
+
+            describe("when session.disableJackpotGames is false", () => {
+                it("should return group offered games which is not excluded on site", async () => {
+                    // Arrange
+                    currencyRepository.getOfferedGames.mockResolvedValueOnce([{ gameId: 1 }, { gameId: 2 }, { gameId: 29 }]);
+                    handler.default.__get__("getGamesExcludedByPartnerSite").mockResolvedValueOnce([2]);
+
+                    // Act
+                    const actualResult = await getOfferedGamesFunc(session);
+
+                    // Assert
+                    expect(actualResult).toStrictEqual([1, 2, 29]);
+                });
+            });
+
+            describe("when session.disableJackpotGames is true", () => {
+                it("should return group offered games which is not excluded on site and is not jackpot game", async () => {
+                    // Arrange
+                    currencyRepository.getOfferedGames.mockResolvedValueOnce([{ gameId: 1 }, { gameId: 3 }, { gameId: 29 }]);
+                    handler.default.__get__("getGamesExcludedByPartnerSite").mockResolvedValueOnce([2]);
+
+                    // Act
+                    const actualResult = await getOfferedGamesFunc({ ...session, disableJackpotGames: true });
+
+                    // Assert
+                    expect(actualResult).toStrictEqual([1, 3]);
+                });
+            });
+        });
+    });
+
+    describe("getGamesExcludedByPartnerSite", () => {
+        const getGamesExcludedByPartnerSiteFunc = handler.default.__get__("getGamesExcludedByPartnerSite");
+        const partnerId = chance.string();
+        const siteName = chance.url();
+
+        beforeEach(() => {
+            partnerConfigRepository.getSiteExclusionByPartner = jest.fn();
+        });
+
+        it("should call partnerConfigRepository.getSiteExclusionByPartner", async () => {
+            // Act
+            await getGamesExcludedByPartnerSiteFunc(partnerId, siteName);
+
+            // Assert
+            expect(partnerConfigRepository.getSiteExclusionByPartner).toBeCalledWith(partnerId);
+        });
+
+        it("should return games excluded by site", async () => {
+            // Arrange
+            partnerConfigRepository.getSiteExclusionByPartner.mockResolvedValueOnce({
+                values: {
+                    1: ["abc.com"],
+                    2: [siteName, "bbc.com"],
+                    3: [siteName],
+                },
+            });
+
+            // Act
+            const actualResult = await getGamesExcludedByPartnerSiteFunc(partnerId, siteName);
+
+            // Assert
+            expect(actualResult).toStrictEqual([2, 3]);
+        });
+    });
+
+    describe("getJackpotWinnersMapAvatar", () => {
+        const getJackpotWinnersMapAvatarsFunc = handler.default.__get__("getJackpotWinnersMapAvatar");
+
+        it("should call userInfos.find", async () => {
+            // Assert
+            const winners = getFakeJackpotWinners();
+            const winnerNames = winners.map((winner) => winner.winnerName);
+            userInfos.find().lean().exec.mockResolvedValueOnce([]);
+
+            // Act
+            await getJackpotWinnersMapAvatarsFunc(winners);
+
+            // Assert
+            expect(userInfos.find).toBeCalledWith(
+                { name: { $in: winnerNames } },
+                {
+                    _id: false,
+                    name: true,
+                    avatarId: true,
+                }
+            );
+        });
+
+        it("should return winner with avatarId", async () => {
+            // Assert
+            const winners = getFakeJackpotWinners();
+            const avatarId = chance.integer({ min: 1, max: 200 });
+            const winnerNames = winners.map((winner) => winner.winnerName);
+            userInfos
+                .find()
+                .lean()
+                .exec.mockResolvedValueOnce([{ name: winnerNames[0], avatarId }]);
+
+            // Act
+            const actualResult = await getJackpotWinnersMapAvatarsFunc(winners);
+
+            // Assert
+            expect(actualResult[0].avatarId).toBe(avatarId);
+        });
+
+        it("should return winner with calculated amount", async () => {
+            // Assert
+            const winners = getFakeJackpotWinners();
+            const avatarId = chance.integer({ min: 1, max: 200 });
+            const winnerNames = winners.map((winner) => winner.winnerName);
+            winners[0].amount = 100;
+            winners[0].winningRatio = 4;
+            userInfos
+                .find()
+                .lean()
+                .exec.mockResolvedValueOnce([{ name: winnerNames[0], avatarId }]);
+
+            // Act
+            const actualResult = await getJackpotWinnersMapAvatarsFunc(winners);
+
+            // Assert
+            expect(actualResult[0].amount).toBe(400);
+        });
+    });
+});
+
+const getFakeJackpotWinners = (isHavingAvatar = false) => {
+    const numOfWinners = chance.integer({ min: 1, max: 20 });
+
+    return [...new Array(numOfWinners)].map(() => ({
+        gameId: chance.integer({ min: 1, max: 100 }),
+        pool: chance.integer({ min: 1, max: 200 }),
+        amount: chance.natural(),
+        winnerName: chance.name_suffix(),
+        avatarId: isHavingAvatar ? chance.integer({ min: 1, max: 100 }) : undefined,
+    }));
+};

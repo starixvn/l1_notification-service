@@ -1,15 +1,9 @@
 export default {
     hostingPort: 5000,
-    socketOptions: {
-        pingInterval: 60 * 1000,
-        pingTimeout: 60 * 1000,
-        transports: ["websocket"],
-        allowUpgrades: false,
-    },
     apiSettings: {
         enabledApi: true,
-        apiUrl: "http://l1_game_api_local_1:5000",
-        authUrl: "http://l1_auth_api_local_1:5000",
+        apiUrl: "http://l1_game_api_local:5000",
+        authUrl: "http://l1_auth_api_local:5000",
         client: {
             id: "game-server",
             secret: "gameserver@20luminet&",
@@ -22,9 +16,15 @@ export default {
     authenticateSettings: {
         audiences: ["api", "admin-api", "game-services"],
     },
+    socketOptions: {
+        pingInterval: 60 * 1000,
+        pingTimeout: 60 * 1000,
+        transports: ["websocket"],
+        allowUpgrades: false,
+    },
     enabledLogs: true,
     database: {
-        url: "mongodb://lmn_backend:LmnBackend@10.10.50.12:39101,10.10.50.13:39101,10.10.50.14:39101/?replicaSet=L1pLocal",
+        url: "mongodb://lmn_backend:LmnBackend@10.10.50.12:39100,10.10.50.13:39100,10.10.50.14:39100/?replicaSet=L1Local&appName=notificationservice",
         options: {
             dbName: "minigame",
             useNewUrlParser: true,
@@ -35,23 +35,24 @@ export default {
     sentry: {
         sentryUrl: "https://13f39b8359404ed5aec23655e64ccf78@sentry.lumigame.com/2",
         logIdentifier: "notification-service",
-        env: "LOCAL-1",
+        env: "LOCAL",
     },
     userService: {
-        url: "http://l1_user_service_local_1:5000/",
+        url: "http://l1_user_service_local:5000/",
     },
     enableCorsWs: false,
     corsUrls: [
         "http://localhost:7456",
         "http://localhost:7000",
         "http://localhost:3000",
-        "http://l1-games1.lumigame.com",
-        "https://l1-games1.lumigame.com",
-        "http://l1-admin1.lumigame.com",
-        "http://l1-m1.lumigame.com",
-        "https://l1-m1.lumigame.com",
-        "http://l1-mini1.lumigame.com",
-        "https://l1-mini1.lumigame.com",
+        "http://games.lumigame.com",
+        "https://games.lumigame.com",
+        "http://admin.lumigame.com",
+        "https://admin.lumigame.com",
+        "http://l1-m.lumigame.com",
+        "https://l1-m.lumigame.com",
+        "http://l1-mini.lumigame.com",
+        "https://l1-mini.lumigame.com",
     ],
     metrics: {
         enable: true,
@@ -59,8 +60,8 @@ export default {
     },
     enableMsgpackParser: false,
     marqueeDurations: {
-        intervalTimeInMinute: 0.5,
-        timeToDisplayMessageInMinute: 0.5,
+        intervalTimeInMinute: 10,
+        timeToDisplayMessageInMinute: 2,
     },
     promotionsDurations: {
         delayTimeInMinutes: 1,

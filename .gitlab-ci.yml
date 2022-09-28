@@ -1,7 +1,11 @@
 include:
     - project: "ci/repos-ci/pentagon_l1_notification_service"
-      ref: master
+      ref: update_gitlab_ci
       file: "gitlab-ci.yml"
+
+    - project: "ci/repos-ci/pentagon_l2_vg2_notification_service"
+      ref: master
+      file: "gitlab-ci-mixing.yml"
 
 unit-test-js:
   artifacts:

@@ -5,12 +5,14 @@ import { handleUmRequest } from "../../../src/features/um/um-handler";
 import { handleMetrics } from "../../../src/features/metrics/metric-handler";
 import { getTotalClients } from "../../../src/features/socket-clients/socket-client-handler";
 import appConfigs from "../../../src/app-configs";
+import { notifyJackpotWinner } from "../../../src/features/jackpots/jackpot-handler";
 
 jest.mock("sc-common");
 jest.mock("../../../src/features/reload/reload-handler");
 jest.mock("../../../src/features/um/um-handler");
 jest.mock("../../../src/features/metrics/metric-handler");
 jest.mock("../../../src/features/socket-clients/socket-client-handler");
+jest.mock("../../../src/features/jackpots/jackpot-handler");
 
 describe("httpRouter", () => {
     const app = {
@@ -23,6 +25,14 @@ describe("httpRouter", () => {
         audiences: appConfigs.authenticateSettings.audiences,
     };
 
+    it("should register api/jackpotWinner handler", () => {
+        // Act
+        httpRouter.init(app);
+
+        // Assert
+        expect(app.post).toBeCalledWith("/api/jackpotWinner", utils.authentication.useAuthenticate(authConfig), notifyJackpotWinner);
+    });
+    
     it("should register api/reload handler", () => {
         // Act
         httpRouter.init(app);

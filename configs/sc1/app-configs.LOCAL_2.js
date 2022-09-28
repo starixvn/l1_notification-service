@@ -8,15 +8,15 @@ export default {
     },
     apiSettings: {
         enabledApi: true,
-        apiUrl: "http://l1_game_api_AWS:5000",
-        authUrl: "http://l1_auth_api_AWS:5000",
+        apiUrl: "http://l1_game_api_local_2:5000",
+        authUrl: "http://l1_auth_api_local_2:5000",
         client: {
             id: "game-server",
             secret: "gameserver@20luminet&",
         },
         useAuthenticate: true,
+        requestTimeout: 10000,
         placeBetTimeout: 4500,
-        requestTimeout: 10000, // 10s
         enabledApiLogs: true,
     },
     authenticateSettings: {
@@ -24,7 +24,7 @@ export default {
     },
     enabledLogs: true,
     database: {
-        url: "mongodb://lmn_backend:Sb%7B5r%40Xy4X%256%28%24%5Bt%252HsOxJ%7CQt9jdR%26t@10.99.99.56:27101/?replicaSet=L1_SabaAWS",
+        url: "mongodb://lmn_backend:LmnBackend@10.10.50.12:39102,10.10.50.13:39102,10.10.50.14:39102/?replicaSet=L1ppLocal&appName=notificationservice",
         options: {
             dbName: "minigame",
             useNewUrlParser: true,
@@ -33,23 +33,35 @@ export default {
         },
     },
     sentry: {
-        sentryUrl: "http://58fc00e79ab34a3bab04a79038760cb8@sentry.sabagame.com/8",
+        sentryUrl: "https://13f39b8359404ed5aec23655e64ccf78@sentry.lumigame.com/2",
         logIdentifier: "notification-service",
-        env: "AWS",
+        env: "LOCAL-2",
     },
     userService: {
-        url: "http://l1_user_service_AWS:5000/",
+        url: "http://l1_user_service_local_2:5000/",
     },
-    enableCorsWs: true,
-    corsUrls: ["https://sc1-games.sportsfun.app", "https://sc1-adm.sportsfun.app"],
+    enableCorsWs: false,
+    corsUrls: [
+        "http://localhost:7456",
+        "http://localhost:7000",
+        "http://localhost:3000",
+        "http://l1-games2.lumigame.com",
+        "https://l1-games2.lumigame.com",
+        "http://l1-admin2.lumigame.com",
+        "https://l1-admin2.lumigame.com",
+        "http://l1-m2.lumigame.com",
+        "https://l1-m2.lumigame.com",
+        "http://l1-mini2.lumigame.com",
+        "https://l1-mini2.lumigame.com",
+    ],
     metrics: {
         enable: true,
         secretKey: "6c1f0f28-70f2-46ae-b031-22624a6cd8df",
     },
-    enableMsgpackParser: true,
+    enableMsgpackParser: false,
     marqueeDurations: {
-        intervalTimeInMinute: 10,
-        timeToDisplayMessageInMinute: 2,
+        intervalTimeInMinute: 0.5,
+        timeToDisplayMessageInMinute: 0.5,
     },
     promotionsDurations: {
         delayTimeInMinutes: 1,

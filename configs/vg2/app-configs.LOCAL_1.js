@@ -8,8 +8,8 @@ export default {
     },
     apiSettings: {
         enabledApi: true,
-        apiUrl: "http://l1_game_api_local_2:5000",
-        authUrl: "http://l1_auth_api_local_2:5000",
+        apiUrl: "http://l2_game_api_local_1:5000",
+        authUrl: "http://l2_auth_api_local_1:5000",
         client: {
             id: "game-server",
             secret: "gameserver@20luminet&",
@@ -24,7 +24,7 @@ export default {
     },
     enabledLogs: true,
     database: {
-        url: "mongodb://lmn_backend:LmnBackend@10.10.50.12:39102,10.10.50.13:39102,10.10.50.14:39102/?replicaSet=L1ppLocal",
+        url: "mongodb://lmn_backend:LmnBackend@10.10.50.13:37104/?replicaSet=L2pLocal&appName=notificationservice",
         options: {
             dbName: "minigame",
             useNewUrlParser: true,
@@ -33,26 +33,24 @@ export default {
         },
     },
     sentry: {
-        sentryUrl: "https://13f39b8359404ed5aec23655e64ccf78@sentry.lumigame.com/2",
+        sentryUrl: "https://acb36eb835d948d68c1aad9873754d51@sentry.lumigame.com/27",
         logIdentifier: "notification-service",
-        env: "LOCAL-2",
+        env: "LOCAL_1",
     },
     userService: {
-        url: "http://l1_user_service_local_2:5000/",
+        url: "http://l2_user_service_local_1:5000/",
     },
     enableCorsWs: false,
     corsUrls: [
         "http://localhost:7456",
+        "http://l2-games.lumigame.com",
+        "https://l2-games.lumigame.com",
+        "http://l2-admin.lumigame.com",
+        "https://l2-admin.lumigame.com",
         "http://localhost:7000",
         "http://localhost:3000",
-        "http://l1-games2.lumigame.com",
-        "https://l1-games2.lumigame.com",
-        "http://l1-admin2.lumigame.com",
-        "https://l1-admin2.lumigame.com",
-        "http://l1-m2.lumigame.com",
-        "https://l1-m2.lumigame.com",
-        "http://l1-mini2.lumigame.com",
-        "https://l1-mini2.lumigame.com",
+        "http://l2-m.lumigame.com",
+        "https://l2-m.lumigame.com",
     ],
     metrics: {
         enable: true,
@@ -62,11 +60,5 @@ export default {
     marqueeDurations: {
         intervalTimeInMinute: 0.5,
         timeToDisplayMessageInMinute: 0.5,
-    },
-    promotionsDurations: {
-        delayTimeInMinutes: 1,
-    },
-    promotionNotificationDurations: {
-        delayTimeInMinutes: 1,
     },
 };

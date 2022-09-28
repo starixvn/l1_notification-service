@@ -3,6 +3,7 @@ import { findNotifications } from "../features/game-notifications";
 import * as socketClientHandler from "../features/socket-clients/socket-client-handler";
 import * as promotionNotificationHandler from "../features/promotion-notifications/promotion-notification-handler";
 import * as promotionsHandler from "../features/promotions/promotions-handler";
+import * as JackpotHandler from "../features/jackpots/jackpot-handler";
 
 /**
  * @param {Socket} socketClient
@@ -25,6 +26,8 @@ const initSocketClient = (socketClient) => {
     const promotionsEvent = "promotions";
     const emitMessage = emitMessageToClient(socketClient);
 
+    socketClient.on("getWinners", (payload) => JackpotHandler.getWinners(socketClient, payload));
+    socketClient.on("getPools", () => JackpotHandler.getPools(socketClient));
     socketClient.on("disconnect", () => socketClientHandler.disconnectUser(socketClient.id));
     socketClient.on(gameNotificationEvent, (payload) => findNotifications(emitMessage(gameNotificationEvent))(socketClient, payload));
     socketClient.on(promotionNotificationsEvent, () => promotionNotificationHandler.getPromotionNotifications(socketClient));

@@ -8,8 +8,8 @@ export default {
     },
     apiSettings: {
         enabledApi: true,
-        apiUrl: "http://l1_game_api_uat:5000",
-        authUrl: "http://l1_auth_api_uat:5000",
+        apiUrl: "http://l1_game_api_AWS:5000",
+        authUrl: "http://l1_auth_api_AWS:5000",
         client: {
             id: "game-server",
             secret: "gameserver@20luminet&",
@@ -24,7 +24,7 @@ export default {
     },
     enabledLogs: true,
     database: {
-        url: "mongodb://lmn_backend:LmnBackend%4022027@10.99.99.187:27201/?replicaSet=SabaUAT",
+        url: "mongodb://lmn_backend:ilthODrRz8C4s2%5D%7B%7CLV%3Du%5D2vsf6o%5Ex0m@10.99.99.56:37101/?replicaSet=L2_Sabaaws&appName=notificationservice",
         options: {
             dbName: "minigame",
             useNewUrlParser: true,
@@ -33,37 +33,22 @@ export default {
         },
     },
     sentry: {
-        sentryUrl: "http://52368c4019044019885440599c180bda@10.2.190.51:9009/24",
+        sentryUrl: "http://b3f44a40c9ca4d7c96d59da86f37e9b7@10.99.99.187:803/107",
         logIdentifier: "notification-service",
-        env: "UAT",
+        env: "AWS",
     },
     userService: {
-        url: "http://l1_user_service_uat:5000/",
+        url: "http://l2_user_service_AWS:5000/",
     },
-    enableCorsWs: true,
-    corsUrls: [
-        "http://l1uat.sgamesuat.com",
-        "https://l1uat.sgamesuat.com",
-        "http://l1uatadm.sgamesuat.com",
-        "https://l1uatadm.sgamesuat.com",
-        "http://l1uatm.sgamesuat.com",
-        "https://l1uatm.sgamesuat.com",
-        "http://l1miniuat.sgamesuat.com",
-        "https://l1miniuat.sgamesuat.com",
-    ],
+    enableCorsWs: false,
+    corsUrls: ["https://sc2-games.sportsfun.app", "https://sc2-adm.sportsfun.app"],
     metrics: {
         enable: true,
         secretKey: "6c1f0f28-70f2-46ae-b031-22624a6cd8df",
     },
     enableMsgpackParser: true,
     marqueeDurations: {
-        intervalTimeInMinute: 0.5,
-        timeToDisplayMessageInMinute: 0.5,
-    },
-    promotionsDurations: {
-        delayTimeInMinutes: 1,
-    },
-    promotionNotificationDurations: {
-        delayTimeInMinutes: 1,
+        intervalTimeInMinute: 10,
+        timeToDisplayMessageInMinute: 2,
     },
 };

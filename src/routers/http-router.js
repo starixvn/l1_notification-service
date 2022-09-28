@@ -4,6 +4,7 @@ import { broadcastReload } from "../features/reload/reload-handler";
 import { handleUmRequest } from "../features/um/um-handler";
 import { handleMetrics } from "../features/metrics/metric-handler";
 import { getTotalClients, getDetailedClients } from "../features/socket-clients/socket-client-handler";
+import { notifyJackpotWinner } from "../features/jackpots/jackpot-handler";
 
 /**
  * @param {express.Express} app
@@ -15,6 +16,7 @@ const init = (app) => {
         audiences: appConfigs.authenticateSettings.audiences,
     };
 
+    app.post("/api/jackpotWinner", utils.authentication.useAuthenticate(authConfig), notifyJackpotWinner);
     app.post("/api/reload", utils.authentication.useAuthenticate(authConfig), broadcastReload);
     app.post("/api/um", utils.authentication.useAuthenticate(authConfig), handleUmRequest);
     app.get("/api/connectedClients", utils.authentication.useAuthenticate(authConfig), getTotalClients);
