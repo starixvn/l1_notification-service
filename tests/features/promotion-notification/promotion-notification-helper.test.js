@@ -1,5 +1,4 @@
 import { getEffectivePromotionNotifications } from "../../../src/features/promotion-notifications/promotion-notification-helper";
-import { getEffectivePromotions } from "../../../src/features/promotions/promotion-helper";
 
 describe("getEffectivePromotionNotifications", () => {
     describe("when effective promotion notifications", () => {
@@ -34,7 +33,6 @@ describe("getEffectivePromotionNotifications", () => {
 
             const expected = [
                 {
-                    gameId: 2,
                     isActive: true,
                     displayKind: 3,
                     enabled: true,

@@ -9,6 +9,7 @@ const schema = new mongoose.Schema({
     startTime: { type: Date },
     endTime: { type: Date },
     enabled: { type: Boolean },
+    gameId: { type: Number },
 });
 
 export default mongoose.model("notifications", schema);
