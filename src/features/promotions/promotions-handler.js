@@ -19,10 +19,10 @@ const proceed = async () => {
     setPromotions();
 };
 
-const getPromotions = async () => {
+const getPromotions = async (socketClient) => {
     const promotions = await promotionsRepository.getPromotions();
     const effectivePromotions = getEffectivePromotions(promotions);
-    proceedPromotionsMessage(effectivePromotions);
+    !!socketClient ? socketClient.emit("promotions", effectivePromotions) : proceedPromotionsMessage(effectivePromotions);
 };
 
 const proceedPromotionsMessage = (promotions) => SocketServerHandler.broadcastAll("promotions", promotions);

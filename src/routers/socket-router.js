@@ -1,8 +1,8 @@
 import { authenticate } from "../middleware/authorize-handler";
 import { findNotifications } from "../features/game-notifications";
 import * as socketClientHandler from "../features/socket-clients/socket-client-handler";
-import { getPromotionNotifications } from "../features/promotion-notifications/promotion-notification-handler";
-import { getPromotions } from "../features/promotions/promotions-handler";
+import * as promotionNotificationHandler from "../features/promotion-notifications/promotion-notification-handler";
+import * as promotionsHandler from "../features/promotions/promotions-handler";
 
 /**
  * @param {Socket} socketClient
@@ -27,8 +27,8 @@ const initSocketClient = (socketClient) => {
 
     socketClient.on("disconnect", () => socketClientHandler.disconnectUser(socketClient.id));
     socketClient.on(gameNotificationEvent, (payload) => findNotifications(emitMessage(gameNotificationEvent))(socketClient, payload));
-    socketClient.on(promotionNotificationsEvent, getPromotionNotifications);
-    socketClient.on(promotionsEvent, getPromotions);
+    socketClient.on(promotionNotificationsEvent, () => promotionNotificationHandler.getPromotionNotifications(socketClient));
+    socketClient.on(promotionsEvent, () => promotionsHandler.getPromotions(socketClient));
 };
 
 export { init };

@@ -23,13 +23,15 @@ const proceed = async () => {
     setPromotionNotifications();
 };
 
-const getPromotionNotifications = async () => {
+const getPromotionNotifications = async (socketClient) => {
     const notifications = await notificationRepository.getPromotionNotification(notificationType);
     const promotions = await promotionsRepository.getPromotions();
     const effectivePromotions = getEffectivePromotions(promotions);
     const effectivePromotionNotifications = getEffectivePromotionNotifications(notifications, effectivePromotions);
     effectivePromotionNotifications.sort((a, b) => b.startTime - a.startTime);
-    proceedNotificationMessage(effectivePromotionNotifications);
+    !!socketClient
+        ? socketClient.emit("promotionNotifications", effectivePromotionNotifications)
+        : proceedNotificationMessage(effectivePromotionNotifications);
 };
 
 const proceedNotificationMessage = (notifications) => SocketServerHandler.broadcastAll("promotionNotifications", notifications);
