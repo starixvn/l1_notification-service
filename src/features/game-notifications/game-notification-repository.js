@@ -5,7 +5,7 @@ import Notifications from "./notifications";
 export const find = curry((projection, callback, filter) => gameNotifications.find(filter, projection, callback));
 export const findWithProjection = find({ _id: false, __v: false, __archive: false });
 
-export const getPromotionNotification = async (notificationType) => {
+export const getPromotionNotification = (notificationType) => {
     const notificationFilter = {
         displayKind: notificationType,
         startTime: { $lte: new Date(Date.now()) },

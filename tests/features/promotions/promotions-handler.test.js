@@ -55,7 +55,7 @@ describe("Promotions Handler", () => {
             handler.setPromotions();
 
             // Assert
-            expect(global.setTimeout).toHaveBeenCalledTimes(2);
+            expect(global.setTimeout).toHaveBeenCalledTimes(1);
         });
     });
 

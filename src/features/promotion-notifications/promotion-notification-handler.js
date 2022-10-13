@@ -13,11 +13,11 @@ let promotionNotificationTimeout = 0;
 const setPromotionNotifications = () => {
     promotionNotificationTimeout = setTimeout(function repeat() {
         proceed();
-        promotionNotificationTimeout = setTimeout(repeat, delayTime);
     }, delayTime);
 };
 
 const proceed = async () => {
+    console.log("Get promotion notification at ", new Date(Date.now()));
     await getPromotionNotifications();
     clearTimeout(promotionNotificationTimeout);
     setPromotionNotifications();

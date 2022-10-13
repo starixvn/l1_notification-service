@@ -1,6 +1,6 @@
 import Promotions from "./promotions";
 
-const getPromotions = async () => {
+const getPromotions = () => {
     const promotionsFilter = {
         //startDateTime: { $lte: new Date(Date.now()) },
         //endDateTime: { $gte: new Date(Date.now()) },

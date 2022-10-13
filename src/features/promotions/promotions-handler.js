@@ -9,11 +9,11 @@ let promotionTimeout = 0;
 const setPromotions = () => {
     promotionTimeout = setTimeout(function repeat() {
         proceed();
-        promotionTimeout = setTimeout(repeat, delayTime);
     }, delayTime);
 };
 
 const proceed = async () => {
+    console.log("Get promotions at ", new Date(Date.now()));
     await getPromotions();
     clearTimeout(promotionTimeout);
     setPromotions();
