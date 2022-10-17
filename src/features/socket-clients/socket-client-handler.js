@@ -1,7 +1,12 @@
 import appConfigs from "../../app-configs";
 const socketClients = {};
+const instantGameSystemId = 3;
 
 const addClient = (socketClient, session) => {
+    if (session?.system == instantGameSystemId) {
+        return;
+    }
+
     const UID = session.userId;
     const existingSocketClient = getClientByUID(UID);
 
