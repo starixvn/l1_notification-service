@@ -51,4 +51,10 @@ export default {
         intervalTimeInMinute: 10,
         timeToDisplayMessageInMinute: 2,
     },
+    promotionsDurations: {
+        delayTimeInMinutes: 1,
+    },
+    promotionNotificationDurations: {
+        delayTimeInMinutes: 1,
+    },
 };
