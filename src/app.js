@@ -10,17 +10,18 @@ import { init as initBaseDatabase } from "sc-base-database";
 import { setMarquee } from "./features/marquee/marquee-handler";
 import { setPromotions } from "./features/promotions/promotions-handler";
 import { setPromotionNotifications } from "./features/promotion-notifications/promotion-notification-handler";
+import { registerErrorHandler } from "./middleware/error-handler";
 
 const run = async () => {
     const app = express();
     await configureServices(app);
     const httpServer = http.createServer(app);
     RouterConfig.init(app, httpServer);
+    registerErrorHandler(process);
 
     setMarquee();
     setPromotionNotifications();
     setPromotions();
-    middlewares.processErrorHandler.handle(httpServer, process);
 
     httpServer.listen(app.get("port"), async () => {
         console.log(`Express server started and running on port ${app.get("port")}!`);
