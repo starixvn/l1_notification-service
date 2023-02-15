@@ -10,7 +10,7 @@ import { init as initBaseDatabase } from "sc-base-database";
 import { setMarquee } from "./features/marquee/marquee-handler";
 import { setPromotions } from "./features/promotions/promotions-handler";
 import { setPromotionNotifications } from "./features/promotion-notifications/promotion-notification-handler";
-
+import { isAllowAccess, startCorsCron } from "./features/domain/cors-helper";
 const run = async () => {
     const app = express();
     await configureServices(app);
@@ -31,10 +31,10 @@ const run = async () => {
 };
 
 const configureServices = async (app) => {
-    const { corsUrls, hostingPort, enabledLogs, sentry } = appConfigs;
+    const { hostingPort, enabledLogs, sentry, disableCors } = appConfigs;
     const corsOptions = {
         origin: (origin, callback) => {
-            if (corsUrls.includes(origin) || !origin) {
+            if (disableCors || isAllowAccess(origin)) {
                 callback(null, true);
             } else {
                 callback(new Error(`Not allowed by CORS ${origin}`));
@@ -54,6 +54,7 @@ const configureServices = async (app) => {
     }
 
     await initBaseDatabase(appConfigs.database);
+    startCorsCron();
 };
 
 run();

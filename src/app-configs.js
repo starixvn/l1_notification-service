@@ -40,8 +40,6 @@ export default {
     authenticateSettings: {
         audiences: ["api", "admin-api", "game-services"],
     },
-    enableCorsWs: false,
-    corsUrls: ["http://localhost:7456", "https://games.lumigame.com", "http://localhost:7000"],
     metrics: {
         enable: true,
         secretKey: "6c1f0f28-70f2-46ae-b031-22624a6cd8df",

@@ -40,17 +40,6 @@ export default {
     userService: {
         url: "http://l1_user_service_sit:5000/",
     },
-    enableCorsWs: true,
-    corsUrls: [
-        "http://l1sit.sgamesuat.com",
-        "https://l1sit.sgamesuat.com",
-        "https://l1sitadm.sgamesuat.com",
-        "http://l1sitadm.sgamesuat.com",
-        "http://l1sitm.sgamesuat.com",
-        "https://l1sitm.sgamesuat.com",
-        "http://l1minisit.sgamesuat.com",
-        "https://l1minisit.sgamesuat.com",
-    ],
     metrics: {
         enable: true,
         secretKey: "6c1f0f28-70f2-46ae-b031-22624a6cd8df",

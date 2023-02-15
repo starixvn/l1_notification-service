@@ -24,7 +24,7 @@ export default {
     },
     enabledLogs: true,
     database: {
-        url: "mongodb://lmn_backend:LmnBackend@10.10.50.13:37104/?replicaSet=L2pLocal&appName=notificationservice",
+        url: "mongodb://lmn_backend:LmnBackend@10.10.50.12:39201,10.10.50.13:39201,10.10.50.14:39201/?replicaSet=L2pLocal&appName=notificationservice",
         options: {
             dbName: "minigame",
             useNewUrlParser: true,
@@ -40,18 +40,6 @@ export default {
     userService: {
         url: "http://l2_user_service_local_1:5000/",
     },
-    enableCorsWs: false,
-    corsUrls: [
-        "http://localhost:7456",
-        "http://l2-games.lumigame.com",
-        "https://l2-games.lumigame.com",
-        "http://l2-admin.lumigame.com",
-        "https://l2-admin.lumigame.com",
-        "http://localhost:7000",
-        "http://localhost:3000",
-        "http://l2-m.lumigame.com",
-        "https://l2-m.lumigame.com",
-    ],
     metrics: {
         enable: true,
         secretKey: "6c1f0f28-70f2-46ae-b031-22624a6cd8df",

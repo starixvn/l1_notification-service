@@ -10,7 +10,22 @@ describe("socketClientHandler", () => {
             id: chance.guid(),
             disconnect: jest.fn(),
         };
-        const session = UserSession();
+        const session = UserSession({ system: 1 });
+
+        it("should return when system is instantGame", () => {
+            // arrange
+            const sessionTest = UserSession({ system: 3 });
+            const existingSocketClient = {
+                id: chance.guid(),
+            };
+            const socketClientsData = handler.default.__get__("socketClients");
+
+            // act
+            handler.addClient(existingSocketClient, sessionTest);
+
+            // assert
+            expect(socketClientsData[existingSocketClient.id]).toBeUndefined();
+        });
 
         describe("when have existing client with same UID", () => {
             const existingSocketClient = {

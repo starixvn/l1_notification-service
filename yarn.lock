@@ -2418,6 +2418,13 @@ cors@^2.8.5, cors@~2.8.5:
     object-assign "^4"
     vary "^1"
 
+cron@^1.8.2:
+  version "1.8.3"
+  resolved "http://npm.lumigame.com/cron/-/cron-1.8.3.tgz#2a61d7b15848716885834ec56ac072f4b9744ebd"
+  integrity sha512-JYR/QZFklJCIPndBLfd/2nU1nSlCMrUdtQ2mGLXSVM/qqqEK7DOrFR0gsEiyeqs0PdWrs0ve1ggH4V7XksDwXg==
+  dependencies:
+    luxon "^1.23.x"
+
 cross-spawn@^6.0.0:
   version "6.0.5"
   resolved "https://npm.lumigame.com/cross-spawn/-/cross-spawn-6.0.5.tgz"
@@ -4689,6 +4696,11 @@ lru_map@^0.3.3:
   version "0.3.3"
   resolved "https://npm.lumigame.com/lru_map/-/lru_map-0.3.3.tgz"
   integrity sha1-tcg1G5Rky9dQM1p5ZQoOwOVhGN0=
+
+luxon@^1.23.x:
+  version "1.28.1"
+  resolved "http://npm.lumigame.com/luxon/-/luxon-1.28.1.tgz#528cdf3624a54506d710290a2341aa8e6e6c61b0"
+  integrity sha512-gYHAa180mKrNIUJCbwpmD0aTu9kV0dREDrwNnuyFAsO1Wt0EVYSZelPnJlbj9HplzXX/YWXHFTL45kvZ53M0pw==
 
 make-dir@^3.0.0:
   version "3.1.0"

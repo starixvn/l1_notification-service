@@ -6,18 +6,22 @@ import * as HttpRouter from "./http-router";
 import * as SocketRouter from "./socket-router";
 import * as SocketServerHandler from "../features/socket-server/socket-server-handler";
 import MsgpackParser from "socket.io-msgpack-parser";
-
+import { isAllowAccess } from "../features/domain/cors-helper";
 /**
  * @param {express.Express} app
  * @param {http.Server} httpServer
  */
 export const init = (app, httpServer) => {
-    const { socketOptions, enableCorsWs, corsUrls } = appConfigs;
+    const { socketOptions, disableCors } = appConfigs;
     const opts = socketOptions ?? { pingInterval: 25 * 1000, pingTimeout: 60 * 1000 };
     opts.allowEIO3 = true;
-    opts.cors = {
-        origin: enableCorsWs ? corsUrls : "*",
-        credentials: true,
+    opts.allowRequest = (req, callback) => {
+        let allowAccess = false;
+        if (disableCors || isAllowAccess(req.headers.origin)) {
+            allowAccess = true;
+        }
+
+        callback(null, allowAccess);
     };
 
     if (appConfigs.enableMsgpackParser) {

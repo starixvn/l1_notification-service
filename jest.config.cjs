@@ -7,7 +7,7 @@ module.exports = async () => {
         },
         testEnvironment: "node",
         transformIgnorePatterns: [
-            "node_modules/(?!(sc-base-database|sc-common|sc-game-base|sc-base-apis|sc-api-client|jest-auto-fixture)/)",
+            "node_modules/(?!(sc-base-database|sc-common|sc-game-base|sc-base-apis|sc-api-client|jest-auto-fixture|cron)/)",
         ],
         coverageReporters: ["clover", "lcov", "text-summary", "cobertura", "text"],
         reporters: ["default", ["jest-junit", { outputDirectory: "coverage" }]],

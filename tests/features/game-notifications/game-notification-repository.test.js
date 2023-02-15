@@ -7,6 +7,9 @@ jest.mock("sc-base-database");
 jest.mock("../../../src/features/game-notifications/notifications");
 notifications.find = stubMongoose(notifications).find;
 
+const now = new Date("2020-01-01");
+jest.useFakeTimers().setSystemTime(now);
+
 describe("find", () => {
     describe("when called", () => {
         it("should execute the method of mongoose model", () => {
@@ -40,8 +43,8 @@ describe("getPromotionNotifications", () => {
         const notificationType = 3;
         const notificationFilter = {
             displayKind: notificationType,
-            startTime: { $lte: new Date(Date.now()) },
-            endTime: { $gte: new Date(Date.now()) },
+            startTime: { $lte: now },
+            endTime: { $gte: now },
             enabled: true,
         };
 
