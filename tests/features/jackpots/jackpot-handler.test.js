@@ -308,19 +308,40 @@ describe("jackpotHandler", () => {
         });
 
         describe("when session is valid and user is NOT excluded on game", () => {
-            it("should emit jackpotWinners to client", () => {
-                // Arrange
+            const partnerId = chance.string();
+            const siteName = chance.url();
+            const session = UserSession({ partnerId, siteName });
+            const client = {
+                session,
+                socketClient: { emit: jest.fn() },
+            };
+
+            beforeEach(() => {
                 handler.default.__get__("isExcludeOnGame").mockReturnValueOnce(false);
-                const client = {
-                    session: {},
-                    socketClient: { emit: jest.fn() },
-                };
+            });
 
-                // Act
-                sendJackpotWinnerWhenNotExcludedFunc(client, siteExclusions, payload);
+            describe("when is NOT offered game", () => {
+                it("should NOT call getOfferedGames ", async () => {
+                    // Arrange
+                    handler.default.__set__("getOfferedGames", jest.fn().mockResolvedValueOnce([]));
+                    // Act
+                    await sendJackpotWinnerWhenNotExcludedFunc(client, siteExclusions, payload);
 
-                // Assert
-                expect(client.socketClient.emit).toBeCalledWith("jackpotWinner", payload);
+                    // Assert
+                    expect(client.socketClient.emit).not.toBeCalled();
+                });
+            });
+
+            describe("when isOffered game", () => {
+                it("should call getOfferedGames ", async () => {
+                    // Arrange
+                    handler.default.__set__("getOfferedGames", jest.fn().mockResolvedValueOnce([payload.gameId]));
+                    // Act
+                    await sendJackpotWinnerWhenNotExcludedFunc(client, siteExclusions, payload);
+
+                    // Assert
+                    expect(client.socketClient.emit).toBeCalledWith("jackpotWinner", payload);
+                });
             });
         });
     });

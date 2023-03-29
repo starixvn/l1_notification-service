@@ -35,12 +35,15 @@ const sendAllUserExceptExclusionSite = async (payload) => {
     Object.values(clients).forEach((client) => sendJackpotWinnerWhenNotExcluded(client, siteExclusions, payload));
 };
 
-const sendJackpotWinnerWhenNotExcluded = (client, siteExclusions, payload) => {
+const sendJackpotWinnerWhenNotExcluded = async (client, siteExclusions, payload) => {
     const session = client.session;
     const { gameId } = payload;
 
     if (session && !isExcludeOnGame(session, gameId, siteExclusions)) {
-        client.socketClient.emit("jackpotWinner", payload);
+        const offeredGames = await getOfferedGames(session);
+        const isOffered = offeredGames.includes(gameId);
+
+        isOffered && client.socketClient.emit("jackpotWinner", payload);
     }
 };
 
