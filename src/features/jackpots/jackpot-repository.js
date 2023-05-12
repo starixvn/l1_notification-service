@@ -1,13 +1,12 @@
-import jackpots from "./jackpot";
+import mongoose from "mongoose";
+import jackpots, { schema } from "./jackpot";
 
-const getJackPotWinners = async (gameIds, limit) => {
+const getJackPotWinners = async (games, limit) => {
     const winnersFilter = {
         winnerName: { $exists: true },
-        gameId: { $in: gameIds },
     };
     const jackpotWinnersProjection = {
         _id: false,
-        gameId: true,
         pool: true,
         winnerName: true,
         amount: true,
@@ -17,23 +16,48 @@ const getJackPotWinners = async (gameIds, limit) => {
         hitTime: -1,
     };
 
-    return jackpots.find(winnersFilter, jackpotWinnersProjection, { sort, limit }).lean().exec();
+    const result = await Promise.all(
+        games.map((game) => {
+            const repository =
+                game.gameId === 29
+                    ? mongoose.models["jackpot"] ?? mongoose.model("jackpot", schema)
+                    : mongoose.models[`${game.gameName}_jackpot`] ?? jackpots(game.gameName);
+            return repository
+                .find(winnersFilter, { ...jackpotWinnersProjection, gameId: game.gameId, gameName: game.gameName }, { sort, limit })
+                .lean()
+                .exec();
+        })
+    );
+
+    return result.flat();
 };
 
-const getRunningPools = async (gameIds) => {
+const getRunningPools = async (games) => {
     const runningPoolsFilter = {
         winnerName: { $exists: false },
-        gameId: { $in: gameIds },
     };
 
     const projection = {
         _id: false,
-        gameId: true,
         pool: true,
         amount: true,
     };
+    
+    const result = await Promise.all(
+        games.map((game) => {
+            const repository =
+                game.gameId === 29
+                    ? mongoose.models["jackpot"] ?? mongoose.model("jackpot", schema)
+                    : mongoose.models[`${game.gameName}_jackpot`] ?? jackpots(game.gameName);
+            return repository
+                .find(runningPoolsFilter, { ...projection, gameId: game.gameId, gameName: game.gameName }, { sort, limit })
+                .lean()
+                .exec();
+        })
+    );
 
-    return jackpots.find(runningPoolsFilter, projection).lean().exec();
+    return result.flat();
 };
 
 export { getJackPotWinners, getRunningPools };
+

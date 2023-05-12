@@ -1,6 +1,6 @@
-import { logger } from "sc-common";
-import { userInfos } from "sc-base-database";
 import Joi from "joi";
+import { userInfos } from "sc-base-database";
+import { logger } from "sc-common";
 import * as socketClientHandler from "../socket-clients/socket-client-handler";
 import * as currencyRepository from "./currency-repository";
 import * as jackpotRepository from "./jackpot-repository";
@@ -64,7 +64,7 @@ const getOfferedGames = async (session) => {
         const gamesExcludedBySession = session.disableJackpotGames ? jackpotGames : [];
         const excludedGames = [...gamesExcludedBySite, ...gamesExcludedBySession];
 
-        return groupOfferGames?.filter((game) => !excludedGames.includes(game.gameId)).map((game) => game.gameId) ?? [];
+        return groupOfferGames?.filter((game) => !excludedGames.includes(game.gameId)) ?? [];
     }
 
     return [];

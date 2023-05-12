@@ -12,9 +12,10 @@ const getCurrencyGroup = async (groupId) => {
 };
 
 const getOfferedGames = async (groupId) => {
-    return CurrencyGroupGame.find({ groupId: new mongoose.Types.ObjectId(groupId), enabled: true }, "gameId")
+    return CurrencyGroupGame.find({ groupId: new mongoose.Types.ObjectId(groupId), enabled: true }, "gameId gameName")
         .lean()
         .exec();
 };
 
 export { getCurrency, getCurrencyGroup, getOfferedGames };
+
