@@ -50,7 +50,7 @@ const getRunningPools = async (games) => {
                     ? mongoose.models["jackpot"] ?? mongoose.model("jackpot", schema)
                     : mongoose.models[`${game.gameName}_jackpot`] ?? jackpots(game.gameName);
             return repository
-                .find(runningPoolsFilter, { ...projection, gameId: game.gameId, gameName: game.gameName }, { sort, limit })
+                .find(runningPoolsFilter, { ...projection, gameId: game.gameId, gameName: game.gameName })
                 .lean()
                 .exec();
         })

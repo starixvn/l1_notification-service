@@ -41,7 +41,7 @@ const sendJackpotWinnerWhenNotExcluded = async (client, siteExclusions, payload)
 
     if (session && !isExcludeOnGame(session, gameId, siteExclusions)) {
         const offeredGames = await getOfferedGames(session);
-        const isOffered = offeredGames.includes(gameId);
+        const isOffered = offeredGames.some(game => game.gameId === gameId);
 
         isOffered && client.socketClient.emit("jackpotWinner", payload);
     }
