@@ -1,10 +1,10 @@
+import Chance from "chance";
+import { stubMongoose } from "jest-micro-auto-stub";
 import mongoose from "mongoose";
-import { getCurrency, getCurrencyGroup, getOfferedGames } from "../../../src/features/jackpots/currency-repository";
 import currency from "../../../src/features/jackpots/currency";
 import currencyGroup from "../../../src/features/jackpots/currency-group";
 import currencyGroupGame from "../../../src/features/jackpots/currency-group-game";
-import { stubMongoose } from "jest-micro-auto-stub";
-import Chance from "chance";
+import { getCurrency, getCurrencyGroup, getOfferedGames } from "../../../src/features/jackpots/currency-repository";
 
 jest.mock("../../../src/features/jackpots/currency");
 jest.mock("../../../src/features/jackpots/currency-group");
@@ -52,7 +52,7 @@ describe("currencyRepository", () => {
             await getOfferedGames(groupId);
 
             // Assert
-            expect(currencyGroupGame.find).toBeCalledWith({ groupId: new mongoose.Types.ObjectId(groupId), enabled: true }, "gameId");
+            expect(currencyGroupGame.find).toBeCalledWith({ groupId: new mongoose.Types.ObjectId(groupId), enabled: true }, "gameId gameName");
         });
     });
 });

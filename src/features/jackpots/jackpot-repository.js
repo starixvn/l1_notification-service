@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-import jackpots, { schema } from "./jackpot";
+import jackpots from "./jackpot";
 
 const getJackPotWinners = async (games, limit) => {
     const winnersFilter = {
@@ -18,13 +17,19 @@ const getJackPotWinners = async (games, limit) => {
 
     const result = await Promise.all(
         games.map((game) => {
-            const repository =
-                game.gameId === 29
-                    ? mongoose.models["jackpot"] ?? mongoose.model("jackpot", schema)
-                    : mongoose.models[`${game.gameName}_jackpot`] ?? jackpots(game.gameName);
+            const repository = jackpots(game);
+
             return repository
-                .find(winnersFilter, { ...jackpotWinnersProjection, gameId: game.gameId, gameName: game.gameName }, { sort, limit })
-                .lean()
+                .aggregate([
+                    {
+                        $match: winnersFilter,
+                    },
+                    { $sort: sort },
+                    { $limit: limit },
+                    {
+                        $project: { ...jackpotWinnersProjection, gameId: game.gameId },
+                    },
+                ])
                 .exec();
         })
     );
@@ -42,16 +47,20 @@ const getRunningPools = async (games) => {
         pool: true,
         amount: true,
     };
-    
+
     const result = await Promise.all(
         games.map((game) => {
-            const repository =
-                game.gameId === 29
-                    ? mongoose.models["jackpot"] ?? mongoose.model("jackpot", schema)
-                    : mongoose.models[`${game.gameName}_jackpot`] ?? jackpots(game.gameName);
+            const repository = jackpots(game);
+            console.log(repository);
             return repository
-                .find(runningPoolsFilter, { ...projection, gameId: game.gameId, gameName: game.gameName })
-                .lean()
+                .aggregate([
+                    {
+                        $match: runningPoolsFilter,
+                    },
+                    {
+                        $project: { ...projection, gameId: game.gameId },
+                    },
+                ])
                 .exec();
         })
     );

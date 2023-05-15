@@ -16,7 +16,8 @@ export const schema = new mongoose.Schema({
     byPlayers: { type: Number, default: 0 },
 });
 
-
-export default function (gameName) {
-    return mongoose.model(`${gameName}_jackpot`, schema);
+export default function (game) {
+    return game.gameId === 29
+        ? mongoose.models["jackpot"] ?? mongoose.model("jackpot", schema)
+        : mongoose.models[`${game.gameName}_jackpot`] ?? mongoose.model(game.gameName);
 }

@@ -1,10 +1,10 @@
-import * as handler from "../../../src/features/jackpots/jackpot-handler";
-import { logger } from "sc-common";
-import { userInfos } from "sc-base-database";
 import { UserSession } from "jest-auto-fixture/src/models/index";
+import { userInfos } from "sc-base-database";
+import { logger } from "sc-common";
 import * as currencyRepository from "../../../src/features/jackpots/currency-repository";
-import * as partnerConfigRepository from "../../../src/features/jackpots/partner-config-repository";
+import * as handler from "../../../src/features/jackpots/jackpot-handler";
 import * as jackpotRepository from "../../../src/features/jackpots/jackpot-repository";
+import * as partnerConfigRepository from "../../../src/features/jackpots/partner-config-repository";
 import * as socketClientHandler from "../../../src/features/socket-clients/socket-client-handler";
 
 import Chance from "chance";
@@ -335,7 +335,7 @@ describe("jackpotHandler", () => {
             describe("when isOffered game", () => {
                 it("should call getOfferedGames ", async () => {
                     // Arrange
-                    handler.default.__set__("getOfferedGames", jest.fn().mockResolvedValueOnce([payload.gameId]));
+                    handler.default.__set__("getOfferedGames", jest.fn().mockResolvedValueOnce([{ gameId: payload.gameId }]));
                     // Act
                     await sendJackpotWinnerWhenNotExcludedFunc(client, siteExclusions, payload);
 
@@ -464,28 +464,41 @@ describe("jackpotHandler", () => {
             describe("when session.disableJackpotGames is false", () => {
                 it("should return group offered games which is not excluded on site", async () => {
                     // Arrange
-                    currencyRepository.getOfferedGames.mockResolvedValueOnce([{ gameId: 1 }, { gameId: 2 }, { gameId: 29 }]);
+                    const offeredGames = [
+                        { gameId: 1, gameName: "1" },
+                        { gameId: 3, gameName: "3" },
+                        { gameId: 29, gameName: "29" },
+                    ];
+                    currencyRepository.getOfferedGames.mockResolvedValueOnce(offeredGames);
                     handler.default.__get__("getGamesExcludedByPartnerSite").mockResolvedValueOnce([2]);
 
                     // Act
                     const actualResult = await getOfferedGamesFunc(session);
 
                     // Assert
-                    expect(actualResult).toStrictEqual([1, 2, 29]);
+                    expect(actualResult).toStrictEqual(offeredGames);
                 });
             });
 
             describe("when session.disableJackpotGames is true", () => {
                 it("should return group offered games which is not excluded on site and is not jackpot game", async () => {
                     // Arrange
-                    currencyRepository.getOfferedGames.mockResolvedValueOnce([{ gameId: 1 }, { gameId: 3 }, { gameId: 29 }]);
+                    const offeredGames = [
+                        { gameId: 1, gameName: "1" },
+                        { gameId: 3, gameName: "2" },
+                        { gameId: 29, gameName: "3" },
+                    ];
+                    currencyRepository.getOfferedGames.mockResolvedValueOnce(offeredGames);
                     handler.default.__get__("getGamesExcludedByPartnerSite").mockResolvedValueOnce([2]);
 
                     // Act
                     const actualResult = await getOfferedGamesFunc({ ...session, disableJackpotGames: true });
 
                     // Assert
-                    expect(actualResult).toStrictEqual([1, 3]);
+                    expect(actualResult).toStrictEqual([
+                        { gameId: 1, gameName: "1" },
+                        { gameId: 3, gameName: "2" },
+                    ]);
                 });
             });
         });
