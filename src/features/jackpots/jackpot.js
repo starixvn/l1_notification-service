@@ -19,5 +19,5 @@ export const schema = new mongoose.Schema({
 export default function (game) {
     return game.gameId === 29
         ? mongoose.models["jackpot"] ?? mongoose.model("jackpot", schema)
-        : mongoose.models[`${game.gameName}_jackpot`] ?? mongoose.model(game.gameName);
+        : mongoose.models[`${game.gameName}_jackpot`] ?? mongoose.model(`${game.gameName}_jackpot`, schema);
 }

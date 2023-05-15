@@ -103,7 +103,10 @@ const getJackpotWinnersMapAvatar = async (jackpotWinners) => {
 export const getWinners = async (socketClient, { limit }) => {
     const session = socketClientHandler.getClientSession(socketClient.id);
     const offeredGames = await getOfferedGames(session);
-    const jackpotWinners = await jackpotRepository.getJackPotWinners(offeredGames, limit);
+    const jackpotWinners = await jackpotRepository.getJackPotWinners(
+        offeredGames.filter((game) => game.stakeLevels.length > 0),
+        limit
+    );
 
     const result = await getJackpotWinnersMapAvatar(jackpotWinners);
 
@@ -114,7 +117,7 @@ export const getPools = async (socketClient) => {
     const session = socketClientHandler.getClientSession(socketClient.id);
     const offeredGames = await getOfferedGames(session);
 
-    const jackpotPools = await jackpotRepository.getRunningPools(offeredGames);
+    const jackpotPools = await jackpotRepository.getRunningPools(offeredGames.filter((game) => game.stakeLevels.length > 0));
 
     socketClient.emit("jackpotPools", jackpotPools);
 };

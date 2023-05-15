@@ -9,6 +9,7 @@ const Schema = new mongoose.Schema({
     maxBet: { type: Number },
     maxBetPerChoices: { type: Object },
     chips: { type: Array },
+    stakeLevels: { type: Array },
 });
 
 export default mongoose.model("currency_group_games", Schema);
