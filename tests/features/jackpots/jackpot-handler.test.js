@@ -41,6 +41,8 @@ describe("jackpotHandler", () => {
 
         it("should call getClientSession", async () => {
             // Act
+            const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
+            getOfferedGamesFunc.mockResolvedValueOnce([]);
             await handler.getWinners(socketClient, { limit });
 
             // Assert
@@ -50,6 +52,7 @@ describe("jackpotHandler", () => {
         it("should call getOfferGames", async () => {
             // Arrange
             const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
+            getOfferedGamesFunc.mockResolvedValueOnce([]);
 
             // Act
             await handler.getWinners(socketClient, { limit });
@@ -60,7 +63,8 @@ describe("jackpotHandler", () => {
 
         it("should call jackpotRepository.getJackpotWinners", async () => {
             //Arrange
-            const offerGames = chance.unique(chance.integer, chance.integer({ min: 0, max: 100 }), { min: 0, max: 100 });
+            const offerGameIds = chance.unique(chance.integer, chance.integer({ min: 0, max: 100 }), { min: 0, max: 100 });
+            const offerGames = offerGameIds.map((gameId) => ({ gameId, stakeLevels: [{}, {}, {}] }));
             const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
             getOfferedGamesFunc.mockResolvedValueOnce(offerGames);
 
@@ -73,6 +77,8 @@ describe("jackpotHandler", () => {
 
         it("should call getJackpotWinnersMapAvatar", async () => {
             // Arrange
+            const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
+            getOfferedGamesFunc.mockResolvedValueOnce([]);
             const getJackpotWinnersMapAvatarFunc = handler.default.__get__("getJackpotWinnersMapAvatar");
             const winners = getFakeJackpotWinners();
             jackpotRepository.getJackPotWinners.mockResolvedValueOnce(winners);
@@ -86,6 +92,8 @@ describe("jackpotHandler", () => {
 
         it("should emit jackpotWinners to client", async () => {
             // Arrange
+            const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
+            getOfferedGamesFunc.mockResolvedValueOnce([]);
             const winners = getFakeJackpotWinners();
             const getJackpotWinnersMapAvatarFunc = handler.default.__get__("getJackpotWinnersMapAvatar");
             getJackpotWinnersMapAvatarFunc.mockResolvedValueOnce(winners);
@@ -106,6 +114,8 @@ describe("jackpotHandler", () => {
 
         it("should call getClientSession", async () => {
             // Act
+            const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
+            getOfferedGamesFunc.mockResolvedValueOnce([]);
             await handler.getPools(socketClient);
 
             // Assert
@@ -115,6 +125,7 @@ describe("jackpotHandler", () => {
         it("should call getOfferGames", async () => {
             // Arrange
             const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
+            getOfferedGamesFunc.mockResolvedValueOnce([]);
 
             // Act
             await handler.getPools(socketClient);
@@ -125,7 +136,8 @@ describe("jackpotHandler", () => {
 
         it("should call jackpotRepository.getRunningPools", async () => {
             // Arrange
-            const offerGames = chance.unique(chance.integer, chance.integer({ min: 0, max: 100 }), { min: 0, max: 100 });
+            const offerGameIds = chance.unique(chance.integer, chance.integer({ min: 0, max: 100 }), { min: 0, max: 100 });
+            const offerGames = offerGameIds.map((gameId) => ({ gameId, stakeLevels: [{}, {}, {}] }));
             handler.default.__get__("getOfferedGames").mockResolvedValueOnce(offerGames);
 
             // Act
@@ -137,6 +149,8 @@ describe("jackpotHandler", () => {
 
         it("should emit jackpotPools to client", async () => {
             // Arrange
+            const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
+            getOfferedGamesFunc.mockResolvedValueOnce([]);
             const numOfPools = chance.integer({ min: 1, max: 10 });
             const runningPools = [...new Array(numOfPools)].map(() => ({
                 gameId: chance.integer({ min: 1, max: 100 }),

@@ -38,7 +38,6 @@ const sendAllUserExceptExclusionSite = async (payload) => {
 const sendJackpotWinnerWhenNotExcluded = async (client, siteExclusions, payload) => {
     const session = client.session;
     const { gameId } = payload;
-    console.log(session && !isExcludeOnGame(session, gameId, siteExclusions));
     if (session && !isExcludeOnGame(session, gameId, siteExclusions)) {
         const offeredGames = await getOfferedGames(session);
         const isOffered = offeredGames.some((game) => game.gameId === gameId);
@@ -104,7 +103,7 @@ export const getWinners = async (socketClient, { limit }) => {
     const session = socketClientHandler.getClientSession(socketClient.id);
     const offeredGames = await getOfferedGames(session);
     const jackpotWinners = await jackpotRepository.getJackPotWinners(
-        offeredGames.filter((game) => game.stakeLevels.length > 0),
+        offeredGames.filter((game) => game.stakeLevels?.length > 0),
         limit
     );
 
@@ -117,7 +116,7 @@ export const getPools = async (socketClient) => {
     const session = socketClientHandler.getClientSession(socketClient.id);
     const offeredGames = await getOfferedGames(session);
 
-    const jackpotPools = await jackpotRepository.getRunningPools(offeredGames.filter((game) => game.stakeLevels.length > 0));
+    const jackpotPools = await jackpotRepository.getRunningPools(offeredGames.filter((game) => game.stakeLevels?.length > 0));
 
     socketClient.emit("jackpotPools", jackpotPools);
 };

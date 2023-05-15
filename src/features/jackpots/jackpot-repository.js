@@ -27,7 +27,10 @@ const getJackPotWinners = async (games, limit) => {
                     { $sort: sort },
                     { $limit: limit },
                     {
-                        $project: { ...jackpotWinnersProjection, gameId: game.gameId },
+                        $project: { ...jackpotWinnersProjection },
+                    },
+                    {
+                        $addFields: { gameId: game.gameId },
                     },
                 ])
                 .exec();
@@ -51,7 +54,6 @@ const getRunningPools = async (games) => {
     const result = await Promise.all(
         games.map((game) => {
             const repository = jackpots(game);
-            console.log(repository);
             return repository
                 .aggregate([
                     {
@@ -59,6 +61,9 @@ const getRunningPools = async (games) => {
                     },
                     {
                         $project: { ...projection, gameId: game.gameId },
+                    },
+                    {
+                        $addFields: { gameId: game.gameId },
                     },
                 ])
                 .exec();
