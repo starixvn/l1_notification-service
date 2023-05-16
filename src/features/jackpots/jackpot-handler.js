@@ -112,11 +112,13 @@ export const getWinners = async (socketClient, { limit }) => {
     socketClient.emit("jackpotWinners", result);
 };
 
-export const getPools = async (socketClient) => {
+export const getPools = async (socketClient, payload) => {
     const session = socketClientHandler.getClientSession(socketClient.id);
     const offeredGames = await getOfferedGames(session);
 
-    const jackpotPools = await jackpotRepository.getRunningPools(offeredGames.filter((game) => game.stakeLevels?.length > 0));
+    const jackpotPools = await jackpotRepository.getRunningPools(
+        offeredGames.filter((game) => game.stakeLevels?.length > 0 && (!payload?.gameId || game.gameId === payload.gameId))
+    );
 
     socketClient.emit("jackpotPools", jackpotPools);
 };
