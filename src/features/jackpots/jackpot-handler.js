@@ -120,7 +120,7 @@ export const getPools = async (socketClient, payload) => {
         offeredGames.filter((game) => game.stakeLevels?.length > 0 && (!payload?.gameId || game.gameId === payload.gameId))
     );
 
-    socketClient.emit("jackpotPools", jackpotPools);
+    socketClient.emit(payload?.gameId ? "jackpotPoolsOnGame" : "jackpotPools", jackpotPools);
 };
 
 export const notifyJackpotWinner = (req, res) => {
