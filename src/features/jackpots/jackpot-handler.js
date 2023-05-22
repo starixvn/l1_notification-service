@@ -38,7 +38,7 @@ const sendAllUserExceptExclusionSite = async (payload) => {
 const sendJackpotWinnerWhenNotExcluded = async (client, siteExclusions, payload) => {
     const session = client.session;
     const { gameId } = payload;
-    if (session && !isExcludeOnGame(session, gameId, siteExclusions)) {
+    if (session && !isExcludeOnGame(session, gameId, siteExclusions) && !session.disableJackpotGames) {
         const offeredGames = await getOfferedGames(session);
         const isOffered = offeredGames.some((game) => game.gameId === gameId);
 
@@ -102,10 +102,12 @@ const getJackpotWinnersMapAvatar = async (jackpotWinners) => {
 export const getWinners = async (socketClient, { limit }) => {
     const session = socketClientHandler.getClientSession(socketClient.id);
     const offeredGames = await getOfferedGames(session);
-    const jackpotWinners = await jackpotRepository.getJackPotWinners(
-        offeredGames.filter((game) => game.stakeLevels?.length > 0),
-        limit
-    );
+    const jackpotWinners = session.disableJackpotGames
+        ? []
+        : await jackpotRepository.getJackPotWinners(
+              offeredGames.filter((game) => game.stakeLevels?.length > 0),
+              limit
+          );
 
     const result = await getJackpotWinnersMapAvatar(jackpotWinners);
 
@@ -116,9 +118,11 @@ export const getPools = async (socketClient, payload) => {
     const session = socketClientHandler.getClientSession(socketClient.id);
     const offeredGames = await getOfferedGames(session);
 
-    const jackpotPools = await jackpotRepository.getRunningPools(
-        offeredGames.filter((game) => game.stakeLevels?.length > 0 && (!payload?.gameId || game.gameId === payload.gameId))
-    );
+    const jackpotPools = session.disableJackpotGames
+        ? []
+        : await jackpotRepository.getRunningPools(
+              offeredGames.filter((game) => game.stakeLevels?.length > 0 && (!payload?.gameId || game.gameId === payload.gameId))
+          );
 
     socketClient.emit(payload?.gameId ? "jackpotPoolsOnGame" : "jackpotPools", jackpotPools);
 };
