@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 
-export const schema = new mongoose.Schema({
+const schema = new mongoose.Schema({
+    gameId: { type: Number, required: true },
+    gameName: { type: String, required: true },
     pool: { type: Number, required: true },
     initAmount: { type: Number, required: true },
     amount: { type: Number, default: 0 },
@@ -16,8 +18,4 @@ export const schema = new mongoose.Schema({
     byPlayers: { type: Number, default: 0 },
 });
 
-export default function (game) {
-    return game.gameId === 29
-        ? mongoose.models["jackpot"] ?? mongoose.model("jackpot", schema)
-        : mongoose.models[`${game.gameName}_jackpot`] ?? mongoose.model(`${game.gameName}_jackpot`, schema);
-}
+export default mongoose.model("Jackpot", schema);

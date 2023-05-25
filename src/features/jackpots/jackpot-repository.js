@@ -1,11 +1,13 @@
 import jackpots from "./jackpot";
 
-const getJackPotWinners = async (games, limit) => {
+const getJackPotWinners = async (gameIds, limit) => {
     const winnersFilter = {
         winnerName: { $exists: true },
+        gameId: { $in: gameIds },
     };
     const jackpotWinnersProjection = {
         _id: false,
+        gameId: true,
         pool: true,
         winnerName: true,
         amount: true,
@@ -15,63 +17,23 @@ const getJackPotWinners = async (games, limit) => {
         hitTime: -1,
     };
 
-    const result = await Promise.all(
-        games.map((game) => {
-            const repository = jackpots(game);
-
-            return repository
-                .aggregate([
-                    {
-                        $match: winnersFilter,
-                    },
-                    { $sort: sort },
-                    { $limit: limit },
-                    {
-                        $project: { ...jackpotWinnersProjection },
-                    },
-                    {
-                        $addFields: { gameId: game.gameId },
-                    },
-                ])
-                .exec();
-        })
-    );
-
-    return result.flat();
+    return jackpots.find(winnersFilter, jackpotWinnersProjection, { sort, limit }).lean().exec();
 };
 
-const getRunningPools = async (games) => {
+const getRunningPools = async (gameIds) => {
     const runningPoolsFilter = {
         winnerName: { $exists: false },
+        gameId: { $in: gameIds },
     };
 
     const projection = {
         _id: false,
+        gameId: true,
         pool: true,
         amount: true,
     };
 
-    const result = await Promise.all(
-        games.map((game) => {
-            const repository = jackpots(game);
-            return repository
-                .aggregate([
-                    {
-                        $match: runningPoolsFilter,
-                    },
-                    {
-                        $project: { ...projection, gameId: game.gameId },
-                    },
-                    {
-                        $addFields: { gameId: game.gameId },
-                    },
-                ])
-                .exec();
-        })
-    );
-
-    return result.flat();
+    return jackpots.find(runningPoolsFilter, projection).lean().exec();
 };
 
 export { getJackPotWinners, getRunningPools };
-

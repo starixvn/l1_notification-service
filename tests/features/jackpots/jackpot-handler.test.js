@@ -13,7 +13,10 @@ import { stubMongoose } from "jest-micro-auto-stub";
 jest.mock("../../../src/features/jackpots/currency-repository");
 jest.mock("../../../src/features/jackpots/partner-config-repository");
 jest.mock("../../../src/features/jackpots/jackpot-repository");
-jest.mock("../../../src/features/socket-clients/socket-client-handler");
+jest.mock("../../../src/features/socket-clients/socket-client-handler", () => ({
+    getClientSession: jest.fn(),
+    getClients: jest.fn(),
+}));
 jest.mock("sc-common");
 userInfos.find = stubMongoose(userInfos).find;
 
@@ -21,7 +24,11 @@ const chance = new Chance();
 const socketClient = {
     id: chance.guid(),
     emit: jest.fn(),
+    session: {
+        disableJackpotGames: false,
+    },
 };
+socketClientHandler.getClientSession.mockReturnValue(socketClient.session);
 
 describe("jackpotHandler", () => {
     beforeEach(() => {
@@ -36,7 +43,6 @@ describe("jackpotHandler", () => {
             jackpotRepository.getJackPotWinners = jest.fn();
             handler.default.__set__("getOfferedGames", jest.fn());
             handler.default.__set__("getJackpotWinnersMapAvatar", jest.fn());
-            socketClientHandler.getClientSession = jest.fn().mockReturnValueOnce(socketClient.session);
         });
 
         it("should call getClientSession", async () => {
@@ -72,7 +78,7 @@ describe("jackpotHandler", () => {
             await handler.getWinners(socketClient, { limit });
 
             // Assert
-            expect(jackpotRepository.getJackPotWinners).toBeCalledWith(offerGames, limit);
+            expect(jackpotRepository.getJackPotWinners).toBeCalledWith(offerGameIds, limit);
         });
 
         it("should call getJackpotWinnersMapAvatar", async () => {
@@ -144,7 +150,7 @@ describe("jackpotHandler", () => {
             await handler.getPools(socketClient);
 
             // Assert
-            expect(jackpotRepository.getRunningPools).toBeCalledWith(offerGames);
+            expect(jackpotRepository.getRunningPools).toBeCalledWith(offerGameIds);
         });
 
         it("should emit jackpotPools to client", async () => {
@@ -271,7 +277,6 @@ describe("jackpotHandler", () => {
         beforeEach(() => {
             handler.default.__set__("sendJackpotWinnerWhenNotExcluded", jest.fn());
             partnerConfigRepository.getSiteExclusions = jest.fn();
-            socketClientHandler.getClients = jest.fn();
         });
 
         it("should call partnerRepository.getSiteExclusions", async () => {

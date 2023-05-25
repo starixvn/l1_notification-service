@@ -1,76 +1,68 @@
 import Chance from "chance";
-import jackpot from "../../../src/features/jackpots/jackpot";
+import { stubMongoose } from "jest-micro-auto-stub";
+import jackpots from "../../../src/features/jackpots/jackpot";
 import { getJackPotWinners, getRunningPools } from "../../../src/features/jackpots/jackpot-repository";
 
-const jackpotRepository = {
-    aggregate: () => ({
-        exec: execMockFn,
-    }),
-};
-const execMockFn = jest.fn();
+jest.mock("../../../src/features/jackpots/jackpot");
+jackpots.find = stubMongoose(jackpots).find;
 
-jest.mock("../../../src/features/jackpots/jackpot", () => ({
-    __esModule: true,
-    default: jest.fn(),
-}));
 const chance = new Chance();
-
-beforeAll(() => {
-    jackpot.mockReturnValue(jackpotRepository);
-});
 
 describe("jackpotRepository", () => {
     describe("getJackPotWinners", () => {
         it("should call jackpots find", async () => {
             //Arrange
-            const gameIds = [29];
-            const games = gameIds.map((x) => ({ gameId: x, gameName: x.toString() }));
+            const gameIds = chance.unique(chance.integer, chance.integer({ min: 0, max: 100 }), { min: 0, max: 100 });
             const limit = chance.integer({ min: 0, max: 500 });
-            execMockFn.mockReturnValueOnce([
-                {
-                    amount: 5001.875,
-                    pool: 1,
-                    winnerName: "lele60008",
-                    winningRatio: 0.98,
-                },
-            ]);
+
             // Act
-            const result = await getJackPotWinners(games, limit);
+            await getJackPotWinners(gameIds, limit);
 
             // Assert
-            expect(result).toContainEqual({
-                amount: 5001.875,
-                pool: 1,
-                winnerName: "lele60008",
-                winningRatio: 0.98,
-            });
+            expect(jackpots.find).toBeCalledWith(
+                {
+                    winnerName: { $exists: true },
+                    gameId: { $in: gameIds },
+                },
+                {
+                    _id: false,
+                    gameId: true,
+                    pool: true,
+                    winnerName: true,
+                    amount: true,
+                    winningRatio: true,
+                },
+                {
+                    sort: {
+                        hitTime: -1,
+                    },
+                    limit,
+                }
+            );
         });
     });
 
     describe("getRunningPools", () => {
         it("should call jackpots find", async () => {
             // Arrange
-            const gameIds = [29];
-            const expectedPools = [
-                {
-                    amount: 5001.875,
-                    pool: 1,
-                },
-                {
-                    amount: 50008,
-                    pool: 10,
-                },
-                {
-                    amount: 500018,
-                    pool: 50,
-                },
-            ];
-            execMockFn.mockReturnValueOnce(expectedPools);
+            const gameIds = chance.unique(chance.integer, chance.integer({ min: 0, max: 100 }), { min: 0, max: 100 });
+
             // Act
-            const result = await getRunningPools(gameIds);
+            await getRunningPools(gameIds);
 
             // Assert
-            expect(result).toEqual(expectedPools);
+            expect(jackpots.find).toBeCalledWith(
+                {
+                    winnerName: { $exists: false },
+                    gameId: { $in: gameIds },
+                },
+                {
+                    _id: false,
+                    gameId: true,
+                    pool: true,
+                    amount: true,
+                }
+            );
         });
     });
 });
