@@ -6,7 +6,6 @@ import * as handler from "../../../src/features/jackpots/jackpot-handler";
 import * as jackpotRepository from "../../../src/features/jackpots/jackpot-repository";
 import * as partnerConfigRepository from "../../../src/features/jackpots/partner-config-repository";
 import * as socketClientHandler from "../../../src/features/socket-clients/socket-client-handler";
-
 import Chance from "chance";
 import { stubMongoose } from "jest-micro-auto-stub";
 
@@ -110,6 +109,21 @@ describe("jackpotHandler", () => {
             // Assert
             expect(socketClient.emit).toBeCalledWith("jackpotWinners", winners);
         });
+
+        it("should emit jackpotWinners without winners to client", async () => {
+            // Arrange
+            socketClientHandler.getClientSession.mockReturnValueOnce({ disableJackpotGames: true });
+            const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
+            getOfferedGamesFunc.mockResolvedValueOnce([]);
+            const getJackpotWinnersMapAvatarFunc = handler.default.__get__("getJackpotWinnersMapAvatar");
+            getJackpotWinnersMapAvatarFunc.mockResolvedValueOnce(undefined);
+
+            // Act
+            await handler.getWinners(socketClient, { limit });
+
+            // Assert
+            expect(socketClient.emit).toBeCalledWith("jackpotWinners", undefined);
+        });
     });
 
     describe("getPools", () => {
@@ -170,6 +184,41 @@ describe("jackpotHandler", () => {
 
             // Assert
             expect(socketClient.emit).toBeCalledWith("jackpotPools", runningPools);
+        });
+
+        it("should emit jackpotPoolsOnGame to client", async () => {
+            // Arrange
+            socketClientHandler.getClientSession.mockReturnValueOnce({ disableJackpotGames: true });
+            const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
+            const payload = { gameId: 2 };
+            getOfferedGamesFunc.mockResolvedValueOnce([]);
+
+            // Act
+            await handler.getPools(socketClient, payload);
+
+            // Assert
+            expect(socketClient.emit).toBeCalledWith("jackpotPoolsOnGame", []);
+        });
+
+        it("should emit jackpotPoolsOnGame with jackpotPools to client", async () => {
+            // Arrange
+            const payload = { gameId: 2 };
+            const offerGameIds = chance.unique(chance.integer, chance.integer({ min: 0, max: 100 }), { min: 0, max: 100 });
+            const offerGames = offerGameIds.map((gameId) => ({ gameId, stakeLevels: [{}, {}, {}] }));
+            handler.default.__get__("getOfferedGames").mockResolvedValueOnce(offerGames);
+            const numOfPools = chance.integer({ min: 1, max: 10 });
+            const jackpotPools = [...new Array(numOfPools)].map(() => ({
+                stakeLevels: [{ stake: 1, jackpot: 5000, botRatio: 40 }],
+                gameId: chance.integer({ min: 1, max: 100 }),
+                pool: chance.integer({ min: 1, max: 50 }),
+                amount: chance.natural(),
+            }));
+            jackpotRepository.getRunningPools.mockResolvedValueOnce(jackpotPools);
+            // Act
+            await handler.getPools(socketClient, payload);
+
+            // Assert
+            expect(socketClient.emit).toBeCalledWith("jackpotPoolsOnGame", jackpotPools);
         });
     });
 
@@ -388,13 +437,14 @@ describe("jackpotHandler", () => {
         describe("when is excluded", () => {
             it("should return true", () => {
                 // Arrange
-                const siteExclusions = [{ partnerId: partnerId, value: [gameId] }];
+                const value = getFakeSiteValue(gameId, siteName);
+                const siteExclusions = [{ partnerId: partnerId, value: value }];
 
                 // Act
                 const actualResult = isExcludeOnGameFunc(session, gameId, siteExclusions);
 
                 // Assert
-                expect(actualResult).toBeFalsy();
+                expect(actualResult).toBeTruthy();
             });
         });
     });
@@ -629,4 +679,8 @@ const getFakeJackpotWinners = (isHavingAvatar = false) => {
         winnerName: chance.name_suffix(),
         avatarId: isHavingAvatar ? chance.integer({ min: 1, max: 100 }) : undefined,
     }));
+};
+
+const getFakeSiteValue = (number, siteName) => {
+    return [...new Array(number + 1)].map(() => [siteName]);
 };
