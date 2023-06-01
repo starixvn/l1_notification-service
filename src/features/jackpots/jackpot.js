@@ -16,6 +16,11 @@ const schema = new mongoose.Schema({
     hitAt: { type: Number },
     hitTime: { type: Date },
     byPlayers: { type: Number, default: 0 },
+
+    rate: { type: Number },
+    exchangeRateId: { type: Number },
+    operatorId: { type: String },
+    currency: { type: String },
 });
 
 export default mongoose.model("Jackpot", schema);

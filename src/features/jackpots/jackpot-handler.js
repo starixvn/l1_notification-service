@@ -3,6 +3,7 @@ import { userInfos } from "sc-base-database";
 import { logger } from "sc-common";
 import * as socketClientHandler from "../socket-clients/socket-client-handler";
 import * as currencyRepository from "./currency-repository";
+import { getExchangeRates } from "./exchange-rate-repository";
 import * as jackpotRepository from "./jackpot-repository";
 import * as partnerConfigRepository from "./partner-config-repository";
 
@@ -108,9 +109,10 @@ export const getWinners = async (socketClient, { limit }) => {
               offeredGames.filter((game) => game.stakeLevels?.length > 0).map((game) => game.gameId),
               limit
           );
-
+    const exchangeRates = await getExchangeRates(jackpotWinners.map((x) => x.exchangeRateId));
     const result = await getJackpotWinnersMapAvatar(jackpotWinners);
-
+    result.forEach((x) => (x.exchangeRateCode = exchangeRates.find((er) => x.exchangeRateId === er.exId)?.code));
+    
     socketClient.emit("jackpotWinners", result);
 };
 

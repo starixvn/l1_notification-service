@@ -1,4 +1,6 @@
+import Chance from "chance";
 import { UserSession } from "jest-auto-fixture/src/models/index";
+import { stubMongoose } from "jest-micro-auto-stub";
 import { userInfos } from "sc-base-database";
 import { logger } from "sc-common";
 import * as currencyRepository from "../../../src/features/jackpots/currency-repository";
@@ -6,8 +8,6 @@ import * as handler from "../../../src/features/jackpots/jackpot-handler";
 import * as jackpotRepository from "../../../src/features/jackpots/jackpot-repository";
 import * as partnerConfigRepository from "../../../src/features/jackpots/partner-config-repository";
 import * as socketClientHandler from "../../../src/features/socket-clients/socket-client-handler";
-import Chance from "chance";
-import { stubMongoose } from "jest-micro-auto-stub";
 
 jest.mock("../../../src/features/jackpots/currency-repository");
 jest.mock("../../../src/features/jackpots/partner-config-repository");
@@ -15,6 +15,9 @@ jest.mock("../../../src/features/jackpots/jackpot-repository");
 jest.mock("../../../src/features/socket-clients/socket-client-handler", () => ({
     getClientSession: jest.fn(),
     getClients: jest.fn(),
+}));
+jest.mock("../../../src/features/jackpots/exchange-rate-repository", () => ({
+    getExchangeRates: jest.fn(() => []),
 }));
 jest.mock("sc-common");
 userInfos.find = stubMongoose(userInfos).find;
@@ -28,6 +31,7 @@ const socketClient = {
     },
 };
 socketClientHandler.getClientSession.mockReturnValue(socketClient.session);
+jackpotRepository.getJackPotWinners = jest.fn(() => []);
 
 describe("jackpotHandler", () => {
     beforeEach(() => {
@@ -39,15 +43,21 @@ describe("jackpotHandler", () => {
         const limit = chance.integer({ min: 1, max: 500 });
 
         beforeEach(() => {
-            jackpotRepository.getJackPotWinners = jest.fn();
-            handler.default.__set__("getOfferedGames", jest.fn());
-            handler.default.__set__("getJackpotWinnersMapAvatar", jest.fn());
+            handler.default.__set__(
+                "getOfferedGames",
+                jest.fn(() => [])
+            );
+            handler.default.__set__(
+                "getJackpotWinnersMapAvatar",
+                jest.fn(() => [])
+            );
         });
 
         it("should call getClientSession", async () => {
             // Act
             const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
             getOfferedGamesFunc.mockResolvedValueOnce([]);
+            jackpotRepository.getJackPotWinners.mockResolvedValueOnce([]);
             await handler.getWinners(socketClient, { limit });
 
             // Assert
@@ -58,7 +68,7 @@ describe("jackpotHandler", () => {
             // Arrange
             const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
             getOfferedGamesFunc.mockResolvedValueOnce([]);
-
+            jackpotRepository.getJackPotWinners.mockResolvedValueOnce([]);
             // Act
             await handler.getWinners(socketClient, { limit });
 
@@ -72,7 +82,7 @@ describe("jackpotHandler", () => {
             const offerGames = offerGameIds.map((gameId) => ({ gameId, stakeLevels: [{}, {}, {}] }));
             const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
             getOfferedGamesFunc.mockResolvedValueOnce(offerGames);
-
+            jackpotRepository.getJackPotWinners.mockResolvedValueOnce([]);
             // Act
             await handler.getWinners(socketClient, { limit });
 
@@ -87,6 +97,7 @@ describe("jackpotHandler", () => {
             const getJackpotWinnersMapAvatarFunc = handler.default.__get__("getJackpotWinnersMapAvatar");
             const winners = getFakeJackpotWinners();
             jackpotRepository.getJackPotWinners.mockResolvedValueOnce(winners);
+            getJackpotWinnersMapAvatarFunc.mockResolvedValueOnce(winners);
 
             // Act
             await handler.getWinners(socketClient, { limit });
@@ -101,6 +112,7 @@ describe("jackpotHandler", () => {
             getOfferedGamesFunc.mockResolvedValueOnce([]);
             const winners = getFakeJackpotWinners();
             const getJackpotWinnersMapAvatarFunc = handler.default.__get__("getJackpotWinnersMapAvatar");
+            jackpotRepository.getJackPotWinners.mockResolvedValueOnce(winners);
             getJackpotWinnersMapAvatarFunc.mockResolvedValueOnce(winners);
 
             // Act
@@ -116,13 +128,13 @@ describe("jackpotHandler", () => {
             const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
             getOfferedGamesFunc.mockResolvedValueOnce([]);
             const getJackpotWinnersMapAvatarFunc = handler.default.__get__("getJackpotWinnersMapAvatar");
-            getJackpotWinnersMapAvatarFunc.mockResolvedValueOnce(undefined);
+            getJackpotWinnersMapAvatarFunc.mockResolvedValueOnce([]);
 
             // Act
             await handler.getWinners(socketClient, { limit });
 
             // Assert
-            expect(socketClient.emit).toBeCalledWith("jackpotWinners", undefined);
+            expect(socketClient.emit).toBeCalledWith("jackpotWinners", []);
         });
     });
 

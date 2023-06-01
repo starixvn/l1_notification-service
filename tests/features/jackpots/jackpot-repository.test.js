@@ -31,6 +31,7 @@ describe("jackpotRepository", () => {
                     winnerName: true,
                     amount: true,
                     winningRatio: true,
+                    exchangeRateId: true,
                 },
                 {
                     sort: {

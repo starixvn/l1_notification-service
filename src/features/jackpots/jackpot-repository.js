@@ -12,6 +12,7 @@ const getJackPotWinners = async (gameIds, limit) => {
         winnerName: true,
         amount: true,
         winningRatio: true,
+        exchangeRateId: true,
     };
     const sort = {
         hitTime: -1,
@@ -37,3 +38,4 @@ const getRunningPools = async (gameIds) => {
 };
 
 export { getJackPotWinners, getRunningPools };
+
