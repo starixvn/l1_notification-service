@@ -96,7 +96,14 @@ const getJackpotWinnersMapAvatar = async (jackpotWinners) => {
         const avatarId = avatars.find((avatar) => avatar.name === winner.winnerName)?.avatarId ?? 0;
         const winningAmount = winner.amount * winner.winningRatio;
 
-        return { gameId: winner.gameId, pool: winner.pool, amount: winningAmount, winnerName: winner.winnerName, avatarId };
+        return {
+            gameId: winner.gameId,
+            pool: winner.pool,
+            amount: winningAmount,
+            winnerName: winner.winnerName,
+            avatarId,
+            exchangeRateId: winner.exchangeRateId,
+        };
     });
 };
 
