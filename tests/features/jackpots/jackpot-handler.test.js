@@ -28,6 +28,7 @@ const socketClient = {
     emit: jest.fn(),
     session: {
         disableJackpotGames: false,
+        currencyCode: "US"
     },
 };
 socketClientHandler.getClientSession.mockReturnValue(socketClient.session);

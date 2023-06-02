@@ -118,15 +118,15 @@ export const getWinners = async (socketClient, { limit }) => {
           );
     const exchangeRates = (await getExchangeRates(jackpotWinners.filter((x) => x.exchangeRateId).map((x) => x.exchangeRateId))).map(
         (rate) => {
-            for (const [key, value] of Object.entries(rate.code)) {
-                rate.code[key] = parseFloat(value);
-            }
+            rate.code[session.currencyCode] = parseFloat(rate.code[session.currencyCode]);
             return rate;
         }
     );
     const result = await getJackpotWinnersMapAvatar(jackpotWinners);
     for (const winner of result) {
-        winner.exchangeRateCode = exchangeRates.find((er) => winner.exchangeRateId === er.exId)?.code;
+        winner.exchangeRateCode = {
+            [session.currencyCode]: exchangeRates.find((er) => winner.exchangeRateId === er.exId)?.code[session.currencyCode],
+        };
     }
 
     socketClient.emit("jackpotWinners", result);
