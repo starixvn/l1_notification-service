@@ -116,7 +116,14 @@ export const getWinners = async (socketClient, { limit }) => {
               offeredGames.filter((game) => game.stakeLevels?.length > 0).map((game) => game.gameId),
               limit
           );
-    const exchangeRates = (await getExchangeRates(jackpotWinners.filter((x) => x.exchangeRateId).map((x) => x.exchangeRateId))).map(rate => rate.toJSON());
+    const exchangeRates = (await getExchangeRates(jackpotWinners.filter((x) => x.exchangeRateId).map((x) => x.exchangeRateId))).map(
+        (rate) => {
+            for (const [key, value] of Object.entries(rate.code)) {
+                rate.code[key] = parseFloat(value);
+            }
+            return rate;
+        }
+    );
     const result = await getJackpotWinnersMapAvatar(jackpotWinners);
     for (const winner of result) {
         winner.exchangeRateCode = exchangeRates.find((er) => winner.exchangeRateId === er.exId)?.code;
