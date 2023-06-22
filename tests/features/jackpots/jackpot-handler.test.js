@@ -11,7 +11,10 @@ import * as socketClientHandler from "../../../src/features/socket-clients/socke
 
 jest.mock("../../../src/features/jackpots/currency-repository");
 jest.mock("../../../src/features/jackpots/partner-config-repository");
-jest.mock("../../../src/features/jackpots/jackpot-repository");
+jest.mock("../../../src/features/jackpots/jackpot-repository", () => ({
+    getRunningPools: jest.fn(() => []),
+    getJackPotWinners: jest.fn(() => [])
+}));
 jest.mock("../../../src/features/socket-clients/socket-client-handler", () => ({
     getClientSession: jest.fn(),
     getClients: jest.fn(),
@@ -28,11 +31,10 @@ const socketClient = {
     emit: jest.fn(),
     session: {
         disableJackpotGames: false,
-        currencyCode: "US"
+        currencyCode: "US",
     },
 };
 socketClientHandler.getClientSession.mockReturnValue(socketClient.session);
-jackpotRepository.getJackPotWinners = jest.fn(() => []);
 
 describe("jackpotHandler", () => {
     beforeEach(() => {
@@ -141,7 +143,6 @@ describe("jackpotHandler", () => {
 
     describe("getPools", () => {
         beforeEach(() => {
-            jackpotRepository.getRunningPools = jest.fn();
             handler.default.__set__("getOfferedGames", jest.fn());
         });
 

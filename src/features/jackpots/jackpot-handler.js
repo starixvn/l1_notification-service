@@ -107,9 +107,12 @@ const getJackpotWinnersMapAvatar = async (jackpotWinners) => {
     });
 };
 
-const updateFourGuardianRecords = (records) => {
-    for (const record of records) {
-        record.amount *= 1000;
+const updateFourGuardianRecords = async (records) => {
+    if (records.length > 0) {
+        const currency = await currencyRepository.getCurrency("INH", "ONEworksVGCash");
+        for (const record of records) {
+            record.amount *= currency.multiplier;
+        }
     }
 };
 
@@ -128,7 +131,7 @@ export const getWinners = async (socketClient, { limit }) => {
             return rate;
         }
     );
-    updateFourGuardianRecords(jackpotWinners.filter((x) => x.gameId === jackpotGames[0]));
+    await updateFourGuardianRecords(jackpotWinners.filter((x) => x.gameId === jackpotGames[0]));
 
     const result = await getJackpotWinnersMapAvatar(jackpotWinners);
     for (const winner of result) {
@@ -151,7 +154,7 @@ export const getPools = async (socketClient, payload) => {
                   .filter((game) => game.stakeLevels?.length > 0 && (!payload?.gameId || game.gameId === payload.gameId))
                   .map((game) => game.gameId)
           );
-    updateFourGuardianRecords(jackpotPools.filter((x) => x.gameId === jackpotGames[0]));
+    await updateFourGuardianRecords(jackpotPools.filter((x) => x.gameId === jackpotGames[0]));
 
     socketClient.emit(payload?.gameId ? "jackpotPoolsOnGame" : "jackpotPools", jackpotPools);
 };
