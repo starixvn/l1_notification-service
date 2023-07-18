@@ -42,7 +42,9 @@ const sendJackpotWinnerWhenNotExcluded = async (client, siteExclusions, payload)
     if (session && !isExcludeOnGame(session, gameId, siteExclusions) && !session.disableJackpotGames) {
         const offeredGames = await getOfferedGames(session);
         const isOffered = offeredGames.some((game) => game.gameId === gameId);
-
+        if (gameId === jackpotGames[0]) {
+            await updateFourGuardianRecords([payload]);
+        }
         isOffered && client.socketClient.emit("jackpotWinner", payload);
     }
 };
@@ -110,8 +112,10 @@ const getJackpotWinnersMapAvatar = async (jackpotWinners) => {
 const updateFourGuardianRecords = async (records) => {
     if (records.length > 0) {
         const currency = await currencyRepository.getCurrency("INH", "ONEworksVGCash");
-        for (const record of records) {
-            record.amount *= currency.multiplier;
+        if (currency) {
+            for (const record of records) {
+                record.amount *= currency.multiplier;
+            }
         }
     }
 };
