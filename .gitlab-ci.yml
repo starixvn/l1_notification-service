@@ -1,14 +1,4 @@
 include:
-    - project: "ci/repos-ci/pentagon_l1_notification_service"
-      ref: master
-      file: "gitlab-ci.yml"
-
-    - project: "ci/repos-ci/pentagon_l2_notification_service"
-      ref: master
-      file: "gitlab-ci-mixing.yml"
-
-unit-test-js:
-  artifacts:
-    reports:
-      junit: coverage/*.xml
-      cobertura: coverage/cobertura-coverage.xml
+  - project: ci/core-cicd
+    ref: main
+    file: luminet.gitlab-ci.yml
