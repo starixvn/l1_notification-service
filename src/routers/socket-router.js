@@ -4,6 +4,7 @@ import * as promotionNotificationHandler from "../features/promotion-notificatio
 import * as promotionsHandler from "../features/promotions/promotions-handler";
 import * as socketClientHandler from "../features/socket-clients/socket-client-handler";
 import { authenticate } from "../middleware/authorize-handler";
+import { getMiniCounterLatestData } from "../features/mini-counter/mini-counter-handler";
 
 /**
  * @param {Socket} socketClient
@@ -29,6 +30,7 @@ const initSocketClient = (socketClient) => {
     socketClient.on("getWinners", (payload) => JackpotHandler.getWinners(socketClient, payload));
     socketClient.on("getPools", (payload) => JackpotHandler.getPools(socketClient, payload));
     socketClient.on("disconnect", () => socketClientHandler.disconnectUser(socketClient.id));
+    socketClient.on("getMiniCounter", () => getMiniCounterLatestData(socketClient));
     socketClient.on(gameNotificationEvent, (payload) => findNotifications(emitMessage(gameNotificationEvent))(socketClient, payload));
     socketClient.on(promotionNotificationsEvent, () => promotionNotificationHandler.getPromotionNotifications(socketClient));
     socketClient.on(promotionsEvent, () => promotionsHandler.getPromotions(socketClient));
