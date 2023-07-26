@@ -5,6 +5,7 @@ import { handleUmRequest } from "../features/um/um-handler";
 import { handleMetrics } from "../features/metrics/metric-handler";
 import { getTotalClients, getDetailedClients } from "../features/socket-clients/socket-client-handler";
 import { notifyJackpotWinner } from "../features/jackpots/jackpot-handler";
+import { handleMiniCounterWatcherData } from "../features/mini-counter/mini-counter-handler";
 
 /**
  * @param {express.Express} app
@@ -20,6 +21,7 @@ const init = (app) => {
     app.post("/api/reload", utils.authentication.useAuthenticate(authConfig), broadcastReload);
     app.post("/api/um", utils.authentication.useAuthenticate(authConfig), handleUmRequest);
     app.get("/api/connectedClients", utils.authentication.useAuthenticate(authConfig), getTotalClients);
+    app.post("/api/miniCounter", utils.authentication.useAuthenticate(authConfig), handleMiniCounterWatcherData);
 
     app.get("/api/metrics", handleMetrics);
     app.get("/api/getDetailedClients", getDetailedClients);
