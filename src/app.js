@@ -11,6 +11,7 @@ import { setMarquee } from "./features/marquee/marquee-handler";
 import { setPromotions } from "./features/promotions/promotions-handler";
 import { setPromotionNotifications } from "./features/promotion-notifications/promotion-notification-handler";
 import { isAllowAccess, startCorsCron } from "./features/domain/cors-helper";
+
 const run = async () => {
     const app = express();
     await configureServices(app);

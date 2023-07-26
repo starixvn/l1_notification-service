@@ -9,19 +9,19 @@ export default {
     apiSettings: {
         enabledApi: true,
         apiUrl: "http://l1-api.lumigame.com",
-        authUrl: "http://l1-auth.lumigame.com",
+        authUrl: "https://auth.lumigame.com",
         client: {
             id: "game-server",
             secret: "gameserver@20luminet&",
         },
-        useAuthenticate: true,
+        useAuthenticate: false,
         requestTimeout: 10000,
         placeBetTimeout: 4500,
         enableApiLogs: true,
     },
     enabledLogs: true,
     database: {
-        url: "mongodb://lmn_backend:LmnBackend@10.10.50.12:39103,10.10.50.13:39103,10.10.50.14:39103/?replicaSet=L1pppLocal",
+        url: "mongodb://lmn_backend:LmnBackend@10.10.50.12:39100,10.10.50.13:39100,10.10.50.14:39100/?replicaSet=L1Local&appName=notificationservice",
         options: {
             dbName: "minigame",
             useNewUrlParser: true,
