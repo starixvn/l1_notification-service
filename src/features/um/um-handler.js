@@ -59,8 +59,8 @@ const stopUm = (umInfo) => {
     umCache = umCache?.filter(
         (um) =>
             um.startTime > Date.now() ||
-            um.isPartnerUm !== umInfo.isPartnerUm ||
-            (umInfo.isPartnerUm && !umInfo.partners.includes(um.partnerId))
+            um.isPartnerUm !== umInfo.IsPartnerUm ||
+            (umInfo.IsPartnerUm && !umInfo.Partners.includes(um.partnerId))
     );
 };
 
@@ -86,3 +86,4 @@ const handleUmRequest = (req, res) => {
 };
 
 export { handleUmRequest };
+
