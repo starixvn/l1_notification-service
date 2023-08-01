@@ -4,14 +4,14 @@ import * as socketClientHandler from "../socket-clients/socket-client-handler";
 let umCache = [];
 
 const getFormattedUmInfo = (umInfo) => {
-    const { StartTime, EndTime, IsPartnerUm, Partners } = umInfo;
+    const { startTime, endTime, isPartnerUm, partners } = umInfo;
 
     return {
-        startTime: StartTime ? new Date(StartTime) : StartTime,
-        endTime: EndTime ? new Date(EndTime) : EndTime,
-        isOperatorUm: IsPartnerUm,
-        isPartnerUm: IsPartnerUm,
-        partners: Partners,
+        startTime: startTime ? new Date(startTime) : startTime,
+        endTime: endTime ? new Date(endTime) : endTime,
+        isOperatorUm: isPartnerUm,
+        isPartnerUm: isPartnerUm,
+        partners: partners,
     };
 };
 
@@ -59,8 +59,8 @@ const stopUm = (umInfo) => {
     umCache = umCache?.filter(
         (um) =>
             um.startTime > Date.now() ||
-            um.isPartnerUm !== umInfo.IsPartnerUm ||
-            (umInfo.IsPartnerUm && !umInfo.Partners.includes(um.partnerId))
+            um.isPartnerUm !== umInfo.isPartnerUm ||
+            (umInfo.isPartnerUm && !umInfo.partners.includes(um.partnerId))
     );
 };
 
@@ -76,7 +76,7 @@ const handleUmRequest = (req, res) => {
     const umInfo = req.body;
 
     if (umInfo) {
-        umInfo.IsUM ? startUm(umInfo) : stopUm(umInfo);
+        umInfo.isUM ? startUm(umInfo) : stopUm(umInfo);
         res.send(umInfo);
     } else {
         res.send("Cannot parse request object");

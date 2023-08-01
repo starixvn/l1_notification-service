@@ -1,7 +1,7 @@
-import * as handler from "../../../src/features/um/um-handler";
+import Chance from "chance";
 import { logger } from "sc-common";
 import * as socketClientHandler from "../../../src/features/socket-clients/socket-client-handler";
-import Chance from "chance";
+import * as handler from "../../../src/features/um/um-handler";
 
 const chance = new Chance();
 jest.mock("sc-common");
@@ -75,7 +75,7 @@ describe("umHandler", () => {
             describe("when isUm true", () => {
                 it("should call startUm", () => {
                     // Arrange
-                    const request = { body: { IsUM: true } };
+                    const request = { body: { isUM: true } };
                     const startUmFunc = handler.default.__get__("startUm");
 
                     // Act
@@ -89,7 +89,7 @@ describe("umHandler", () => {
             describe("when isUm false", () => {
                 it("should call startUm", () => {
                     // Arrange
-                    const request = { body: { IsUM: false } };
+                    const request = { body: { isUM: false } };
                     const stopUmFunc = handler.default.__get__("stopUm");
 
                     // Act
@@ -397,7 +397,7 @@ describe("umHandler", () => {
         const getFormattedUmInfoFunc = handler.default.__get__("getFormattedUmInfo");
 
         describe("when startTime & endTime is valid", () => {
-            const umInfo = { IsPartnerUm: chance.bool(), StartTime: chance.date(), EndTime: chance.date() };
+            const umInfo = { isPartnerUm: chance.bool(), startTime: chance.date(), endTime: chance.date() };
 
             it("should return correct format", () => {
                 // Act
@@ -405,17 +405,17 @@ describe("umHandler", () => {
 
                 // Assert
                 expect(actualResult).toStrictEqual({
-                    startTime: new Date(umInfo.StartTime),
-                    endTime: new Date(umInfo.EndTime),
-                    isOperatorUm: umInfo.IsPartnerUm,
-                    isPartnerUm: umInfo.IsPartnerUm,
-                    partners: umInfo.Partners,
+                    startTime: new Date(umInfo.startTime),
+                    endTime: new Date(umInfo.endTime),
+                    isOperatorUm: umInfo.isPartnerUm,
+                    isPartnerUm: umInfo.isPartnerUm,
+                    partners: umInfo.partners,
                 });
             });
         });
 
         describe("when startTime & endTime is invalid", () => {
-            const umInfo = { IsPartnerUm: chance.bool() };
+            const umInfo = { isPartnerUm: chance.bool() };
 
             it("should return correct format", () => {
                 // Act
@@ -423,11 +423,11 @@ describe("umHandler", () => {
 
                 // Assert
                 expect(actualResult).toStrictEqual({
-                    startTime: umInfo.StartTime,
-                    endTime: umInfo.EndTime,
-                    isOperatorUm: umInfo.IsPartnerUm,
-                    isPartnerUm: umInfo.IsPartnerUm,
-                    partners: umInfo.Partners,
+                    startTime: umInfo.startTime,
+                    endTime: umInfo.endTime,
+                    isOperatorUm: umInfo.isPartnerUm,
+                    isPartnerUm: umInfo.isPartnerUm,
+                    partners: umInfo.partners,
                 });
             });
         });
