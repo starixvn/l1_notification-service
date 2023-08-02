@@ -22,7 +22,6 @@ const run = async () => {
     setPromotionNotifications();
     setPromotions();
     middlewares.processErrorHandler.handle(httpServer, process);
-
     httpServer.listen(app.get("port"), async () => {
         console.log(`Express server started and running on port ${app.get("port")}!`);
     });

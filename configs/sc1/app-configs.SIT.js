@@ -37,6 +37,9 @@ export default {
         logIdentifier: "notification-service",
         env: "SIT",
     },
+    roundWatcherService: {
+        url: "http://l1_round_watcher_service_sit:5000/",
+    },
     userService: {
         url: "http://l1_user_service_sit:5000/",
     },
