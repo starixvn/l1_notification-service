@@ -37,6 +37,9 @@ export default {
     userService: {
         url: "https://l1-proxy.lumigame.com/user/",
     },
+    roundWatcherService: {
+        url: "http://localhost:5000/",
+    },
     authenticateSettings: {
         audiences: ["api", "admin-api", "game-services"],
     },

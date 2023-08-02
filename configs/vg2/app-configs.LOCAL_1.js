@@ -40,6 +40,9 @@ export default {
     userService: {
         url: "http://l2_user_service_local_1:5000/",
     },
+    roundWatcherService: {
+        url: "http://l1_round_watcher_service_local_1:5000/",
+    },
     metrics: {
         enable: true,
         secretKey: "6c1f0f28-70f2-46ae-b031-22624a6cd8df",
