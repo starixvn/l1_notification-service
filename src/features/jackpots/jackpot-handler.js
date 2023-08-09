@@ -47,14 +47,13 @@ const sendJackpotWinnerWhenNotExcluded = async (client, siteExclusions, payload)
     }
 };
 
-const isExcludeOnGame = (session, gameId, siteExclusions) => {
+export const isExcludeOnGame = (session, gameId, siteExclusions) => {
     const { siteName, partnerId } = session;
     const partnerSiteExclusions = siteExclusions.find((config) => partnerId === config.partnerId && config.value[gameId]);
-
     return partnerSiteExclusions && partnerSiteExclusions.value[gameId].some((site) => site?.toLowerCase() === siteName?.toLowerCase());
 };
 
-const getOfferedGames = async (session) => {
+export const getOfferedGames = async (session) => {
     const currencyGroup = await currencyRepository.getCurrencyGroup(session.currencyGroupId);
     const currency = await currencyRepository.getCurrency(session.currencyName, session.partnerId);
 

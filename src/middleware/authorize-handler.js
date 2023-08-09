@@ -1,6 +1,8 @@
 import axios from "axios";
 import { userSessions } from "sc-base-database";
 import * as socketClientHandler from "../features/socket-clients/socket-client-handler";
+import * as roundTimerHandler from "../features/round-timer/round-timer-handler";
+
 import appConfigs from "../app-configs";
 import { logger } from "sc-common";
 
@@ -26,6 +28,8 @@ export const authenticate = async (socketClient, next) => {
         const session = await userSessions.findOne({ sessionId: authData.ss }).lean().exec();
 
         socketClientHandler.addClient(socketClient, session);
+
+        roundTimerHandler.initDataBySession(session);
 
         socketClient.emit("auth", { authorized: true });
 
