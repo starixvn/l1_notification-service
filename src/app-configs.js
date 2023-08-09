@@ -8,8 +8,8 @@ export default {
     },
     apiSettings: {
         enabledApi: true,
-        apiUrl: "http://l1-api.lumigame.com",
-        authUrl: "https://auth.lumigame.com",
+        apiUrl: "http://l1-api1.lumigame.com",
+        authUrl: "https://l1-auth1.lumigame.com/",
         client: {
             id: "game-server",
             secret: "gameserver@20luminet&",
@@ -21,7 +21,7 @@ export default {
     },
     enabledLogs: true,
     database: {
-        url: "mongodb://lmn_backend:LmnBackend@10.10.50.12:39100,10.10.50.13:39100,10.10.50.14:39100/?replicaSet=L1Local&appName=notificationservice",
+        url: "mongodb://lmn_backend:LmnBackend@10.10.50.12:39101,10.10.50.13:39101,10.10.50.14:39101/?replicaSet=L1Local&appName=notificationservice",
         options: {
             dbName: "minigame",
             useNewUrlParser: true,
@@ -35,7 +35,7 @@ export default {
         env: "DEV",
     },
     userService: {
-        url: "https://l1-proxy.lumigame.com/user/",
+        url: "https://l1-proxy1.lumigame.com/user/",
     },
     roundWatcherService: {
         url: "http://localhost:5000/",
