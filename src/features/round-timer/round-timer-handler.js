@@ -34,10 +34,10 @@ const getRoundTimerLatestData = async (socketClient) => {
 
 const handleRoundTimerWatcherData = async (req, res) => {
     try {
-        const miniCounter = req.body;
-        const gameIds = Object.keys(miniCounter);
+        const roundTimer = req.body;
+        const gameIds = Object.keys(roundTimer);
         const isBroadCastRoundTimer = await isGameOfferedRoundTimer(parseInt(gameIds[0]));
-        isBroadCastRoundTimer && broadcastAll("roundTimer", miniCounter);
+        isBroadCastRoundTimer && broadcastAll("roundTimer", roundTimer);
 
         res.send({ received: true });
     } catch (err) {

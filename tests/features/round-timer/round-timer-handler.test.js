@@ -40,7 +40,7 @@ describe("roundTimerHandler", () => {
         });
     });
 
-    describe("getMiniCounterLatestData", () => {
+    describe("getRoundTimerLatestData", () => {
         const socketClient = {
             emit: jest.fn(),
         };
