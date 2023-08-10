@@ -333,30 +333,8 @@ describe("jackpotHandler", () => {
         });
     });
 
-    describe("sendAllUserExceptExclusionSite", () => {
-        const sendAllUserExceptExclusionSiteFunc = handler.default.__get__("sendAllUserExceptExclusionSite");
-        const payload = { gameId: chance.integer({ min: 1, max: 100 }) };
-
-        beforeEach(() => {
-            handler.default.__set__("sendJackpotWinnerWhenNotExcluded", jest.fn());
-            partnerConfigRepository.getSiteExclusions = jest.fn();
-        });
-
-        it("should call partnerRepository.getSiteExclusions", async () => {
-            // Arrange
-            socketClientHandler.getClients.mockReturnValueOnce({});
-
-            // Act
-            await sendAllUserExceptExclusionSiteFunc(payload);
-
-            // Assert
-            expect(partnerConfigRepository.getSiteExclusions).toBeCalled();
-        });
-    });
-
     describe("sendJackpotWinnerWhenNotExcluded", () => {
         const sendJackpotWinnerWhenNotExcludedFunc = handler.default.__get__("sendJackpotWinnerWhenNotExcluded");
-        const siteExclusions = { type: "game_site_exclusions" };
         const payload = { gameId: chance.integer({ min: 1, max: 100 }) };
 
         beforeEach(() => {
@@ -369,7 +347,7 @@ describe("jackpotHandler", () => {
                 const client = { ...socketClient, data: {} };
 
                 // Act
-                sendJackpotWinnerWhenNotExcludedFunc(client, siteExclusions, payload);
+                sendJackpotWinnerWhenNotExcludedFunc(client, payload);
 
                 // Assert
                 expect(client.emit).not.toBeCalled();
@@ -382,7 +360,7 @@ describe("jackpotHandler", () => {
                 handler.default.__get__("isExcludeOnGame").mockReturnValueOnce(true);
 
                 // Act
-                sendJackpotWinnerWhenNotExcludedFunc(socketClient, siteExclusions, payload);
+                sendJackpotWinnerWhenNotExcludedFunc(socketClient, payload);
 
                 // Assert
                 expect(socketClient.emit).not.toBeCalled();
@@ -407,7 +385,7 @@ describe("jackpotHandler", () => {
                     // Arrange
                     handler.default.__set__("getOfferedGames", jest.fn().mockResolvedValueOnce([]));
                     // Act
-                    await sendJackpotWinnerWhenNotExcludedFunc(client, siteExclusions, payload);
+                    await sendJackpotWinnerWhenNotExcludedFunc(client, payload);
 
                     // Assert
                     expect(client.socketClient.emit).not.toBeCalled();
@@ -419,46 +397,11 @@ describe("jackpotHandler", () => {
                     // Arrange
                     handler.default.__set__("getOfferedGames", jest.fn().mockResolvedValueOnce([{ gameId: payload.gameId }]));
                     // Act
-                    await sendJackpotWinnerWhenNotExcludedFunc(client, siteExclusions, payload);
+                    await sendJackpotWinnerWhenNotExcludedFunc(client, payload);
 
                     // Assert
                     expect(client.socketClient.emit).toBeCalledWith("jackpotWinner", payload);
                 });
-            });
-        });
-    });
-
-    describe("isExcludeOnGame", () => {
-        const isExcludeOnGameFunc = handler.default.__get__("isExcludeOnGame");
-        const partnerId = chance.string();
-        const siteName = chance.url();
-        const gameId = chance.integer({ min: 1, max: 100 });
-        const session = UserSession({ partnerId, siteName });
-
-        describe("when is NOT excluded", () => {
-            it("should return false", () => {
-                // Arrange
-                const siteExclusions = [{ partnerId: partnerId, value: [] }];
-
-                // Act
-                const actualResult = isExcludeOnGameFunc(session, gameId, siteExclusions);
-
-                // Assert
-                expect(actualResult).toBeFalsy();
-            });
-        });
-
-        describe("when is excluded", () => {
-            it("should return true", () => {
-                // Arrange
-                const value = getFakeSiteValue(gameId, siteName);
-                const siteExclusions = [{ partnerId: partnerId, value: value }];
-
-                // Act
-                const actualResult = isExcludeOnGameFunc(session, gameId, siteExclusions);
-
-                // Assert
-                expect(actualResult).toBeTruthy();
             });
         });
     });

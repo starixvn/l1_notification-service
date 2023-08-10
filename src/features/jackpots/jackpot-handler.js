@@ -30,30 +30,24 @@ const validateParams = (params) => {
 };
 
 const sendAllUserExceptExclusionSite = async (payload) => {
-    const siteExclusions = await partnerConfigRepository.getSiteExclusions();
     const clients = socketClientHandler.getClients();
 
-    Object.values(clients).forEach((client) => sendJackpotWinnerWhenNotExcluded(client, siteExclusions, payload));
+    await Promise.all(Object.values(clients).map((client) => sendJackpotWinnerWhenNotExcluded(client, payload)));
 };
 
-const sendJackpotWinnerWhenNotExcluded = async (client, siteExclusions, payload) => {
+const sendJackpotWinnerWhenNotExcluded = async (client, payload) => {
     const session = client.session;
     const { gameId } = payload;
-    if (session && !isExcludeOnGame(session, gameId, siteExclusions) && !session.disableJackpotGames) {
+    if (session && !session.disableJackpotGames) {
         const offeredGames = await getOfferedGames(session);
         const isOffered = offeredGames.some((game) => game.gameId === gameId);
+
         if (gameId === jackpotGames[0]) {
             await updateFourGuardianRecords([payload]);
         }
+        
         isOffered && client.socketClient.emit("jackpotWinner", payload);
     }
-};
-
-const isExcludeOnGame = (session, gameId, siteExclusions) => {
-    const { siteName, partnerId } = session;
-    const partnerSiteExclusions = siteExclusions.find((config) => partnerId === config.partnerId && config.value[gameId]);
-
-    return partnerSiteExclusions && partnerSiteExclusions.value[gameId].some((site) => site?.toLowerCase() === siteName?.toLowerCase());
 };
 
 const getOfferedGames = async (session) => {
