@@ -45,7 +45,7 @@ const sendJackpotWinnerWhenNotExcluded = async (client, payload) => {
         if (gameId === jackpotGames[0]) {
             await updateFourGuardianRecords([payload]);
         }
-        
+
         isOffered && client.socketClient.emit("jackpotWinner", payload);
     }
 };
@@ -104,42 +104,61 @@ const getJackpotWinnersMapAvatar = async (jackpotWinners) => {
 };
 
 const updateFourGuardianRecords = async (records) => {
-    if (records.length > 0) {
+    const fourGuardiansRecords = records.filter((x) => x.gameId === jackpotGames[0]);
+    
+    if (fourGuardiansRecords.length > 0) {
         const currency = await currencyRepository.getCurrency("INH", "ONEworksVGCash");
         if (currency) {
-            for (const record of records) {
+            for (const record of fourGuardiansRecords) {
                 record.amount *= currency.multiplier;
             }
         }
     }
+
+    return records;
 };
 
 export const getWinners = async (socketClient, { limit }) => {
     const session = socketClientHandler.getClientSession(socketClient.id);
+    if (!session.disableJackpotGames) {
+        const jackpotWinners = await queryJackpotWinners(session, limit);
+        const winnersWithAvatars = await getJackpotWinnersMapAvatar(jackpotWinners);
+        const result = await updateExchangeRateCode(session, winnersWithAvatars);
+
+        socketClient.emit("jackpotWinners", result);
+    } else {
+        socketClient.emit("jackpotWinners", []);
+    }
+};
+
+async function queryJackpotWinners(session, limit) {
     const offeredGames = await getOfferedGames(session);
-    const jackpotWinners = session.disableJackpotGames
-        ? []
-        : await jackpotRepository.getJackPotWinners(
-              offeredGames.filter((game) => game.stakeLevels?.length > 0).map((game) => game.gameId),
-              limit
-          );
-    const exchangeRates = (await getExchangeRates(jackpotWinners.filter((x) => x.exchangeRateId).map((x) => x.exchangeRateId))).map(
+
+    const jackpotWinners = await jackpotRepository.getJackPotWinners(
+        offeredGames.filter((game) => game.stakeLevels?.length > 0).map((game) => game.gameId),
+        limit
+    );
+
+    return await updateFourGuardianRecords(jackpotWinners);
+}
+
+async function updateExchangeRateCode(session, winners) {
+    const { currencyCode } = session;
+    const exchangeRates = (await getExchangeRates(winners.filter((x) => x.exchangeRateId).map((x) => x.exchangeRateId))).map(
         (rate) => {
-            rate.code[session.currencyCode] = parseFloat(rate.code[session.currencyCode]);
+            rate.code[currencyCode] = parseFloat(rate.code[currencyCode]);
             return rate;
         }
     );
-    await updateFourGuardianRecords(jackpotWinners.filter((x) => x.gameId === jackpotGames[0]));
 
-    const result = await getJackpotWinnersMapAvatar(jackpotWinners);
-    for (const winner of result) {
+    for (const winner of winners) {
         winner.exchangeRateCode = {
-            [session.currencyCode]: exchangeRates.find((er) => winner.exchangeRateId === er.exId)?.code[session.currencyCode],
+            [currencyCode]: exchangeRates.find((er) => winner.exchangeRateId === er.exId)?.code[currencyCode],
         };
     }
 
-    socketClient.emit("jackpotWinners", result);
-};
+    return winners;
+}
 
 export const getPools = async (socketClient, payload) => {
     const session = socketClientHandler.getClientSession(socketClient.id);
@@ -152,9 +171,10 @@ export const getPools = async (socketClient, payload) => {
                   .filter((game) => game.stakeLevels?.length > 0 && (!payload?.gameId || game.gameId === payload.gameId))
                   .map((game) => game.gameId)
           );
-    await updateFourGuardianRecords(jackpotPools.filter((x) => x.gameId === jackpotGames[0]));
+          
+    const result = await updateFourGuardianRecords(jackpotPools);
 
-    socketClient.emit(payload?.gameId ? "jackpotPoolsOnGame" : "jackpotPools", jackpotPools);
+    socketClient.emit(payload?.gameId ? "jackpotPoolsOnGame" : "jackpotPools", result);
 };
 
 export const notifyJackpotWinner = (req, res) => {
