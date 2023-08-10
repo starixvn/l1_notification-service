@@ -8,25 +8,23 @@ import * as partnerConfigRepository from "../jackpots/partner-config-repository"
 
 let gamesOffered = [];
 let roundTimerGame = {};
-let sessionClient = {};
-let siteExclusions = {};
+let siteNameExclusion = "";
+let partnerSiteExclusions = {};
 
 const getRoundTimerLatestData = async (socketClient) => {
     try {
         const currentTime = new Date(new Date().toUTCString());
         const latestData = (await axios.get(`${appConfigs.roundWatcherService.url}api/lastResult`)).data;
 
-        const games = Object.keys(latestData);
-        for await (const game of games) {
-            const enableRoundTimer = await isGameOfferedRoundTimer(parseInt(game));
-            if (enableRoundTimer) {
-                latestData[game].timeFromStart = (currentTime - new Date(latestData[game].time)) / 1000;
-            } else {
-                delete latestData[game];
-            }
-        }
+        const enabledGames = Object.keys(latestData)
+        .filter((game) => isGameOfferedRoundTimer(parseInt(game)))
+        .reduce((roundTimer, game) => {
+            const timeFromStart = (currentTime - new Date(latestData[game].time)) / 1000;
+            roundTimer[game] = { ...latestData[game], timeFromStart };
+            return roundTimer;
+        }, {});   
 
-        socketClient.emit("latestRoundTimer", latestData);
+        socketClient.emit("latestRoundTimer", enabledGames);
     } catch (err) {
         logger.logError(err);
     }
@@ -35,8 +33,8 @@ const getRoundTimerLatestData = async (socketClient) => {
 const handleRoundTimerWatcherData = async (req, res) => {
     try {
         const roundTimer = req.body;
-        const gameIds = Object.keys(roundTimer);
-        const isBroadCastRoundTimer = await isGameOfferedRoundTimer(parseInt(gameIds[0]));
+        const gameId = parseInt(Object.keys(roundTimer)[0]);
+        const isBroadCastRoundTimer = await isGameOfferedRoundTimer(gameId);
         isBroadCastRoundTimer && broadcastAll("roundTimer", roundTimer);
 
         res.send({ received: true });
@@ -46,35 +44,29 @@ const handleRoundTimerWatcherData = async (req, res) => {
 };
 
 const initDataBySession = async (session) => {
-    sessionClient = session;
+    const { siteName, partnerId, currencyGroupId } = session;
+   
+    siteNameExclusion = siteName;
     const [fetchedSiteExclusions, fetchedGamesOffered, fetchedLobby] = await Promise.all([
-        partnerConfigRepository.getSiteExclusions(),
+        partnerConfigRepository.getSiteExclusionByPartner(partnerId),
         jackpotHandler.getOfferedGames(session),
-        lobbyRepository.getLobbyConfigs(session),
+        lobbyRepository.getLobbyConfigs(currencyGroupId),
     ]);
 
-    siteExclusions = fetchedSiteExclusions;
+    partnerSiteExclusions = fetchedSiteExclusions;
     gamesOffered = fetchedGamesOffered;
-    if (fetchedLobby) {
-        roundTimerGame = fetchedLobby.roundTimerGame;
-    }
+    roundTimerGame = fetchedLobby?.roundTimerGame;
 };
 
-const isGameOfferedRoundTimer = async (gameId) => {
-    if (!sessionClient) {
-        return false;
-    }
+const isGameOfferedRoundTimer = (gameId) => {
 
-    const isExcludeOnGame = jackpotHandler.isExcludeOnGame(sessionClient, gameId, siteExclusions);
-
-    if (isExcludeOnGame) {
-        return false;
-    }
+    const excludedSites = partnerSiteExclusions?.value[gameId] || [];
+    const isExcludeOnGame = excludedSites.some((site) => site?.toLowerCase() === siteNameExclusion?.toLowerCase());
 
     const isOffered = gamesOffered.includes(gameId);
     const enableRoundTimer = roundTimerGame?.games?.some((game) => game.id === gameId);
 
-    return isOffered && enableRoundTimer;
+    return isOffered && enableRoundTimer && !isExcludeOnGame;
 };
 
 export { handleRoundTimerWatcherData, getRoundTimerLatestData, initDataBySession };
