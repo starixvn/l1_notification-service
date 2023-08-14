@@ -62,7 +62,6 @@ export const getOfferedGames = async (session) => {
         const gamesExcludedBySite = await getGamesExcludedByPartnerSite(session.partnerId, session.siteName);
         const gamesExcludedBySession = session.disableJackpotGames ? jackpotGames : [];
         const excludedGames = [...gamesExcludedBySite, ...gamesExcludedBySession];
-
         return groupOfferGames?.filter((game) => !excludedGames.includes(game.gameId)).map((game) => game.gameId) ?? [];
     }
 
@@ -72,8 +71,8 @@ export const getOfferedGames = async (session) => {
 const getGamesExcludedByPartnerSite = async (partnerId, siteName) => {
     const gameSiteExclusions = await partnerConfigRepository.getSiteExclusionByPartner(partnerId);
 
-    return Object.keys(gameSiteExclusions?.values ?? {}).reduce((result, gameId) => {
-        if (gameSiteExclusions.values[gameId].includes(siteName)) {
+    return Object.keys(gameSiteExclusions?.value ?? {}).reduce((result, gameId) => {
+        if (gameSiteExclusions.value[gameId].includes(siteName)) {
             result.push(+gameId);
         }
 
