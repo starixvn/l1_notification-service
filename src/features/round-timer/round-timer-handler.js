@@ -55,7 +55,9 @@ const initDataBySession = async (session) => {
 
     partnerSiteExclusions = fetchedSiteExclusions;
     gamesOffered = fetchedGamesOffered;
-    roundTimerGame = fetchedLobby?.roundTimerGame;
+    if(fetchedLobby){
+        roundTimerGame = fetchedLobby.roundTimerGame;
+    }
 };
 
 const isGameOfferedRoundTimer = (gameId) => {
