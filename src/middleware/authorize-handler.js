@@ -26,10 +26,9 @@ export const authenticate = async (socketClient, next) => {
         }
 
         const session = await userSessions.findOne({ sessionId: authData.ss }).lean().exec();
-
-        socketClientHandler.addClient(socketClient, session);
-
-        roundTimerHandler.initDataBySession(session);
+        const roundTimerGameOffered = await roundTimerHandler.getRoundTimerGameOffered(session);
+        const newSession = { ...session, roundTimerGameOffered };
+        socketClientHandler.addClient(socketClient, newSession);
 
         socketClient.emit("auth", { authorized: true });
 
