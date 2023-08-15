@@ -4,11 +4,13 @@ import Chance from "chance";
 import { userSessions } from "sc-base-database";
 import { stubMongoose } from "jest-micro-auto-stub";
 import * as socketClientHandler from "../../src/features/socket-clients/socket-client-handler";
+import * as roundTimerHandler from "../../src/features/round-timer/round-timer-handler";
 import appConfigs from "../../src/app-configs";
 import { UserSession } from "jest-auto-fixture/src/models";
 
 jest.mock("axios");
 jest.mock("../../src/features/socket-clients/socket-client-handler");
+jest.mock("../../src/features/round-timer/round-timer-handler");
 userSessions.findOne = stubMongoose(userSessions).findOne;
 const session = UserSession();
 const chance = new Chance();
@@ -30,6 +32,7 @@ describe("authenticate", () => {
 
     beforeEach(() => {
         userSessions.findOne().lean().exec.mockResolvedValueOnce(session);
+        roundTimerHandler.getRoundTimerGameOffered = jest.fn().mockReturnValueOnce([1, 2, 4]);
     });
 
     it("should call authorize to user service", async () => {
