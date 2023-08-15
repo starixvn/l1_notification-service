@@ -31,7 +31,7 @@ const getEnabledGames = (latestData, session, currentTime) => {
 const handleRoundTimerWatcherData = async (req, res) => {
     try {
         const roundTimer = req.body;
-        await sendAllUserExceptRoundTimer(roundTimer);
+        await sendAllUserExpectRoundTimer(roundTimer);
 
         res.send({ received: true });
     } catch (err) {
@@ -39,15 +39,15 @@ const handleRoundTimerWatcherData = async (req, res) => {
     }
 };
 
-const sendAllUserExceptRoundTimer = async (payload) => {
+const sendAllUserExpectRoundTimer = async (payload) => {
     const clients = socketClientHandler.getClients();
-    Object.values(clients).forEach((client) => sendUserWhenNotExcluded(client, payload));
+    Object.values(clients).forEach((client) => sendUserWhenOffered(client, payload));
 };
 
-const sendUserWhenNotExcluded = async (client, payload) => {
+const sendUserWhenOffered = async (client, payload) => {
     const session = client.session;
     const gameId = parseInt(Object.keys(payload)[0]);
-    if (isGameOfferedRoundTimer(gameId, session)) {
+    if (session && isGameOfferedRoundTimer(gameId, session)) {
         client.socketClient.emit("roundTimer", payload);
     }
 };

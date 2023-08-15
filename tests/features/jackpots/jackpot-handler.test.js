@@ -550,7 +550,7 @@ describe("jackpotHandler", () => {
         it("should return games excluded by site", async () => {
             // Arrange
             partnerConfigRepository.getSiteExclusionByPartner.mockResolvedValueOnce({
-                values: {
+                value: {
                     1: ["abc.com"],
                     2: [siteName, "bbc.com"],
                     3: [siteName],
