@@ -16,7 +16,7 @@ const init = (app) => {
         authUrl: appConfigs.apiSettings.authUrl,
         audiences: appConfigs.authenticateSettings.audiences,
     };
-    
+
     app.post("/api/jackpotWinner", utils.authentication.useAuthenticate(authConfig), notifyJackpotWinner);
     app.post("/api/reload", utils.authentication.useAuthenticate(authConfig), broadcastReload);
     app.post("/api/um", utils.authentication.useAuthenticate(authConfig), handleUmRequest);
