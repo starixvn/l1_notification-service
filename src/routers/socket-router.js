@@ -1,3 +1,4 @@
+import { Socket } from "socket.io";
 import { findNotifications } from "../features/game-notifications";
 import * as JackpotHandler from "../features/jackpots/jackpot-handler";
 import * as promotionNotificationHandler from "../features/promotion-notifications/promotion-notification-handler";
@@ -6,18 +7,20 @@ import * as socketClientHandler from "../features/socket-clients/socket-client-h
 import { authenticate } from "../middleware/authorize-handler";
 import { getRoundTimerLatestData } from "../features/round-timer/round-timer-handler";
 
-/**
- * @param {Socket} socketClient
- */
 const init = (socketServer) => {
     socketServer.of("/").use(async (socket, next) => {
         await authenticate(socket, next);
     });
 
-    socketServer.of(`/`).on("connection", (socketClient) => {
-        initSocketClient(socketClient);
-        console.log(`${JSON.stringify(socketClient)} connected`);
-    });
+    socketServer.of(`/`).on(
+        "connection",
+        /** @param {Socket} socketClient */
+        (socketClient) => {
+            initSocketClient(socketClient);
+            socketClient.join("general");
+            console.log(`${JSON.stringify(socketClient)} connected`);
+        }
+    );
 };
 
 const emitMessageToClient = (client) => (event) => (message) => client.emit(event, message);
