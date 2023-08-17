@@ -13,7 +13,7 @@ import * as SocketRouter from "./socket-router";
  * @param {express.Express} app
  * @param {http.Server} httpServer
  */
-export const init = (app, httpServer) => {
+export const init = async (app, httpServer) => {
     const { socketOptions, disableCors } = appConfigs;
     const opts = socketOptions ?? { pingInterval: 25 * 1000, pingTimeout: 60 * 1000 };
     opts.allowEIO3 = true;
@@ -31,8 +31,8 @@ export const init = (app, httpServer) => {
     }
 
     const socketServer = new Server(httpServer, opts);
-    initAdapter(socketServer);
-    
+    await initAdapter(socketServer);
+
     Metrics.init(socketServer);
     SocketServerHandler.init(socketServer);
     initRouter(app, socketServer);
@@ -48,8 +48,10 @@ const initRouter = async (app, socketServer) => {
     SocketRouter.init(socketServer);
 };
 
-const initAdapter = (socketServer) => {
+const initAdapter = async (socketServer) => {
     const collection = mongoose.connection.db.collection("notification_service_events");
+    await collection.createIndex({ createdAt: 1 }, { expireAfterSeconds: 3600, background: true });
+    
     initMongoAdapter(socketServer, collection);
     initMongoEmitter(collection);
-}
+};
