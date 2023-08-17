@@ -1,7 +1,6 @@
-import * as socketServerHandler from "../socket-server/socket-server-handler";
+import { emitEvents, mongoEmitter } from "../../adapters/socket-adapter";
 
 export const broadcastReload = (req, res) => {
-    socketServerHandler.broadcastAll("reload", true);
-
+    mongoEmitter.emit(emitEvents.reload, req.body);
     res.send({ received: true });
 };

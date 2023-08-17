@@ -1,17 +1,16 @@
-import express from "express";
 import cors from "cors";
+import express from "express";
 import helmet from "helmet";
 import http from "http";
 import morgan from "morgan";
-import * as RouterConfig from "./routers/router-config";
-import appConfigs from "./app-configs";
-import { logger, middlewares } from "sc-common";
 import { init as initBaseDatabase } from "sc-base-database";
-import { setMarquee } from "./features/marquee/marquee-handler";
-import { setPromotions } from "./features/promotions/promotions-handler";
-import { setPromotionNotifications } from "./features/promotion-notifications/promotion-notification-handler";
+import { logger, middlewares } from "sc-common";
+import appConfigs from "./app-configs";
 import { isAllowAccess, startCorsCron } from "./features/domain/cors-helper";
-
+import { setMarquee } from "./features/marquee/marquee-handler";
+import { setPromotionNotifications } from "./features/promotion-notifications/promotion-notification-handler";
+import { setPromotions } from "./features/promotions/promotions-handler";
+import * as RouterConfig from "./routers/router-config";
 const run = async () => {
     const app = express();
     await configureServices(app);

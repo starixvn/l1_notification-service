@@ -16,6 +16,7 @@ const init = (socketServer) => {
 
     socketServer.of(`/`).on("connection", (socketClient) => {
         initSocketClient(socketClient);
+        console.log(`${JSON.stringify(socketClient)} connected`);
     });
 };
 

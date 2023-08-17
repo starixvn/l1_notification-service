@@ -1,4 +1,5 @@
 import { logger } from "sc-common";
+import { emitEvents, mongoEmitter } from "../../adapters/socket-adapter";
 import * as socketClientHandler from "../socket-clients/socket-client-handler";
 
 let umCache = [];
@@ -72,11 +73,15 @@ const startUm = (umInfo) => {
     kickOutUmAffectedUsers();
 };
 
+const handleUMEvent = (umInfo) => {
+    umInfo.isUM ? startUm(umInfo) : stopUm(umInfo);
+};
+
 const handleUmRequest = (req, res) => {
     const umInfo = req.body;
 
     if (umInfo) {
-        umInfo.isUM ? startUm(umInfo) : stopUm(umInfo);
+        mongoEmitter.emit(emitEvents.um, umInfo);
         res.send(umInfo);
     } else {
         res.send("Cannot parse request object");
@@ -85,5 +90,5 @@ const handleUmRequest = (req, res) => {
     logger.logError(`UM Information: ${JSON.stringify(umInfo)}`);
 };
 
-export { handleUmRequest };
+export { handleUMEvent, handleUmRequest };
 

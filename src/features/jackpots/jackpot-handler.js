@@ -1,6 +1,7 @@
 import Joi from "joi";
 import { userInfos } from "sc-base-database";
 import { logger } from "sc-common";
+import { emitEvents, mongoEmitter } from "../../adapters/socket-adapter";
 import * as socketClientHandler from "../socket-clients/socket-client-handler";
 import * as currencyRepository from "./currency-repository";
 import { getExchangeRates } from "./exchange-rate-repository";
@@ -29,7 +30,7 @@ const validateParams = (params) => {
     return false;
 };
 
-const sendAllUserExceptExclusionSite = async (payload) => {
+export const sendAllUserExceptExclusionSite = async (payload) => {
     const clients = socketClientHandler.getClients();
     const { gameId } = payload;
     
@@ -180,7 +181,7 @@ export const notifyJackpotWinner = (req, res) => {
     const isValidParams = validateParams(req.body);
 
     if (isValidParams) {
-        sendAllUserExceptExclusionSite(req.body);
+        mongoEmitter.emit(emitEvents.jackpotWinner, req.body);
         res.send({ received: true });
     } else {
         res.send({ error: true });
