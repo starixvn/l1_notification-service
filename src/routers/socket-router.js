@@ -18,7 +18,7 @@ const init = (socketServer) => {
         (socketClient) => {
             initSocketClient(socketClient);
             socketClient.join("general");
-            console.log(`${JSON.stringify(socketClient)} connected`);
+            console.log(`${socketClient.id} connected`);
         }
     );
 };
