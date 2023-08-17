@@ -14,16 +14,15 @@ let mongoAdapter;
  */
 function registerEvents(socketServer) {
     mongoAdapter = socketServer.of("/").adapter;
-    adapter.fetchSockets({});
-    adapter.on(emitEvents.reload, (data) => {
+    mongoAdapter.on(emitEvents.reload, (data) => {
         socketServer.sockets.emit("reload", data);
     });
 
-    adapter.on(emitEvents.jackpotWinner, (data) => {
+    mongoAdapter.on(emitEvents.jackpotWinner, (data) => {
         sendAllUserExceptExclusionSite(data);
     });
 
-    adapter.on(emitEvents.um, (data) => {
+    mongoAdapter.on(emitEvents.um, (data) => {
         handleUMEvent(data);
     });
 }
