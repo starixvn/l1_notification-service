@@ -58,4 +58,8 @@ export default {
     promotionNotificationDurations: {
         delayTimeInMinutes: 1,
     },
+    otel: {
+        enabled: true,
+        endpoint: "http://localhost:4318/v1/traces",
+    },
 };

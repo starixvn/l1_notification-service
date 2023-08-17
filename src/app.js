@@ -1,16 +1,24 @@
+import appConfigs from "./app-configs";
+import { Trace } from "sc-instrument";
+
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import http from "http";
 import morgan from "morgan";
 import * as RouterConfig from "./routers/router-config";
-import appConfigs from "./app-configs";
 import { logger, middlewares } from "sc-common";
 import { init as initBaseDatabase } from "sc-base-database";
 import { setMarquee } from "./features/marquee/marquee-handler";
 import { setPromotions } from "./features/promotions/promotions-handler";
 import { setPromotionNotifications } from "./features/promotion-notifications/promotion-notification-handler";
 import { isAllowAccess, startCorsCron } from "./features/domain/cors-helper";
+
+if (appConfigs.otel?.enabled) {
+    Trace.initSpanProcessor(appConfigs.otel.endpoint);
+    Trace.addIdentifiers("Notification Service", appConfigs.sentry.env);
+    Trace.default.start();
+}
 
 const run = async () => {
     const app = express();
