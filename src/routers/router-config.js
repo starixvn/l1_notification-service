@@ -31,11 +31,11 @@ export const init = async (app, httpServer) => {
     }
 
     const socketServer = new Server(httpServer, opts);
-    await initAdapter(socketServer);
 
     Metrics.init(socketServer);
     SocketServerHandler.init(socketServer);
     initRouter(app, socketServer);
+    await initAdapter(socketServer);
 };
 
 /**

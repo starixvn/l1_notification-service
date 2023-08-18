@@ -1,4 +1,5 @@
-import { Socket } from "socket.io";
+import { Server, Socket } from "socket.io";
+import { mongoAdapter } from "../adapters/socket-adapter";
 import { findNotifications } from "../features/game-notifications";
 import * as JackpotHandler from "../features/jackpots/jackpot-handler";
 import * as promotionNotificationHandler from "../features/promotion-notifications/promotion-notification-handler";
@@ -7,6 +8,7 @@ import * as socketClientHandler from "../features/socket-clients/socket-client-h
 import { authenticate } from "../middleware/authorize-handler";
 import { getRoundTimerLatestData } from "../features/round-timer/round-timer-handler";
 
+/** @param {Server} socketServer */
 const init = (socketServer) => {
     socketServer.of("/").use(async (socket, next) => {
         await authenticate(socket, next);
@@ -18,6 +20,7 @@ const init = (socketServer) => {
         (socketClient) => {
             initSocketClient(socketClient);
             socketClient.join("general");
+            console.log(mongoAdapter.rooms);
             console.log(`${socketClient.id} connected`);
         }
     );
