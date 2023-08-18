@@ -13,7 +13,7 @@ let mongoAdapter;
  * @param {Server} socketServer
  */
 function registerEvents(socketServer) {
-    const mongoAdapter = socketServer.of("/").adapter;
+    mongoAdapter = socketServer.of("/").adapter;
 
     mongoAdapter.on(emitEvents.reload, (data) => {
         socketServer.sockets.emit("reload", data);
