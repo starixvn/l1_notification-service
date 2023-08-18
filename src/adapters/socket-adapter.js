@@ -9,7 +9,12 @@ let mongoEmitter;
 /** @type {MongoAdapter}  */
 let mongoAdapter;
 
-function registerEvents() {
+/**
+ * @param {Server} socketServer
+ */
+function registerEvents(socketServer) {
+    const mongoAdapter = socketServer.of("/").adapter;
+
     mongoAdapter.on(emitEvents.reload, (data) => {
         socketServer.sockets.emit("reload", data);
     });
@@ -27,11 +32,12 @@ function registerEvents() {
  * @param {Server} socketServer
  */
 export function initMongoAdapter(socketServer, mongoCollection) {
-    mongoAdapter = createAdapter(mongoCollection, {
-        addCreatedAtField: true,
-    });
-    socketServer.adapter(mongoAdapter);
-    registerEvents();
+    socketServer.adapter(
+        createAdapter(mongoCollection, {
+            addCreatedAtField: true,
+        })
+    );
+    registerEvents(socketServer);
 }
 
 export function initMongoEmitter(mongoCollection) {
