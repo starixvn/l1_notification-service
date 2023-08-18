@@ -22,6 +22,7 @@ const init = (app) => {
     app.post("/api/um", utils.authentication.useAuthenticate(authConfig), handleUmRequest);
     app.get("/api/connectedClients", utils.authentication.useAuthenticate(authConfig), async (req, res) => {
         const connectedClients = await getConnectedClients();
+        console.log(connectedClients);
         res.send(200, connectedClients.length);
     });
     app.post("/api/roundTimer", utils.authentication.useAuthenticate(authConfig), handleRoundTimerWatcherData);

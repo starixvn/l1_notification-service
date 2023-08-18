@@ -45,7 +45,7 @@ export function initMongoEmitter(mongoCollection) {
 }
 
 export async function getConnectedClients() {
-    return await mongoAdapter.fetchSockets({ rooms: ["general"] });
+    return await mongoAdapter.fetchSockets({});
 }
 
 export const emitEvents = {

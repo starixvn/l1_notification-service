@@ -1,5 +1,4 @@
 import { Server, Socket } from "socket.io";
-import { mongoAdapter } from "../adapters/socket-adapter";
 import { findNotifications } from "../features/game-notifications";
 import * as JackpotHandler from "../features/jackpots/jackpot-handler";
 import * as promotionNotificationHandler from "../features/promotion-notifications/promotion-notification-handler";
@@ -19,8 +18,6 @@ const init = (socketServer) => {
         /** @param {Socket} socketClient */
         (socketClient) => {
             initSocketClient(socketClient);
-            socketClient.join("general");
-            console.log(mongoAdapter.rooms);
             console.log(`${socketClient.id} connected`);
         }
     );
