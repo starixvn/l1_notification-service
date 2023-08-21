@@ -1,24 +1,25 @@
-import appConfigs from "../../app-configs";
+import { emitEvents, getConnectedClients, mongoEmitter } from "../../adapters/socket-adapter";
 const socketClients = {};
 const instantGameSystemId = 3;
 
-const addClient = (socketClient, session) => {
+const addClient = (socket, session) => {
     if (session?.system == instantGameSystemId) {
         return;
     }
 
     const UID = session.userId;
-    const existingSocketClient = getClientByUID(UID);
+    //disconnect other socket sessions having same UID
+    mongoEmitter.except(socket.id).emit(emitEvents.kickedOut, UID);
 
-    if (existingSocketClient) {
-        existingSocketClient.socketClient.emit("kickedOut", true);
-        disconnectUser(existingSocketClient.socketClient.id);
-    }
-
-    socketClients[socketClient.id] = {
+    socket.data = {
         UID,
         session,
-        socketClient,
+    };
+
+    socketClients[socket.id] = {
+        UID,
+        session,
+        socketClient: socket,
     };
 };
 
@@ -37,28 +38,10 @@ const disconnectUser = (socketClientId) => {
 
 const getClientByUID = (UID) => Object.values(socketClients).find((client) => client.UID === UID);
 
-const getTotalClients = (req, res) => {
-    const totalClients = Object.keys(socketClients)?.length ?? 0;
-    res.send(200, totalClients);
+const getTotalClients = async (req, res) => {
+    const sockets = await getConnectedClients();
+    res.send(200, sockets.length);
 };
 
-const getDetailedClients = (req, res) => {
-    const { secretKey } = req?.query || {};
+export { addClient, disconnectUser, getClientSession, getClients, getTotalClients };
 
-    if (secretKey !== appConfigs.metrics.secretKey) {
-        res.send({ error: true });
-        return;
-    }
-
-    const detailedClients = Object.keys(socketClients).map((socketClientId) => {
-        return {
-            socketClientId: socketClientId,
-            playerId: socketClients[socketClientId]?.session.playerId,
-            UID: socketClients[socketClientId].UID,
-        };
-    });
-
-    res.send(200, detailedClients);
-};
-
-export { addClient, getClients, getClientSession, disconnectUser, getTotalClients, getDetailedClients };

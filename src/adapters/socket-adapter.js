@@ -1,6 +1,7 @@
 import { MongoAdapter, createAdapter } from "@socket.io/mongo-adapter";
 import { Emitter } from "@socket.io/mongo-emitter";
 import { Server } from "socket.io";
+import { disconnectUser } from "../features/socket-clients/socket-client-handler";
 import { handleUMEvent } from "../features/um/um-handler";
 
 /** @type {Emitter}  */
@@ -13,7 +14,8 @@ let mongoAdapter;
  * @param {Server} socketServer
  */
 function registerEvents(socketServer) {
-    mongoAdapter = socketServer.of("/").adapter;
+    const nsp = socketServer.of("/");
+    mongoAdapter = nsp.adapter;
 
     mongoAdapter.on(emitEvents.reload, (data) => {
         socketServer.sockets.emit("reload", data);
@@ -25,6 +27,15 @@ function registerEvents(socketServer) {
 
     mongoAdapter.on(emitEvents.um, (data) => {
         handleUMEvent(data);
+    });
+
+    mongoAdapter.on(emitEvents.kickedOut, (userId) => {
+        for (let [socketId, socket] of nsp.sockets) {
+            if (socket.data.UID === userId) {
+                socket.emit("kickedOut", true);
+                disconnectUser(socketId);
+            }
+        }
     });
 }
 
@@ -52,6 +63,7 @@ export const emitEvents = {
     jackpotWinner: "jackpotWinner",
     reload: "reload",
     um: "um",
+    kickedOut: "kickedOut",
 };
 
 export { mongoAdapter, mongoEmitter };

@@ -9,16 +9,17 @@ import { getRoundTimerLatestData } from "../features/round-timer/round-timer-han
 
 /** @param {Server} socketServer */
 const init = (socketServer) => {
+    /** @param {Socket} socket */
     socketServer.of("/").use(async (socket, next) => {
         await authenticate(socket, next);
     });
 
     socketServer.of(`/`).on(
         "connection",
-        /** @param {Socket} socketClient */
-        (socketClient) => {
-            initSocketClient(socketClient);
-            console.log(`${socketClient.id} connected`);
+        /** @param {Socket} socket */
+        (socket) => {
+            initSocketClient(socket);
+            console.log(`${socket.id} connected`);
         }
     );
 };

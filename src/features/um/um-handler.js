@@ -46,7 +46,7 @@ const kickOutUm = (client, umInfo) => {
         },
     });
 
-    socketClientHandler.disconnectUser(client.socketClient.id);
+    socketClientHandler.disconnectUser(client.UID);
 };
 
 const getUmByPartner = (partnerId) => {
