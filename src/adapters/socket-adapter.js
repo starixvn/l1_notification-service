@@ -8,16 +8,11 @@ import { handleUMEvent } from "../features/um/um-handler";
 /** @type {Emitter}  */
 let mongoEmitter;
 
-/**
- * @type {Server} server
- */
-let server;
 
 /**
  * @param {Server} socketServer
  */
 function registerEvents(socketServer) {
-    server = socketServer;
     const nsp = socketServer.of("/");
 
     nsp.on(emitEvents.jackpotWinner, (data) => {
@@ -54,13 +49,6 @@ export function initMongoEmitter(mongoCollection) {
     mongoEmitter = new Emitter(mongoCollection);
 }
 
-export async function getConnectedClients() {
-    return await server.fetchSockets();
-}
-
-export function getSockets(nsp = "/") {
-    return Array.from(server.of(nsp).sockets.values()).filter((socket) => socket.data.session.system !== system.instant);
-}
 
 export const emitEvents = {
     jackpotWinner: "jackpotWinner",
@@ -69,5 +57,5 @@ export const emitEvents = {
     kickedOut: "kickedOut",
 };
 
-export { mongoEmitter, server };
+export { mongoEmitter };
 

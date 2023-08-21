@@ -1,5 +1,6 @@
 import { logger } from "sc-common";
-import { emitEvents, getSockets, mongoEmitter } from "../../adapters/socket-adapter";
+import { emitEvents, mongoEmitter } from "../../adapters/socket-adapter";
+import { getSockets } from "../socket-server/socket-server-handler";
 
 let umCache = [];
 

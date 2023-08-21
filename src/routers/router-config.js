@@ -31,7 +31,7 @@ export const init = async (app, httpServer) => {
     }
 
     const socketServer = new Server(httpServer, opts);
-
+    
     Metrics.init(socketServer);
     SocketServerHandler.init(socketServer);
     initRouter(app, socketServer);

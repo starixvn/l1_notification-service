@@ -4,12 +4,12 @@ import * as roundTimerHandler from "../features/round-timer/round-timer-handler"
 
 import { logger } from "sc-common";
 import appConfigs from "../app-configs";
-import * as socketClientHandler from "../features/socket-clients/socket-client-handler";
+import system from "../constants/system";
 
-export const authenticate = async (socketClient, next) => {
+export const authenticate = async (socket, next) => {
     try {
-        const userAgent = socketClient.request.headers["user-agent"];
-        const authData = socketClient.handshake.auth;
+        const userAgent = socket.request.headers["user-agent"];
+        const authData = socket.handshake.auth;
         const request = {
             session: authData.ss,
             username: authData.username,
@@ -19,8 +19,8 @@ export const authenticate = async (socketClient, next) => {
         const authResponse = await axios.post(`${appConfigs.userService.url}auth/session/verify`, request);
 
         if (!authResponse.data.isSuccessful) {
-            socketClient.emit("auth", { authorized: false, ...authResponse.data });
-            socketClient.disconnect(true);
+            socket.emit("auth", { authorized: false, ...authResponse.data });
+            socket.disconnect(true);
 
             return;
         }
@@ -33,7 +33,13 @@ export const authenticate = async (socketClient, next) => {
         const roundTimerGameOffered = await roundTimerHandler.getRoundTimerGameOffered(session);
         const newSession = { ...session, roundTimerGameOffered };
 
-        socketClient.emit("auth", { authorized: true });
+        socket.emit("auth", { authorized: true });
+
+        if (session?.system !== system.instant) {
+            const UID = session.userId;
+            //disconnect other socket sessions having same UID
+            mongoEmitter.serverSideEmit(emitEvents.kickedOut, { UID, sid: socket.id });
+        }
 
         next();
     } catch (ex) {

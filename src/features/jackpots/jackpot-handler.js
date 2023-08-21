@@ -1,7 +1,8 @@
 import Joi from "joi";
 import { userInfos } from "sc-base-database";
 import { logger } from "sc-common";
-import { emitEvents, getSockets, mongoEmitter } from "../../adapters/socket-adapter";
+import { emitEvents, mongoEmitter } from "../../adapters/socket-adapter";
+import { getSockets } from "../socket-server/socket-server-handler";
 import * as currencyRepository from "./currency-repository";
 import { getExchangeRates } from "./exchange-rate-repository";
 import * as jackpotRepository from "./jackpot-repository";
