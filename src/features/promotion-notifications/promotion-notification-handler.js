@@ -1,8 +1,8 @@
 import appConfigs from "../../app-configs";
-import * as SocketServerHandler from "../socket-server/socket-server-handler";
-import * as notificationRepository from "../game-notifications/game-notification-repository";
-import * as promotionsRepository from "../../features/promotions/promotions-repository";
 import { getEffectivePromotions } from "../../features/promotions/promotion-helper";
+import * as promotionsRepository from "../../features/promotions/promotions-repository";
+import * as notificationRepository from "../game-notifications/game-notification-repository";
+import * as SocketServerHandler from "../socket-server/socket-server-handler";
 import { getEffectivePromotionNotifications } from "./promotion-notification-helper";
 
 const notificationType = 3;
@@ -34,6 +34,7 @@ const getPromotionNotifications = async (socketClient) => {
         : proceedNotificationMessage(effectivePromotionNotifications);
 };
 
-const proceedNotificationMessage = (notifications) => SocketServerHandler.broadcastAll("promotionNotifications", notifications);
+const proceedNotificationMessage = (notifications) => SocketServerHandler.broadcastLocal("promotionNotifications", notifications);
 
-export { setPromotionNotifications, proceed, proceedNotificationMessage, getPromotionNotifications };
+export { getPromotionNotifications, proceed, proceedNotificationMessage, setPromotionNotifications };
+

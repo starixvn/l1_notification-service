@@ -23,6 +23,7 @@ const proceed = async () => {
     setMarquee();
 };
 
-const proceedMessage = async (message) => SocketServerHandler.broadcastAll("marquee", message);
+const proceedMessage = async (message) => SocketServerHandler.broadcastLocal("marquee", message);
 
-export { setMarquee, proceed, proceedMessage };
+export { proceed, proceedMessage, setMarquee };
+

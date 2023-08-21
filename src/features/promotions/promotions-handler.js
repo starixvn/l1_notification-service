@@ -1,7 +1,7 @@
 import appConfigs from "../../app-configs";
 import * as SocketServerHandler from "../socket-server/socket-server-handler";
-import * as promotionsRepository from "./promotions-repository";
 import { getEffectivePromotions } from "./promotion-helper";
+import * as promotionsRepository from "./promotions-repository";
 
 const minutesToMillisecond = 60 * 1000;
 const delayTime = appConfigs.promotionsDurations.delayTimeInMinutes * minutesToMillisecond;
@@ -25,6 +25,7 @@ const getPromotions = async (socketClient) => {
     !!socketClient ? socketClient.emit("promotions", effectivePromotions) : proceedPromotionsMessage(effectivePromotions);
 };
 
-const proceedPromotionsMessage = (promotions) => SocketServerHandler.broadcastAll("promotions", promotions);
+const proceedPromotionsMessage = (promotions) => SocketServerHandler.broadcastLocal("promotions", promotions);
 
-export { setPromotions, proceed, proceedPromotionsMessage, getPromotions };
+export { getPromotions, proceed, proceedPromotionsMessage, setPromotions };
+
