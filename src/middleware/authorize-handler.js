@@ -3,7 +3,7 @@ import { userSessions } from "sc-base-database";
 import * as roundTimerHandler from "../features/round-timer/round-timer-handler";
 
 import { logger } from "sc-common";
-import { mongoEmitter } from "../adapters/socket-adapter";
+import { emitEvents, mongoEmitter } from "../adapters/socket-adapter";
 import appConfigs from "../app-configs";
 import system from "../constants/system";
 
