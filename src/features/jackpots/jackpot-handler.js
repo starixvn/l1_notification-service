@@ -1,8 +1,7 @@
 import Joi from "joi";
 import { userInfos } from "sc-base-database";
 import { logger } from "sc-common";
-import { emitEvents, mongoEmitter } from "../../adapters/socket-adapter";
-import * as socketClientHandler from "../socket-clients/socket-client-handler";
+import { emitEvents, getSockets, mongoEmitter } from "../../adapters/socket-adapter";
 import * as currencyRepository from "./currency-repository";
 import { getExchangeRates } from "./exchange-rate-repository";
 import * as jackpotRepository from "./jackpot-repository";
@@ -31,24 +30,25 @@ const validateParams = (params) => {
 };
 
 export const sendAllUserExceptExclusionSite = async (payload) => {
-    const clients = socketClientHandler.getClients();
+    const sockets = getSockets();
     const { gameId } = payload;
     
     if (gameId === jackpotGames[0]) {
         await updateFourGuardianRecords([payload]);
     }
     
-    await Promise.all(Object.values(clients).map((client) => sendJackpotWinnerWhenNotExcluded(client, payload)));
+    await Promise.all(sockets.map((socket) => sendJackpotWinnerWhenNotExcluded(socket, payload)));
 };
 
-const sendJackpotWinnerWhenNotExcluded = async (client, payload) => {
-    const session = client.session;
+const sendJackpotWinnerWhenNotExcluded = async (socket, payload) => {
+    const { session } = socket.data;
     const { gameId } = payload;
+    
     if (session && !session.disableJackpotGames) {
         const offeredGames = await getOfferedGames(session);
         const isOffered = offeredGames.some((game) => game.gameId === gameId);
 
-        isOffered && client.socketClient.emit("jackpotWinner", payload);
+        isOffered && socket.emit("jackpotWinner", payload);
     }
 };
 
@@ -120,16 +120,16 @@ const updateFourGuardianRecords = async (records) => {
     return records;
 };
 
-export const getWinners = async (socketClient, { limit }) => {
-    const session = socketClientHandler.getClientSession(socketClient.id);
+export const getWinners = async (socket, { limit }) => {
+    const { session } = socket.data;
     if (!session.disableJackpotGames) {
         const jackpotWinners = await queryJackpotWinners(session, limit);
         const winnersWithAvatars = await getJackpotWinnersMapAvatar(jackpotWinners);
         const result = await updateExchangeRateCode(session, winnersWithAvatars);
 
-        socketClient.emit("jackpotWinners", result);
+        socket.emit("jackpotWinners", result);
     } else {
-        socketClient.emit("jackpotWinners", []);
+        socket.emit("jackpotWinners", []);
     }
 };
 
@@ -160,8 +160,8 @@ async function updateExchangeRateCode(session, winners) {
     return winners;
 }
 
-export const getPools = async (socketClient, payload) => {
-    const session = socketClientHandler.getClientSession(socketClient.id);
+export const getPools = async (socket, payload) => {
+    const { session } = socket.data;
     const offeredGames = await getOfferedGames(session);
 
     const jackpotPools = session.disableJackpotGames
@@ -174,14 +174,14 @@ export const getPools = async (socketClient, payload) => {
 
     const result = await updateFourGuardianRecords(jackpotPools);
 
-    socketClient.emit(payload?.gameId ? "jackpotPoolsOnGame" : "jackpotPools", result);
+    socket.emit(payload?.gameId ? "jackpotPoolsOnGame" : "jackpotPools", result);
 };
 
 export const notifyJackpotWinner = (req, res) => {
     const isValidParams = validateParams(req.body);
 
     if (isValidParams) {
-        mongoEmitter.emit(emitEvents.jackpotWinner, req.body);
+        mongoEmitter.serverSideEmit(emitEvents.jackpotWinner, req.body);
         res.send({ received: true });
     } else {
         res.send({ error: true });

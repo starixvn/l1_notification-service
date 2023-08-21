@@ -1,6 +1,5 @@
 import { logger } from "sc-common";
-import { emitEvents, mongoEmitter } from "../../adapters/socket-adapter";
-import * as socketClientHandler from "../socket-clients/socket-client-handler";
+import { emitEvents, getSockets, mongoEmitter } from "../../adapters/socket-adapter";
 
 let umCache = [];
 
@@ -27,17 +26,17 @@ const captureUmInfo = (umInfo) => {
 };
 
 const kickOutUmAffectedUsers = () => {
-    const clients = socketClientHandler.getClients();
+    const sockets = getSockets();
 
-    Object.values(clients).forEach((client) => {
-        const userUmInfo = getUmByPartner(client.session.partnerId);
-
-        userUmInfo && kickOutUm(client, userUmInfo);
+    sockets.forEach((socket) => {
+        const { session } = socket.data;
+        const userUmInfo = getUmByPartner(session.partnerId);
+        userUmInfo && kickOutUm(socket, userUmInfo);
     });
 };
 
-const kickOutUm = (client, umInfo) => {
-    client.socketClient.emit("kickedOut", {
+const kickOutUm = (socket, umInfo) => {
+    socket.emit("kickedOut", {
         message: "Game đang được bảo trì, vui lòng quay lại sau 10 phút.",
         umInfo: {
             isUM: true,
@@ -46,7 +45,7 @@ const kickOutUm = (client, umInfo) => {
         },
     });
 
-    socketClientHandler.disconnectUser(client.UID);
+    socket.disconnect(true);
 };
 
 const getUmByPartner = (partnerId) => {
@@ -81,7 +80,7 @@ const handleUmRequest = (req, res) => {
     const umInfo = req.body;
 
     if (umInfo) {
-        mongoEmitter.emit(emitEvents.um, umInfo);
+        mongoEmitter.serverSideEmit(emitEvents.um, umInfo);
         res.send(umInfo);
     } else {
         res.send("Cannot parse request object");

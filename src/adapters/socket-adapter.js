@@ -1,39 +1,38 @@
-import { MongoAdapter, createAdapter } from "@socket.io/mongo-adapter";
+import { createAdapter } from "@socket.io/mongo-adapter";
 import { Emitter } from "@socket.io/mongo-emitter";
 import { Server } from "socket.io";
-import { disconnectUser } from "../features/socket-clients/socket-client-handler";
+import system from "../constants/system";
+import { sendAllUserExceptExclusionSite } from "../features/jackpots/jackpot-handler";
 import { handleUMEvent } from "../features/um/um-handler";
 
 /** @type {Emitter}  */
 let mongoEmitter;
 
-/** @type {MongoAdapter}  */
-let mongoAdapter;
+/**
+ * @type {Server} server
+ */
+let server;
 
 /**
  * @param {Server} socketServer
  */
 function registerEvents(socketServer) {
+    server = socketServer;
     const nsp = socketServer.of("/");
-    mongoAdapter = nsp.adapter;
 
-    mongoAdapter.on(emitEvents.reload, (data) => {
-        socketServer.sockets.emit("reload", data);
-    });
-
-    mongoAdapter.on(emitEvents.jackpotWinner, (data) => {
+    nsp.on(emitEvents.jackpotWinner, (data) => {
         sendAllUserExceptExclusionSite(data);
     });
 
-    mongoAdapter.on(emitEvents.um, (data) => {
+    nsp.on(emitEvents.um, (data) => {
         handleUMEvent(data);
     });
 
-    mongoAdapter.on(emitEvents.kickedOut, (userId) => {
-        for (let [socketId, socket] of nsp.sockets) {
-            if (socket.data.UID === userId) {
+    nsp.on(emitEvents.kickedOut, ({ UID, sid }) => {
+        for (const socket of nsp.sockets.values()) {
+            if (socket.data.UID === UID && socket.id !== sid && socket.data.session.system !== system.instant) {
                 socket.emit("kickedOut", true);
-                disconnectUser(socketId);
+                socket.disconnect(true);
             }
         }
     });
@@ -56,7 +55,11 @@ export function initMongoEmitter(mongoCollection) {
 }
 
 export async function getConnectedClients() {
-    return await mongoAdapter.nsp.server.fetchSockets();
+    return await server.fetchSockets();
+}
+
+export function getSockets(nsp = "/") {
+    return Array.from(server.of(nsp).sockets.values()).filter((socket) => socket.data.session.system !== system.instant);
 }
 
 export const emitEvents = {
@@ -66,5 +69,5 @@ export const emitEvents = {
     kickedOut: "kickedOut",
 };
 
-export { mongoAdapter, mongoEmitter };
+export { mongoEmitter, server };
 

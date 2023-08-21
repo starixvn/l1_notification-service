@@ -1,10 +1,10 @@
 import axios from "axios";
 import { userSessions } from "sc-base-database";
-import * as socketClientHandler from "../features/socket-clients/socket-client-handler";
 import * as roundTimerHandler from "../features/round-timer/round-timer-handler";
 
-import appConfigs from "../app-configs";
 import { logger } from "sc-common";
+import appConfigs from "../app-configs";
+import * as socketClientHandler from "../features/socket-clients/socket-client-handler";
 
 export const authenticate = async (socketClient, next) => {
     try {
@@ -26,9 +26,12 @@ export const authenticate = async (socketClient, next) => {
         }
 
         const session = await userSessions.findOne({ sessionId: authData.ss }).lean().exec();
+        socket.data = {
+            UID: session.userId,
+            session,
+        };
         const roundTimerGameOffered = await roundTimerHandler.getRoundTimerGameOffered(session);
         const newSession = { ...session, roundTimerGameOffered };
-        socketClientHandler.addClient(socketClient, newSession);
 
         socketClient.emit("auth", { authorized: true });
 
