@@ -1,8 +1,7 @@
-import { tests } from "../../../src/features/game-notifications/game-notification-handler";
-import { findNotifications } from "../../../src/features/game-notifications";
 import { logger } from "sc-common";
+import { findNotifications } from "../../../src/features/game-notifications";
+import { tests } from "../../../src/features/game-notifications/game-notification-handler";
 import { findWithProjection } from "../../../src/features/game-notifications/game-notification-repository";
-import { getClientSession } from "../../../src/features/socket-clients/socket-client-handler";
 
 jest.mock("sc-common");
 jest.mock("../../../src/features/game-notifications/game-notification-repository");
@@ -14,10 +13,9 @@ describe("createFilter", () => {
             "should return an object just has uid property",
             (request) => {
                 // Arrange
-                getClientSession.mockReturnValueOnce({ userId: "uid" });
 
                 // Act
-                const filter = tests.createFilter({ id: "uid" }, request);
+                const filter = tests.createFilter({ data: { UID: "uid" } }, request);
 
                 // Assert
                 expect(filter).toStrictEqual({ uid: "uid" });
@@ -28,10 +26,9 @@ describe("createFilter", () => {
     describe("when the request is valid", () => {
         it("should return an object has uid and gameId property", () => {
             // Arrange
-            getClientSession.mockReturnValueOnce({ userId: "uid" });
 
             // Act
-            const filter = tests.createFilter({ id: "uid" }, { gameId: 3 });
+            const filter = tests.createFilter({ data: { UID: "uid" } }, { gameId: 3 });
 
             // Assert
             expect(filter).toStrictEqual({ uid: "uid", gameId: 3 });
@@ -41,10 +38,9 @@ describe("createFilter", () => {
     describe("when the session is not defined", () => {
         it("should return an object has undefined uid", () => {
             // Arrange
-            getClientSession.mockReturnValueOnce(null);
 
             // Act
-            const filter = tests.createFilter({ id: "uid" }, { gameId: 3 });
+            const filter = tests.createFilter({ data: {} }, { gameId: 3 });
 
             // Assert
             expect(filter).toStrictEqual({ uid: undefined, gameId: 3 });

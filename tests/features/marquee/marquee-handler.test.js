@@ -1,10 +1,12 @@
 import Chance from "chance";
-import { setMarquee, proceed, proceedMessage } from "../../../src/features/marquee/marquee-handler";
-import notifications from "../../../src/features/game-notifications/notifications";
-import * as socketServerHandler from "../../../src/features/socket-server/socket-server-handler";
 import { stubMongoose } from "jest-micro-auto-stub";
+import notifications from "../../../src/features/game-notifications/notifications";
+import { proceed, proceedMessage, setMarquee } from "../../../src/features/marquee/marquee-handler";
+import * as socketServerHandler from "../../../src/features/socket-server/socket-server-handler";
 
-jest.mock("../../../src/features/socket-server/socket-server-handler");
+jest.mock("../../../src/features/socket-server/socket-server-handler", () => ({
+    broadcastLocal: jest.fn(),
+}));
 
 jest.mock("../../../src/app-configs", () => {
     return {
@@ -16,7 +18,6 @@ jest.mock("../../../src/app-configs", () => {
 });
 
 let chance = new Chance();
-socketServerHandler.broadcastAll = jest.fn();
 notifications.find = stubMongoose(notifications).find;
 
 describe("MarqueeHandler", () => {
@@ -49,7 +50,7 @@ describe("MarqueeHandler", () => {
             proceedMessage(message);
 
             // Assert
-            expect(socketServerHandler.broadcastAll).toHaveBeenCalledWith("marquee", message);
+            expect(socketServerHandler.broadcastLocal).toHaveBeenCalledWith("marquee", message);
         });
     });
 

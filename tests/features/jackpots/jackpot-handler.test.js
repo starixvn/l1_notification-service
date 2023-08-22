@@ -3,22 +3,25 @@ import { UserSession } from "jest-auto-fixture/src/models/index";
 import { stubMongoose } from "jest-micro-auto-stub";
 import { userInfos } from "sc-base-database";
 import { logger } from "sc-common";
+import { mongoEmitter } from "../../../src/adapters/socket-adapter";
+import emitEvents from "../../../src/constants/emit-events";
 import * as currencyRepository from "../../../src/features/jackpots/currency-repository";
 import * as handler from "../../../src/features/jackpots/jackpot-handler";
 import * as jackpotRepository from "../../../src/features/jackpots/jackpot-repository";
 import * as partnerConfigRepository from "../../../src/features/jackpots/partner-config-repository";
-import * as socketClientHandler from "../../../src/features/socket-clients/socket-client-handler";
 
+jest.mock("../../../src/adapters/socket-adapter", () => ({
+    mongoEmitter: {
+        serverSideEmit: jest.fn(),
+    },
+}));
 jest.mock("../../../src/features/jackpots/currency-repository");
 jest.mock("../../../src/features/jackpots/partner-config-repository");
 jest.mock("../../../src/features/jackpots/jackpot-repository", () => ({
     getRunningPools: jest.fn(() => []),
-    getJackPotWinners: jest.fn(() => [])
+    getJackPotWinners: jest.fn(() => []),
 }));
-jest.mock("../../../src/features/socket-clients/socket-client-handler", () => ({
-    getClientSession: jest.fn(),
-    getClients: jest.fn(),
-}));
+
 jest.mock("../../../src/features/jackpots/exchange-rate-repository", () => ({
     getExchangeRates: jest.fn(() => []),
 }));
@@ -29,12 +32,13 @@ const chance = new Chance();
 const socketClient = {
     id: chance.guid(),
     emit: jest.fn(),
-    session: {
-        disableJackpotGames: false,
-        currencyCode: "US",
+    data: {
+        session: {
+            disableJackpotGames: false,
+            currencyCode: "US",
+        },
     },
 };
-socketClientHandler.getClientSession.mockReturnValue(socketClient.session);
 
 describe("jackpotHandler", () => {
     beforeEach(() => {
@@ -56,17 +60,6 @@ describe("jackpotHandler", () => {
             );
         });
 
-        it("should call getClientSession", async () => {
-            // Act
-            const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
-            getOfferedGamesFunc.mockResolvedValueOnce([]);
-            jackpotRepository.getJackPotWinners.mockResolvedValueOnce([]);
-            await handler.getWinners(socketClient, { limit });
-
-            // Assert
-            expect(socketClientHandler.getClientSession).toBeCalledWith(socketClient.id);
-        });
-
         it("should call getOfferGames", async () => {
             // Arrange
             const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
@@ -76,7 +69,7 @@ describe("jackpotHandler", () => {
             await handler.getWinners(socketClient, { limit });
 
             // Assert
-            expect(getOfferedGamesFunc).toBeCalledWith(socketClient.session);
+            expect(getOfferedGamesFunc).toBeCalledWith(socketClient.data.session);
         });
 
         it("should call jackpotRepository.getJackpotWinners", async () => {
@@ -127,33 +120,34 @@ describe("jackpotHandler", () => {
 
         it("should emit jackpotWinners without winners to client", async () => {
             // Arrange
-            socketClientHandler.getClientSession.mockReturnValueOnce({ disableJackpotGames: true });
+            const socket = {
+                ...socketClient,
+                ...{
+                    data: {
+                        session: {
+                            currencyCode: "US",
+                            disableJackpotGames: true,
+                        },
+                    },
+                },
+            };
+
             const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
             getOfferedGamesFunc.mockResolvedValueOnce([]);
             const getJackpotWinnersMapAvatarFunc = handler.default.__get__("getJackpotWinnersMapAvatar");
             getJackpotWinnersMapAvatarFunc.mockResolvedValueOnce([]);
 
             // Act
-            await handler.getWinners(socketClient, { limit });
+            await handler.getWinners(socket, { limit });
 
             // Assert
-            expect(socketClient.emit).toBeCalledWith("jackpotWinners", []);
+            expect(socket.emit).toBeCalledWith("jackpotWinners", []);
         });
     });
 
     describe("getPools", () => {
         beforeEach(() => {
             handler.default.__set__("getOfferedGames", jest.fn());
-        });
-
-        it("should call getClientSession", async () => {
-            // Act
-            const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
-            getOfferedGamesFunc.mockResolvedValueOnce([]);
-            await handler.getPools(socketClient);
-
-            // Assert
-            expect(socketClientHandler.getClientSession).toBeCalledWith(socketClient.id);
         });
 
         it("should call getOfferGames", async () => {
@@ -165,7 +159,7 @@ describe("jackpotHandler", () => {
             await handler.getPools(socketClient);
 
             // Assert
-            expect(getOfferedGamesFunc).toBeCalledWith(socketClient.session);
+            expect(getOfferedGamesFunc).toBeCalledWith(socketClient.data.session);
         });
 
         it("should call jackpotRepository.getRunningPools", async () => {
@@ -202,16 +196,27 @@ describe("jackpotHandler", () => {
 
         it("should emit jackpotPoolsOnGame to client", async () => {
             // Arrange
-            socketClientHandler.getClientSession.mockReturnValueOnce({ disableJackpotGames: true });
+            const socket = {
+                ...socketClient,
+                ...{
+                    data: {
+                        session: {
+                            currencyCode: "US",
+                            disableJackpotGames: true,
+                        },
+                    },
+                },
+            };
+
             const getOfferedGamesFunc = handler.default.__get__("getOfferedGames");
             const payload = { gameId: 2 };
             getOfferedGamesFunc.mockResolvedValueOnce([]);
 
             // Act
-            await handler.getPools(socketClient, payload);
+            await handler.getPools(socket, payload);
 
             // Assert
-            expect(socketClient.emit).toBeCalledWith("jackpotPoolsOnGame", []);
+            expect(socket.emit).toBeCalledWith("jackpotPoolsOnGame", []);
         });
 
         it("should emit jackpotPoolsOnGame with jackpotPools to client", async () => {
@@ -261,15 +266,12 @@ describe("jackpotHandler", () => {
                 handler.default.__get__("validateParams").mockReturnValueOnce(true);
             });
 
-            it("should call sendAllUserExceptExclusionSite", () => {
-                // Arrange
-                const sendAllUserExceptExclusionSiteFunc = handler.default.__get__("sendAllUserExceptExclusionSite");
-
+            it("should call mongoEmitter.serverSideEmit", () => {
                 // Act
                 handler.notifyJackpotWinner(req, res);
 
                 // Assert
-                expect(sendAllUserExceptExclusionSiteFunc).toBeCalledWith(req.body);
+                expect(mongoEmitter.serverSideEmit).toBeCalledWith(emitEvents.jackpotWinner, req.body);
             });
 
             it("should send received message to client", () => {
@@ -372,8 +374,10 @@ describe("jackpotHandler", () => {
             const siteName = chance.url();
             const session = UserSession({ partnerId, siteName });
             const client = {
-                session,
-                socketClient: { emit: jest.fn() },
+                data: {
+                    session,
+                },
+                emit: jest.fn(),
             };
 
             beforeEach(() => {
@@ -388,7 +392,7 @@ describe("jackpotHandler", () => {
                     await sendJackpotWinnerWhenNotExcludedFunc(client, payload);
 
                     // Assert
-                    expect(client.socketClient.emit).not.toBeCalled();
+                    expect(client.emit).not.toBeCalled();
                 });
             });
 
@@ -400,7 +404,7 @@ describe("jackpotHandler", () => {
                     await sendJackpotWinnerWhenNotExcludedFunc(client, payload);
 
                     // Assert
-                    expect(client.socketClient.emit).toBeCalledWith("jackpotWinner", payload);
+                    expect(client.emit).toBeCalledWith("jackpotWinner", payload);
                 });
             });
         });

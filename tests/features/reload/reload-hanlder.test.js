@@ -1,7 +1,13 @@
+import { mongoEmitter } from "../../../src/adapters/socket-adapter";
+import emitEvents from "../../../src/constants/emit-events";
 import * as handler from "../../../src/features/reload/reload-handler";
 import * as socketServerHandler from "../../../src/features/socket-server/socket-server-handler";
 
-jest.mock("../../../src/features/socket-server/socket-server-handler");
+jest.mock("../../../src/adapters/socket-adapter", () => ({
+    mongoEmitter: {
+        emit: jest.fn(),
+    },
+}));
 
 describe("reloadHandler", () => {
     const req = {};
@@ -16,7 +22,7 @@ describe("reloadHandler", () => {
             handler.broadcastReload(req, res);
 
             // Assert
-            expect(socketServerHandler.broadcastAll).toBeCalledWith("reload", true);
+            expect(mongoEmitter.emit).toBeCalledWith(emitEvents.reload, true);
         });
 
         it("should call res.send", () => {

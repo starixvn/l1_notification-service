@@ -1,18 +1,26 @@
-import { authenticate } from "../../src/middleware/authorize-handler";
 import axios from "axios";
 import Chance from "chance";
-import { userSessions } from "sc-base-database";
-import { stubMongoose } from "jest-micro-auto-stub";
-import * as socketClientHandler from "../../src/features/socket-clients/socket-client-handler";
-import * as roundTimerHandler from "../../src/features/round-timer/round-timer-handler";
-import appConfigs from "../../src/app-configs";
 import { UserSession } from "jest-auto-fixture/src/models";
+import { stubMongoose } from "jest-micro-auto-stub";
+import { userSessions } from "sc-base-database";
+import * as roundTimerHandler from "../../src/features/round-timer/round-timer-handler";
+import { mongoEmitter } from "../../src/adapters/socket-adapter";
+import appConfigs from "../../src/app-configs";
+import emitEvents from "../../src/constants/emit-events";
+import system from "../../src/constants/system";
+import { authenticate } from "../../src/middleware/authorize-handler";
 
 jest.mock("axios");
-jest.mock("../../src/features/socket-clients/socket-client-handler");
+jest.mock("../../src/adapters/socket-adapter", () => ({
+    mongoEmitter: {
+        serverSideEmit: jest.fn(),
+    },
+}));
 jest.mock("../../src/features/round-timer/round-timer-handler");
 userSessions.findOne = stubMongoose(userSessions).findOne;
-const session = UserSession();
+const session = UserSession({ system: 1 });
+userSessions.findOne().lean().exec.mockResolvedValue(session);
+
 const chance = new Chance();
 
 describe("authenticate", () => {
@@ -24,16 +32,15 @@ describe("authenticate", () => {
                 username: chance.name_prefix(),
             },
         },
+        id: chance.guid(),
         data: {},
         emit: jest.fn(),
         disconnect: jest.fn(),
     };
     const next = jest.fn();
 
-    beforeEach(() => {
-        userSessions.findOne().lean().exec.mockResolvedValueOnce(session);
+    afterEach(() => jest.clearAllMocks());
         roundTimerHandler.getRoundTimerGameOffered = jest.fn().mockReturnValueOnce([1, 2, 4]);
-    });
 
     it("should call authorize to user service", async () => {
         // Arrange
@@ -88,7 +95,7 @@ describe("authenticate", () => {
             expect(userSessions.findOne).toBeCalledWith({ sessionId: socketClient.handshake.auth.ss });
         });
 
-        it("should call socketClientHandler.addClient", async () => {
+        it("should call mongoEmitter.addClient", async () => {
             // Arrange
             axios.post.mockResolvedValueOnce({ data: { isSuccessful: true } });
 
@@ -96,7 +103,23 @@ describe("authenticate", () => {
             await authenticate(socketClient, next);
 
             // Assert
-            expect(socketClientHandler.addClient).toBeCalledWith(socketClient, session);
+            expect(mongoEmitter.serverSideEmit).toBeCalledWith(emitEvents.kickedOut, { UID: session.userId, sid: socketClient.id });
+        });
+
+        it("when session.system is instant shouldn't call mongoEmitter.addClient", async () => {
+            // Arrange
+            userSessions
+                .findOne()
+                .lean()
+                .exec.mockResolvedValue(UserSession({ system: system.instant }));
+
+            axios.post.mockResolvedValueOnce({ data: { isSuccessful: true } });
+
+            // Act
+            await authenticate(socketClient, next);
+
+            // Assert
+            expect(mongoEmitter.serverSideEmit).not.toBeCalledWith(emitEvents.kickedOut, { UID: session.userId, sid: socketClient.id });
         });
 
         it("should emit authorized to client", async () => {

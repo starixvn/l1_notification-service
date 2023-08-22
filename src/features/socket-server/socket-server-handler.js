@@ -21,9 +21,9 @@ async function getConnectedClients() {
     return await socketServer.fetchSockets();
 }
 
-function getSockets(nsp = "/") {
+function getLocalSockets(nsp = "/") {
     return Array.from(socketServer.of(nsp).sockets.values()).filter((socket) => socket.data.session.system !== system.instant);
 }
 
-export { broadcastAll, broadcastLocal, getConnectedClients, getSockets, init };
+export { broadcastAll, broadcastLocal, getConnectedClients, getLocalSockets, init };
 

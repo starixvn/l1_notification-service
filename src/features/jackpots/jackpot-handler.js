@@ -1,8 +1,9 @@
 import Joi from "joi";
 import { userInfos } from "sc-base-database";
 import { logger } from "sc-common";
-import { emitEvents, mongoEmitter } from "../../adapters/socket-adapter";
-import { getSockets } from "../socket-server/socket-server-handler";
+import { mongoEmitter } from "../../adapters/socket-adapter";
+import emitEvents from "../../constants/emit-events";
+import { getLocalSockets } from "../socket-server/socket-server-handler";
 import * as currencyRepository from "./currency-repository";
 import { getExchangeRates } from "./exchange-rate-repository";
 import * as jackpotRepository from "./jackpot-repository";
@@ -31,7 +32,7 @@ const validateParams = (params) => {
 };
 
 export const sendAllUserExceptExclusionSite = async (payload) => {
-    const sockets = getSockets();
+    const sockets = getLocalSockets();
     const { gameId } = payload;
     
     if (gameId === jackpotGames[0]) {
@@ -44,7 +45,7 @@ export const sendAllUserExceptExclusionSite = async (payload) => {
 const sendJackpotWinnerWhenNotExcluded = async (socket, payload) => {
     const { session } = socket.data;
     const { gameId } = payload;
-    
+
     if (session && !session.disableJackpotGames) {
         const offeredGames = await getOfferedGames(session);
         const isOffered = offeredGames.some((game) => game.gameId === gameId);

@@ -3,8 +3,9 @@ import { userSessions } from "sc-base-database";
 import * as roundTimerHandler from "../features/round-timer/round-timer-handler";
 
 import { logger } from "sc-common";
-import { emitEvents, mongoEmitter } from "../adapters/socket-adapter";
+import { mongoEmitter } from "../adapters/socket-adapter";
 import appConfigs from "../app-configs";
+import emitEvents from "../constants/emit-events";
 import system from "../constants/system";
 
 export const authenticate = async (socket, next) => {
@@ -36,7 +37,7 @@ export const authenticate = async (socket, next) => {
 
         socket.emit("auth", { authorized: true });
 
-        if (session?.system !== system.instant) {
+        if (session.system !== system.instant) {
             const UID = session.userId;
             //disconnect other socket sessions having same UID
             mongoEmitter.serverSideEmit(emitEvents.kickedOut, { UID, sid: socket.id });

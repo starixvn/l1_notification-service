@@ -1,12 +1,12 @@
 import Chance from "chance";
-import * as socketServerHandler from "../../../src/features/socket-server/socket-server-handler";
 import * as notificationRepository from "../../../src/features/game-notifications/game-notification-repository";
 import * as handler from "../../../src/features/promotion-notifications/promotion-notification-handler";
 import * as promotionsRepository from "../../../src/features/promotions/promotions-repository";
+import * as socketServerHandler from "../../../src/features/socket-server/socket-server-handler";
 
-jest.mock("../../../src/features/socket-server/socket-server-handler");
-jest.mock("../../../src/features/game-notifications/game-notification-repository");
-jest.mock("../../../src/features/promotions/promotions-repository");
+jest.mock("../../../src/features/socket-server/socket-server-handler", () => ({ broadcastLocal: jest.fn() }));
+jest.mock("../../../src/features/game-notifications/game-notification-repository", () => ({ getPromotionNotification: jest.fn() }));
+jest.mock("../../../src/features/promotions/promotions-repository", () => ({ getPromotions: jest.fn() }));
 jest.mock("../../../src/app-configs", () => {
     return {
         promotionNotificationDurations: {
@@ -16,9 +16,6 @@ jest.mock("../../../src/app-configs", () => {
 });
 
 let chance = new Chance();
-socketServerHandler.broadcastAll = jest.fn();
-notificationRepository.getPromotionNotification = jest.fn();
-promotionsRepository.getPromotions = jest.fn();
 
 const notification = [
     {
@@ -100,7 +97,7 @@ describe("Promotions Notification Handler", () => {
             handler.proceedNotificationMessage(message);
 
             // Assert
-            expect(socketServerHandler.broadcastAll).toHaveBeenCalledWith("promotionNotifications", message);
+            expect(socketServerHandler.broadcastLocal).toHaveBeenCalledWith("promotionNotifications", message);
         });
     });
 

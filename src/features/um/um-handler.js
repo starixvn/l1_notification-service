@@ -1,6 +1,7 @@
 import { logger } from "sc-common";
-import { emitEvents, mongoEmitter } from "../../adapters/socket-adapter";
-import { getSockets } from "../socket-server/socket-server-handler";
+import { mongoEmitter } from "../../adapters/socket-adapter";
+import emitEvents from "../../constants/emit-events";
+import { getLocalSockets } from "../socket-server/socket-server-handler";
 
 let umCache = [];
 
@@ -27,7 +28,7 @@ const captureUmInfo = (umInfo) => {
 };
 
 const kickOutUmAffectedUsers = () => {
-    const sockets = getSockets();
+    const sockets = getLocalSockets();
 
     sockets.forEach((socket) => {
         const { session } = socket.data;

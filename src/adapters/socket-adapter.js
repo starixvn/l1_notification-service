@@ -1,13 +1,13 @@
 import { createAdapter } from "@socket.io/mongo-adapter";
 import { Emitter } from "@socket.io/mongo-emitter";
 import { Server } from "socket.io";
+import emitEvents from "../constants/emit-events";
 import system from "../constants/system";
 import { sendAllUserExceptExclusionSite } from "../features/jackpots/jackpot-handler";
 import { handleUMEvent } from "../features/um/um-handler";
 
 /** @type {Emitter}  */
 let mongoEmitter;
-
 
 /**
  * @param {Server} socketServer
@@ -48,14 +48,6 @@ export function initMongoAdapter(socketServer, mongoCollection) {
 export function initMongoEmitter(mongoCollection) {
     mongoEmitter = new Emitter(mongoCollection);
 }
-
-
-export const emitEvents = {
-    jackpotWinner: "jackpotWinner",
-    reload: "reload",
-    um: "um",
-    kickedOut: "kickedOut",
-};
 
 export { mongoEmitter };
 

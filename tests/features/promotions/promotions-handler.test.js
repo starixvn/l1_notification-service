@@ -1,9 +1,13 @@
-import * as socketServerHandler from "../../../src/features/socket-server/socket-server-handler";
 import * as handler from "../../../src/features/promotions/promotions-handler";
 import * as promotionsRepository from "../../../src/features/promotions/promotions-repository";
+import * as socketServerHandler from "../../../src/features/socket-server/socket-server-handler";
 
-jest.mock("../../../src/features/socket-server/socket-server-handler");
-jest.mock("../../../src/features/promotions/promotions-repository");
+jest.mock("../../../src/features/socket-server/socket-server-handler", () => ({
+    broadcastLocal: jest.fn(),
+}));
+jest.mock("../../../src/features/promotions/promotions-repository", () => ({
+    getPromotions: jest.fn()
+}));
 jest.mock("../../../src/app-configs", () => {
     return {
         promotionsDurations: {
@@ -12,8 +16,6 @@ jest.mock("../../../src/app-configs", () => {
     };
 });
 
-socketServerHandler.broadcastAll = jest.fn();
-promotionsRepository.getPromotions = jest.fn();
 
 const promotions = [
     {
@@ -60,13 +62,13 @@ describe("Promotions Handler", () => {
     });
 
     describe("proceedNotificationMessage", () => {
-        it("should emit message to all sockets", () => {
+        it("should emit message to local sockets", () => {
             // Arrange
             // Act
             handler.proceedPromotionsMessage(promotions);
 
             // Assert
-            expect(socketServerHandler.broadcastAll).toHaveBeenCalledWith("promotions", promotions);
+            expect(socketServerHandler.broadcastLocal).toHaveBeenCalledWith("promotions", promotions);
         });
     });
 

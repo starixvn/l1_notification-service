@@ -1,10 +1,14 @@
-import * as handler from "../../../src/features/socket-server/socket-server-handler";
 import Chance from "chance";
+import * as handler from "../../../src/features/socket-server/socket-server-handler";
 
 describe("socketServerHandler", () => {
     const chance = new Chance();
     const io = {
         sockets: {
+            emit: jest.fn(),
+        },
+        emit: jest.fn(),
+        local: {
             emit: jest.fn(),
         },
     };
@@ -20,7 +24,7 @@ describe("socketServerHandler", () => {
             handler.init(io);
 
             // Assert
-            expect(handler.default.__get__("socketServer")).toStrictEqual(io.sockets);
+            expect(handler.default.__get__("socketServer")).toStrictEqual(io);
         });
     });
 
@@ -30,13 +34,29 @@ describe("socketServerHandler", () => {
 
         it("should call socketServer.emit", () => {
             // Arrange
-            handler.default.__set__("socketServer", io.sockets);
+            handler.init(io);
 
             // Act
             handler.broadcastAll(emitEvent, data);
 
             // Assert
-            expect(io.sockets.emit).toBeCalledWith(emitEvent, data);
+            expect(io.emit).toBeCalledWith(emitEvent, data);
+        });
+    });
+
+    describe("broadcastLocal", () => {
+        const emitEvent = chance.string();
+        const data = { message: chance.string() };
+
+        it("should call socketServer.local.emit", () => {
+            // Arrange
+            handler.init(io);
+
+            // Act
+            handler.broadcastLocal(emitEvent, data);
+
+            // Assert
+            expect(io.local.emit).toBeCalledWith(emitEvent, data);
         });
     });
 });

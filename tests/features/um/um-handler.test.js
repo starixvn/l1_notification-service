@@ -1,11 +1,20 @@
 import Chance from "chance";
 import { logger } from "sc-common";
-import * as socketClientHandler from "../../../src/features/socket-clients/socket-client-handler";
+import { mongoEmitter } from "../../../src/adapters/socket-adapter";
+import emitEvents from "../../../src/constants/emit-events";
+import { getLocalSockets } from "../../../src/features/socket-server/socket-server-handler";
 import * as handler from "../../../src/features/um/um-handler";
 
 const chance = new Chance();
 jest.mock("sc-common");
-jest.mock("../../../src/features/socket-clients/socket-client-handler");
+jest.mock("../../../src/features/socket-server/socket-server-handler", () => ({
+    getLocalSockets: jest.fn(),
+}));
+jest.mock("../../../src/adapters/socket-adapter", () => ({
+    mongoEmitter: {
+        serverSideEmit: jest.fn(),
+    },
+}));
 
 describe("umHandler", () => {
     const currentTime = Date.now();
@@ -72,32 +81,12 @@ describe("umHandler", () => {
                 expect(res.send).toBeCalledWith(req.body);
             });
 
-            describe("when isUm true", () => {
-                it("should call startUm", () => {
-                    // Arrange
-                    const request = { body: { isUM: true } };
-                    const startUmFunc = handler.default.__get__("startUm");
+            it("should call mongoEmitter.serverSideEmit", () => {
+                // Act
+                handler.handleUmRequest(req, res);
 
-                    // Act
-                    handler.handleUmRequest(request, res);
-
-                    // Assert
-                    expect(startUmFunc).toBeCalledWith(request.body);
-                });
-            });
-
-            describe("when isUm false", () => {
-                it("should call startUm", () => {
-                    // Arrange
-                    const request = { body: { isUM: false } };
-                    const stopUmFunc = handler.default.__get__("stopUm");
-
-                    // Act
-                    handler.handleUmRequest(request, res);
-
-                    // Assert
-                    expect(stopUmFunc).toBeCalledWith(request.body);
-                });
+                // Assert
+                expect(mongoEmitter.serverSideEmit).toBeCalledWith(emitEvents.um, req.body);
             });
         });
 
@@ -114,7 +103,6 @@ describe("umHandler", () => {
             });
         });
     });
-
     describe("startUm", () => {
         const startUmFunc = handler.default.__get__("startUm");
         const umInfo = {
@@ -237,24 +225,24 @@ describe("umHandler", () => {
     describe("kickOutUm", () => {
         const kickOutUmFunc = handler.default.__get__("kickOutUm");
         const client = {
-            UID: chance.guid(),
-            socketClient: { emit: jest.fn(), id: chance.guid() },
+            data: {
+                UID: chance.guid(),
+            },
+            emit: jest.fn(),
+            id: chance.guid(),
+            disconnect: jest.fn(),
         };
         const umInfo = {
             startTime: chance.date(),
             endTime: chance.date(),
         };
 
-        beforeEach(() => {
-            handler.default.__set__("disconnectUser", jest.fn());
-        });
-
         it("should emit kickOut to client", () => {
             // Act
             kickOutUmFunc(client, umInfo);
 
             // Expect
-            expect(client.socketClient.emit).toBeCalledWith("kickedOut", {
+            expect(client.emit).toBeCalledWith("kickedOut", {
                 message: "Game đang được bảo trì, vui lòng quay lại sau 10 phút.",
                 umInfo: {
                     isUM: true,
@@ -264,15 +252,12 @@ describe("umHandler", () => {
             });
         });
 
-        it("should call socketClientHandler.disconnectUser", () => {
-            // Arrange
-            socketClientHandler.disconnectUser = jest.fn();
-
+        it("should call client.disconnect", () => {
             // Act
             kickOutUmFunc(client, umInfo);
 
             // Expect
-            expect(socketClientHandler.disconnectUser).toBeCalledWith(client.socketClient.id);
+            expect(client.disconnect).toBeCalledWith(true);
         });
     });
 
@@ -280,30 +265,30 @@ describe("umHandler", () => {
         const kickOutUmAffectedUsersFunc = handler.default.__get__("kickOutUmAffectedUsers");
 
         beforeEach(() => {
-            socketClientHandler.getClients = jest.fn();
             handler.default.__set__("getUmByPartner", jest.fn());
             handler.default.__set__("kickOutUm", jest.fn());
         });
 
-        it("should call socketClientHandler.getClients", () => {
+        it("should call getLocalSockets", () => {
             // Arrange
-            socketClientHandler.getClients.mockReturnValueOnce([]);
+            getLocalSockets.mockReturnValueOnce([]);
 
             // Act
             kickOutUmAffectedUsersFunc();
 
             // Assert
-            expect(socketClientHandler.getClients).toBeCalled();
+            expect(getLocalSockets).toBeCalled();
         });
 
         describe("with each client", () => {
             const socketId = chance.guid();
             const clients = {
-                [socketId]: { session: { partnerId: chance.string() } },
+                id: socketId,
+                data: { session: { partnerId: chance.string() } },
             };
 
             beforeEach(() => {
-                socketClientHandler.getClients.mockReturnValueOnce({ ...clients });
+                getLocalSockets.mockReturnValueOnce([clients]);
             });
 
             it("should call getUmByPartner", () => {
@@ -314,7 +299,7 @@ describe("umHandler", () => {
                 kickOutUmAffectedUsersFunc();
 
                 // Assert
-                expect(getUmByPartnerFunc).toBeCalledWith(clients[socketId].session.partnerId);
+                expect(getUmByPartnerFunc).toBeCalledWith(clients.data.session.partnerId);
             });
 
             describe("when user's partner is um", () => {
@@ -328,7 +313,7 @@ describe("umHandler", () => {
                     kickOutUmAffectedUsersFunc();
 
                     // Assert
-                    expect(kickOutUmFunc).toBeCalledWith(clients[socketId], userUmInfo);
+                    expect(kickOutUmFunc).toBeCalledWith(clients, userUmInfo);
                 });
             });
 
