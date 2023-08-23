@@ -14,7 +14,7 @@ import * as SocketRouter from "./socket-router";
  * @param {http.Server} httpServer
  */
 export const init = async (app, httpServer) => {
-    const { socketOptions, disableCors } = appConfigs;
+    const { socketOptions, disableCors, promPushGatewayConfigs } = appConfigs;
     const opts = socketOptions ?? { pingInterval: 25 * 1000, pingTimeout: 60 * 1000 };
     opts.allowEIO3 = true;
     opts.allowRequest = (req, callback) => {
@@ -31,8 +31,8 @@ export const init = async (app, httpServer) => {
     }
 
     const socketServer = new Server(httpServer, opts);
-    
-    Metrics.init(socketServer);
+
+    Metrics.init(socketServer, promPushGatewayConfigs);
     SocketServerHandler.init(socketServer);
     initRouter(app, socketServer);
     await initAdapter(socketServer);
@@ -51,7 +51,7 @@ const initRouter = async (app, socketServer) => {
 const initAdapter = async (socketServer) => {
     const collection = mongoose.connection.db.collection("notification_service_events");
     await collection.createIndex({ createdAt: 1 }, { expireAfterSeconds: 3600, background: true });
-    
+
     initMongoAdapter(socketServer, collection);
     initMongoEmitter(collection);
 };
