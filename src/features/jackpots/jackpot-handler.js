@@ -51,7 +51,7 @@ const sendJackpotWinnerWhenNotExcluded = async (client, payload) => {
     }
 };
 
-const getOfferedGames = async (session) => {
+export const getOfferedGames = async (session) => {
     const currencyGroup = await currencyRepository.getCurrencyGroup(session.currencyGroupId);
     const currency = await currencyRepository.getCurrency(session.currencyName, session.partnerId);
 
@@ -60,7 +60,6 @@ const getOfferedGames = async (session) => {
         const gamesExcludedBySite = await getGamesExcludedByPartnerSite(session.partnerId, session.siteName);
         const gamesExcludedBySession = session.disableJackpotGames ? jackpotGames : [];
         const excludedGames = [...gamesExcludedBySite, ...gamesExcludedBySession];
-
         return groupOfferGames?.filter((game) => !excludedGames.includes(game.gameId)) ?? [];
     }
 

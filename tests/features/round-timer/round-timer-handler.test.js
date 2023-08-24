@@ -138,7 +138,7 @@ describe("roundTimerHandler", () => {
                 currencyGroupId: 456,
             };
 
-            const mockFetchedGamesOffered = [1, 2, 3];
+            const mockFetchedGamesOffered = [{ gameId: 1 }, { gameId: 2 }, { gameId: 3 }];
             const mockFetchedLobby = {
                 roundTimerGame: {
                     games: [
