@@ -50,7 +50,7 @@ const sendJackpotWinnerWhenNotExcluded = async (client, payload) => {
     }
 };
 
-const getOfferedGames = async (session) => {
+export const getOfferedGames = async (session) => {
     const currencyGroup = await currencyRepository.getCurrencyGroup(session.currencyGroupId);
     const currency = await currencyRepository.getCurrency(session.currencyName, session.partnerId);
 
@@ -59,7 +59,6 @@ const getOfferedGames = async (session) => {
         const gamesExcludedBySite = await getGamesExcludedByPartnerSite(session.partnerId, session.siteName);
         const gamesExcludedBySession = session.disableJackpotGames ? jackpotGames : [];
         const excludedGames = [...gamesExcludedBySite, ...gamesExcludedBySession];
-
         return groupOfferGames?.filter((game) => !excludedGames.includes(game.gameId)) ?? [];
     }
 
@@ -69,8 +68,8 @@ const getOfferedGames = async (session) => {
 const getGamesExcludedByPartnerSite = async (partnerId, siteName) => {
     const gameSiteExclusions = await partnerConfigRepository.getSiteExclusionByPartner(partnerId);
 
-    return Object.keys(gameSiteExclusions?.values ?? {}).reduce((result, gameId) => {
-        if (gameSiteExclusions.values[gameId].includes(siteName)) {
+    return Object.keys(gameSiteExclusions?.value ?? {}).reduce((result, gameId) => {
+        if (gameSiteExclusions.value[gameId].includes(siteName)) {
             result.push(+gameId);
         }
 
@@ -105,7 +104,7 @@ const getJackpotWinnersMapAvatar = async (jackpotWinners) => {
 
 const updateFourGuardianRecords = async (records) => {
     const fourGuardiansRecords = records.filter((x) => x.gameId === jackpotGames[0]);
-    
+
     if (fourGuardiansRecords.length > 0) {
         const currency = await currencyRepository.getCurrency("INH", "ONEworksVGCash");
         if (currency) {
@@ -144,12 +143,10 @@ async function queryJackpotWinners(session, limit) {
 
 async function updateExchangeRateCode(session, winners) {
     const { currencyCode } = session;
-    const exchangeRates = (await getExchangeRates(winners.filter((x) => x.exchangeRateId).map((x) => x.exchangeRateId))).map(
-        (rate) => {
-            rate.code[currencyCode] = parseFloat(rate.code[currencyCode]);
-            return rate;
-        }
-    );
+    const exchangeRates = (await getExchangeRates(winners.filter((x) => x.exchangeRateId).map((x) => x.exchangeRateId))).map((rate) => {
+        rate.code[currencyCode] = parseFloat(rate.code[currencyCode]);
+        return rate;
+    });
 
     for (const winner of winners) {
         winner.exchangeRateCode = {
@@ -171,7 +168,7 @@ export const getPools = async (socketClient, payload) => {
                   .filter((game) => game.stakeLevels?.length > 0 && (!payload?.gameId || game.gameId === payload.gameId))
                   .map((game) => game.gameId)
           );
-          
+
     const result = await updateFourGuardianRecords(jackpotPools);
 
     socketClient.emit(payload?.gameId ? "jackpotPoolsOnGame" : "jackpotPools", result);

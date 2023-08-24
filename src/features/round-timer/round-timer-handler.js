@@ -11,7 +11,6 @@ const getRoundTimerLatestData = async (socketClient) => {
         const currentTime = new Date(new Date().toUTCString());
         const latestData = (await axios.get(`${appConfigs.roundWatcherService.url}api/lastResult`)).data;
         const enabledGames = getEnabledGames(latestData, session, currentTime);
-
         socketClient.emit("latestRoundTimer", enabledGames);
     } catch (err) {
         logger.logError(err);
@@ -31,6 +30,7 @@ const getEnabledGames = (latestData, session, currentTime) => {
 const handleRoundTimerWatcherData = async (req, res) => {
     try {
         const roundTimer = req.body;
+        
         await sendAllUserExpectRoundTimer(roundTimer);
 
         res.send({ received: true });
@@ -54,12 +54,13 @@ const sendUserWhenOffered = async (client, payload) => {
 
 const getRoundTimerGameOffered = async (session) => {
     const { currencyGroupId } = session;
+
     const [fetchedGamesOffered, fetchedLobby] = await Promise.all([
         jackpotHandler.getOfferedGames(session),
         lobbyRepository.getLobbyConfigs(currencyGroupId),
     ]);
 
-    const gamesOffered = fetchedGamesOffered;
+    const gamesOffered = fetchedGamesOffered.map(game => game.gameId);;
     const roundTimerGame = fetchedLobby?.roundTimerGame?.games?.map((game) => game.id) || [];
     return gamesOffered.filter((id) => roundTimerGame.includes(id));
 };
