@@ -31,7 +31,12 @@ const validateParams = (params) => {
 
 const sendAllUserExceptExclusionSite = async (payload) => {
     const clients = socketClientHandler.getClients();
-
+    const { gameId } = payload;
+    console.log(payload);
+    if (gameId === jackpotGames[0]) {
+        await updateFourGuardianRecords([payload]);
+    }
+    console.log(payload);
     await Promise.all(Object.values(clients).map((client) => sendJackpotWinnerWhenNotExcluded(client, payload)));
 };
 
@@ -41,10 +46,6 @@ const sendJackpotWinnerWhenNotExcluded = async (client, payload) => {
     if (session && !session.disableJackpotGames) {
         const offeredGames = await getOfferedGames(session);
         const isOffered = offeredGames.some((game) => game.gameId === gameId);
-
-        if (gameId === jackpotGames[0]) {
-            await updateFourGuardianRecords([payload]);
-        }
 
         isOffered && client.socketClient.emit("jackpotWinner", payload);
     }
@@ -106,7 +107,7 @@ const getJackpotWinnersMapAvatar = async (jackpotWinners) => {
 
 const updateFourGuardianRecords = async (records) => {
     const fourGuardiansRecords = records.filter((x) => x.gameId === jackpotGames[0]);
-    
+
     if (fourGuardiansRecords.length > 0) {
         const currency = await currencyRepository.getCurrency("INH", "ONEworksVGCash");
         if (currency) {
@@ -145,12 +146,10 @@ async function queryJackpotWinners(session, limit) {
 
 async function updateExchangeRateCode(session, winners) {
     const { currencyCode } = session;
-    const exchangeRates = (await getExchangeRates(winners.filter((x) => x.exchangeRateId).map((x) => x.exchangeRateId))).map(
-        (rate) => {
-            rate.code[currencyCode] = parseFloat(rate.code[currencyCode]);
-            return rate;
-        }
-    );
+    const exchangeRates = (await getExchangeRates(winners.filter((x) => x.exchangeRateId).map((x) => x.exchangeRateId))).map((rate) => {
+        rate.code[currencyCode] = parseFloat(rate.code[currencyCode]);
+        return rate;
+    });
 
     for (const winner of winners) {
         winner.exchangeRateCode = {
@@ -172,7 +171,7 @@ export const getPools = async (socketClient, payload) => {
                   .filter((game) => game.stakeLevels?.length > 0 && (!payload?.gameId || game.gameId === payload.gameId))
                   .map((game) => game.gameId)
           );
-          
+
     const result = await updateFourGuardianRecords(jackpotPools);
 
     socketClient.emit(payload?.gameId ? "jackpotPoolsOnGame" : "jackpotPools", result);
