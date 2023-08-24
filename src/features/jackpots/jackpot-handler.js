@@ -32,11 +32,11 @@ const validateParams = (params) => {
 const sendAllUserExceptExclusionSite = async (payload) => {
     const clients = socketClientHandler.getClients();
     const { gameId } = payload;
-    console.log(payload);
+    
     if (gameId === jackpotGames[0]) {
         await updateFourGuardianRecords([payload]);
     }
-    console.log(payload);
+    
     await Promise.all(Object.values(clients).map((client) => sendJackpotWinnerWhenNotExcluded(client, payload)));
 };
 
