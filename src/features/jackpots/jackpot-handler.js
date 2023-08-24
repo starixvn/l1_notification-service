@@ -69,8 +69,9 @@ const getOfferedGames = async (session) => {
 const getGamesExcludedByPartnerSite = async (partnerId, siteName) => {
     const gameSiteExclusions = await partnerConfigRepository.getSiteExclusionByPartner(partnerId);
 
-    return Object.keys(gameSiteExclusions?.values ?? {}).reduce((result, gameId) => {
-        if (gameSiteExclusions.values[gameId].includes(siteName)) {
+    return Object.keys(gameSiteExclusions?.value ?? {}).reduce((result, gameId) => {
+        const exclusionSites = gameSiteExclusions.value[gameId]?.map((site) => site?.toLowerCase());
+        if (exclusionSites.includes(siteName?.toLowerCase())) {
             result.push(+gameId);
         }
 
@@ -139,7 +140,7 @@ async function queryJackpotWinners(session, limit) {
         limit
     );
 
-    return await updateFourGuardianRecords(jackpotWinners);
+    return updateFourGuardianRecords(jackpotWinners);
 }
 
 async function updateExchangeRateCode(session, winners) {

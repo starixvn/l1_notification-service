@@ -533,7 +533,7 @@ describe("jackpotHandler", () => {
     describe("getGamesExcludedByPartnerSite", () => {
         const getGamesExcludedByPartnerSiteFunc = handler.default.__get__("getGamesExcludedByPartnerSite");
         const partnerId = chance.string();
-        const siteName = chance.url();
+        const siteName = chance.url().toLowerCase();
 
         beforeEach(() => {
             partnerConfigRepository.getSiteExclusionByPartner = jest.fn();
@@ -550,7 +550,7 @@ describe("jackpotHandler", () => {
         it("should return games excluded by site", async () => {
             // Arrange
             partnerConfigRepository.getSiteExclusionByPartner.mockResolvedValueOnce({
-                values: {
+                value: {
                     1: ["abc.com"],
                     2: [siteName, "bbc.com"],
                     3: [siteName],
