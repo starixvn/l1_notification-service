@@ -41,7 +41,7 @@ export default {
         url: "http://l2_user_service_prod:5000/",
     },
     roundWatcherService: {
-        url: "http://l1_round_watcher_service_prod:5000/",
+        url: "http://l2_round_watcher_service_prod:5000/",
     },
     metrics: {
         enable: true,
