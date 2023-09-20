@@ -1,17 +1,19 @@
 import axios from "axios";
-import appConfigs from "../../app-configs";
 import { logger } from "sc-common";
+import { mongoEmitter } from "../../adapters/socket-adapter";
+import appConfigs from "../../app-configs";
+import emitEvents from "../../constants/emit-events";
 import * as jackpotHandler from "../jackpots/jackpot-handler";
 import * as lobbyRepository from "../lobby/lobby-repository";
-import * as socketClientHandler from "../socket-clients/socket-client-handler";
+import { getLocalSockets } from "../socket-server/socket-server-handler";
 
-const getRoundTimerLatestData = async (socketClient) => {
+const getRoundTimerLatestData = async (socket) => {
     try {
-        const session = socketClientHandler.getClientSession(socketClient.id);
+        const { session } = socket.data;
         const currentTime = new Date(new Date().toUTCString());
         const latestData = (await axios.get(`${appConfigs.roundWatcherService.url}api/lastResult`)).data;
         const enabledGames = getEnabledGames(latestData, session, currentTime);
-        socketClient.emit("latestRoundTimer", enabledGames);
+        socket.emit("latestRoundTimer", enabledGames);
     } catch (err) {
         logger.logError(err);
     }
@@ -30,8 +32,7 @@ const getEnabledGames = (latestData, session, currentTime) => {
 const handleRoundTimerWatcherData = async (req, res) => {
     try {
         const roundTimer = req.body;
-        
-        await sendAllUserExpectRoundTimer(roundTimer);
+        mongoEmitter.serverSideEmit(emitEvents.roundTimer, roundTimer);
 
         res.send({ received: true });
     } catch (err) {
@@ -39,16 +40,16 @@ const handleRoundTimerWatcherData = async (req, res) => {
     }
 };
 
-const sendAllUserExpectRoundTimer = async (payload) => {
-    const clients = socketClientHandler.getClients();
-    Object.values(clients).forEach((client) => sendUserWhenOffered(client, payload));
+const sendAllUserExpectRoundTimer = (payload) => {
+    const sockets = getLocalSockets();
+    sockets.forEach((socket) => sendUserWhenOffered(socket, payload));
 };
 
-const sendUserWhenOffered = async (client, payload) => {
-    const session = client.session;
+const sendUserWhenOffered = (socket, payload) => {
+    const session = socket.data.session;
     const gameId = parseInt(Object.keys(payload)[0]);
     if (session && isGameOfferedRoundTimer(gameId, session)) {
-        client.socketClient.emit("roundTimer", payload);
+        socket.emit("roundTimer", payload);
     }
 };
 
@@ -60,7 +61,7 @@ const getRoundTimerGameOffered = async (session) => {
         lobbyRepository.getLobbyConfigs(currencyGroupId),
     ]);
 
-    const gamesOffered = fetchedGamesOffered.map(game => game.gameId);;
+    const gamesOffered = fetchedGamesOffered.map((game) => game.gameId);
     const roundTimerGame = fetchedLobby?.roundTimerGame?.games?.map((game) => game.id) || [];
     return gamesOffered.filter((id) => roundTimerGame.includes(id));
 };
@@ -70,4 +71,5 @@ const isGameOfferedRoundTimer = (gameId, session) => {
     return roundTimerGameOffered.includes(gameId);
 };
 
-export { handleRoundTimerWatcherData, getRoundTimerLatestData, getRoundTimerGameOffered };
+export { getRoundTimerGameOffered, getRoundTimerLatestData, handleRoundTimerWatcherData, sendAllUserExpectRoundTimer };
+

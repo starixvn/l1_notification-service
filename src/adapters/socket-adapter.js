@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import emitEvents from "../constants/emit-events";
 import system from "../constants/system";
 import { sendAllUserExceptExclusionSite } from "../features/jackpots/jackpot-handler";
+import { sendAllUserExpectRoundTimer } from "../features/round-timer/round-timer-handler";
 import { handleUMEvent } from "../features/um/um-handler";
 
 /** @type {Emitter}  */
@@ -30,6 +31,10 @@ function registerEvents(socketServer) {
                 socket.disconnect(true);
             }
         }
+    });
+
+    nsp.on(emitEvents.roundTimer, (data) => {
+        sendAllUserExpectRoundTimer(data);
     });
 }
 

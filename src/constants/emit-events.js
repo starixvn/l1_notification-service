@@ -3,5 +3,6 @@ const emitEvents = {
     reload: "reload",
     um: "um",
     kickedOut: "kickedOut",
+    roundTimer: "roundTimer",
 };
 export default emitEvents;

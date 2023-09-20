@@ -28,12 +28,15 @@ export const authenticate = async (socket, next) => {
         }
 
         const session = await userSessions.findOne({ sessionId: authData.ss }).lean().exec();
+        const roundTimerGameOffered = await roundTimerHandler.getRoundTimerGameOffered(session);
+
         socket.data = {
             UID: session.userId,
-            session,
+            session: {
+                ...session,
+                roundTimerGameOffered,
+            },
         };
-        const roundTimerGameOffered = await roundTimerHandler.getRoundTimerGameOffered(session);
-        const newSession = { ...session, roundTimerGameOffered };
 
         socket.emit("auth", { authorized: true });
 

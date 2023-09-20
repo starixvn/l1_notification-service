@@ -1,10 +1,10 @@
 import axios from "axios";
-import * as handler from "../../../src/features/round-timer/round-timer-handler";
+import Chance from "chance";
+import { logger } from "sc-common";
 import * as jackpotHandler from "../../../src/features/jackpots/jackpot-handler";
 import * as lobbyRepository from "../../../src/features/lobby/lobby-repository";
-import * as socketClientHandler from "../../../src/features/socket-clients/socket-client-handler";
-import { logger } from "sc-common";
-import Chance from "chance";
+import * as handler from "../../../src/features/round-timer/round-timer-handler";
+import { getLocalSockets } from "../../../src/features/socket-server/socket-server-handler";
 
 jest.mock("../../../src/features/socket-server/socket-server-handler");
 jest.mock("../../../src/features/jackpots/jackpot-handler");
@@ -12,10 +12,22 @@ jest.mock("../../../src/features/lobby/lobby-repository");
 jest.mock("../../../src/features/socket-clients/socket-client-handler");
 jest.mock("sc-common");
 jest.mock("axios");
+jest.mock("../../../src/adapters/socket-adapter", () => ({
+    mongoEmitter: {
+        serverSideEmit: jest.fn(),
+    },
+}));
+
+jest.mock("../../../src/features/socket-server/socket-server-handler", () => ({
+    getLocalSockets: jest.fn(),
+}));
+
 const now = new Date("2019-05-14");
 jest.useFakeTimers().setSystemTime(now);
 
 const socketClient = {
+    data: {
+    },
     emit: jest.fn(),
 };
 const chance = new Chance();
@@ -47,20 +59,6 @@ describe("roundTimerHandler", () => {
             // Assert
             expect(res.send).toBeCalledWith({ received: true });
             expect(logger.logError).not.toHaveBeenCalled();
-        });
-
-        it("should log error when an error occurs", async () => {
-            // Arrange
-            const mockError = new Error("Test error");
-            await handler.default.__get__("sendAllUserExpectRoundTimer").mockImplementationOnce(() => {
-                throw mockError;
-            });
-
-            // Act
-            await handler.handleRoundTimerWatcherData(req, res);
-
-            // Assert
-            expect(logger.logError).toHaveBeenCalledWith(mockError);
         });
     });
 
@@ -159,21 +157,18 @@ describe("roundTimerHandler", () => {
     });
 
     describe("sendAllUserExpectRoundTimer", () => {
-        const sendAllUserExpectRoundTimerFunc = handler.default.__get__("sendAllUserExpectRoundTimer");
         const payload = { gameId: chance.integer({ min: 1, max: 100 }) };
 
         beforeEach(() => {
             handler.default.__set__("sendUserWhenOffered", jest.fn());
-            socketClientHandler.getClients = jest.fn();
         });
 
-        it("should call partnerRepository.getSiteExclusions", async () => {
+        it("should call sendUserWhenOffered", () => {
             // Arrange
-            const data = { [chance.guid()]: {} };
-            socketClientHandler.getClients.mockReturnValueOnce(data);
+            getLocalSockets.mockReturnValueOnce([{id: chance.guid()}]);
 
             // Act
-            await sendAllUserExpectRoundTimerFunc(payload);
+            handler.sendAllUserExpectRoundTimer(payload);
 
             // Assert
             expect(handler.default.__get__("sendUserWhenOffered")).toBeCalled();
@@ -183,10 +178,13 @@ describe("roundTimerHandler", () => {
     describe("sendUserWhenOffered", () => {
         const sendUserWhenOfferedFunc = handler.default.__get__("sendUserWhenOffered");
         const payload = { 1: { time: getNow() } };
-        const client = {
-            session: {},
-            UID: chance.guid(),
-            socketClient: { emit: jest.fn(), id: chance.guid() },
+        const socket = {
+            data: {
+                session: {},
+                UID: chance.guid(),
+            },
+            emit: jest.fn(),
+            id: chance.guid(),
         };
 
         beforeEach(() => {
@@ -200,23 +198,23 @@ describe("roundTimerHandler", () => {
                 handler.default.__get__("isGameOfferedRoundTimer").mockReturnValueOnce(true);
 
                 // Act
-                sendUserWhenOfferedFunc(client, payload);
+                sendUserWhenOfferedFunc(socket, payload);
 
                 // Assert
-                expect(client.socketClient.emit).toBeCalledWith("roundTimer", payload);
+                expect(socket.emit).toBeCalledWith("roundTimer", payload);
             });
         });
 
         describe("when session is not valid", () => {
             it("should NOT emit roundTimer to client", () => {
                 // Arrange
-                const client = { socketClient: { emit: jest.fn(), id: chance.guid() } };
+                const socket = { data: {}, emit: jest.fn(), id: chance.guid() };
 
                 // Act
-                sendUserWhenOfferedFunc(client, payload);
+                sendUserWhenOfferedFunc(socket, payload);
 
                 // Assert
-                expect(client.socketClient.emit).not.toBeCalled();
+                expect(socket.emit).not.toBeCalled();
             });
         });
 
@@ -226,22 +224,22 @@ describe("roundTimerHandler", () => {
                 handler.default.__get__("isGameOfferedRoundTimer").mockReturnValueOnce(true);
 
                 // Act
-                sendUserWhenOfferedFunc(client, payload);
+                sendUserWhenOfferedFunc(socket, payload);
 
                 // Assert
-                expect(client.socketClient.emit).toBeCalledWith("roundTimer", payload);
+                expect(socket.emit).toBeCalledWith("roundTimer", payload);
             });
 
             it("should NOT emit roundTimer to client", () => {
                 // Arrange
-                const client = { socketClient: { emit: jest.fn(), id: chance.guid() } };
+                const client = { data: {}, emit: jest.fn(), id: chance.guid() };
                 handler.default.__get__("isGameOfferedRoundTimer").mockReturnValueOnce(false);
 
                 // Act
                 sendUserWhenOfferedFunc(client, payload);
 
                 // Assert
-                expect(client.socketClient.emit).not.toBeCalled();
+                expect(client.emit).not.toBeCalled();
             });
         });
     });

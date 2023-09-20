@@ -3,9 +3,9 @@ import { utils } from "sc-common";
 import appConfigs from "../app-configs";
 import { notifyJackpotWinner } from "../features/jackpots/jackpot-handler";
 import { broadcastReload } from "../features/reload/reload-handler";
+import { handleRoundTimerWatcherData } from "../features/round-timer/round-timer-handler";
 import { getTotalClients } from "../features/socket-clients/socket-client-handler";
 import { handleUmRequest } from "../features/um/um-handler";
-import { handleRoundTimerWatcherData } from "../features/round-timer/round-timer-handler";
 
 /**
  * @param {express.Express} app
