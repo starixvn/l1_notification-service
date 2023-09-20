@@ -36,7 +36,7 @@ const startMetricsCron = (promPushGatewayConfigs) => {
     const pushGateway = new Pushgateway(baseUrl, { timeout, agent: new Agent(agentOptions) }, socketIOMetrics.register);
 
     const job = new CronJob(
-        "* * * * *",
+        "10 * * * * *",
         async () => pushGateway.pushAdd(parameters, () => {}),
         () => {
             logger.logError("Prom metrics job unexpectedly stopped");
