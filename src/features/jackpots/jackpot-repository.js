@@ -34,7 +34,10 @@ const getRunningPools = async (gameIds) => {
         amount: true,
     };
 
-    return jackpots.find(runningPoolsFilter, projection).lean().exec();
+    return jackpots
+        .find(runningPoolsFilter, projection, { sort: { gameId: 1, pool: 1 } })
+        .lean()
+        .exec();
 };
 
 export { getJackPotWinners, getRunningPools };
