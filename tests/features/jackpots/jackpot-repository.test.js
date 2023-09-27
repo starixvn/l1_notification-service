@@ -62,6 +62,12 @@ describe("jackpotRepository", () => {
                     gameId: true,
                     pool: true,
                     amount: true,
+                },
+                {
+                    sort: {
+                        gameId: 1,
+                        pool: 1,
+                    },
                 }
             );
         });
