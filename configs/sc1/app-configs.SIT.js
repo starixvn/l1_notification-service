@@ -58,4 +58,16 @@ export default {
     promotionNotificationDurations: {
         delayTimeInMinutes: 1,
     },
+    promPushGatewayConfigs: {
+        baseUrl: "http://admin:17NyV+Weaatx_86gBSKc@10.2.190.51:9091",
+        options: {
+            timeout: 5_000,
+            agentOptions: {
+                keepAlive: true,
+                keepAliveMsecs: 10_000,
+                maxSockets: 10,
+            },
+        },
+        parameters: { jobName: "notification-service", groupings: { instance: hostname() } },
+    },
 };
