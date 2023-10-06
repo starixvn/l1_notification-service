@@ -31,20 +31,26 @@ const getMetrics = () => {
 };
 
 const startMetricsCron = (promPushGatewayConfigs) => {
-    const { options, baseUrl, parameters } = promPushGatewayConfigs;
-    const { timeout, agentOptions } = options;
-    const pushGateway = new Pushgateway(baseUrl, { timeout, agent: new Agent(agentOptions) }, socketIOMetrics.register);
+  const { options, baseUrl, parameters } = promPushGatewayConfigs;
+  const { timeout, agentOptions } = options;
 
-    const job = new CronJob(
-        "*/30 * * * * *",
-        async () => pushGateway.pushAdd(parameters, () => {}),
-        () => {
-            logger.logError("Prom metrics job unexpectedly stopped");
-            job.start();
-        }
-    );
+  const pushGateway = new Pushgateway(baseUrl, {
+    timeout,
+    agent: new Agent(agentOptions)
+  }, socketIOMetrics.register);
 
-    job.start();
+  const job = new CronJob(
+    "*/30 * * * * *",
+    () => {
+      pushGateway.pushAdd(parameters, () => {});
+    },
+    () => {
+      logger.logError("Prom metrics job unexpectedly stopped");
+      job.start();
+    }
+  );
+
+  job.start();
 };
 
 export { getMetrics, init };

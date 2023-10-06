@@ -61,7 +61,7 @@ export default {
         delayTimeInMinutes: 1,
     },
     promPushGatewayConfigs: {
-        baseUrl: "http://10.10.50.14:9091",
+        baseUrl: "http://10.10.50.69:9091",
         options: {
             timeout: 5_000,
             agentOptions: {
