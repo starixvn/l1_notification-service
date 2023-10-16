@@ -1,3 +1,5 @@
+import { hostname } from "os";
+
 export default {
     hostingPort: 5000,
     socketOptions: {
