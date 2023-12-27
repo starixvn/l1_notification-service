@@ -8,7 +8,7 @@ const schema = new mongoose.Schema({
     amount: { type: Number, default: 0 },
     winningRatio: { type: Number },
     winnerName: { type: String },
-    winnerId: { type: Number },
+    winnerId: { type: String },
     byBots: { type: Number, default: 0 },
     byMembers: { type: Number, default: 0 },
     createdAt: { type: Number, required: true },
