@@ -43,7 +43,7 @@ export default {
         url: "http://l1-user-service-local-service:5000/",
     },
     roundWatcherService: {
-        url: "http://l1_round_watcher_service_local:5000/",
+        url: "http://l1-round-watcher-service-local-service:5000/",
     },
     metrics: {
         enable: true,
