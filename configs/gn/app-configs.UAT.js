@@ -35,7 +35,7 @@ export default {
         },
     },
     sentry: {
-        sentryUrl: "https://817eba6db40b4010bbce8b66b3ca38bc@10.2.190.51:9009/288",
+        sentryUrl: "http://817eba6db40b4010bbce8b66b3ca38bc@10.2.190.51:9009/288",
         logIdentifier: "notification-service",
         env: "UAT",
     },
