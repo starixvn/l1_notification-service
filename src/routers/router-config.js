@@ -50,7 +50,7 @@ const initRouter = async (app, socketServer) => {
 
 const initAdapter = async (socketServer) => {
     const collection = mongoose.connection.db.collection("notification_service_events");
-    await collection.createIndex({ createdAt: 1 }, { expireAfterSeconds: 3600, background: true });
+    // await collection.createIndex({ createdAt: 1 }, { expireAfterSeconds: 3600, background: true });
 
     initMongoAdapter(socketServer, collection);
     initMongoEmitter(collection);
