@@ -51,7 +51,7 @@ export function initMongoAdapter(socketServer, mongoCollection) {
 }
 
 export function initMongoEmitter(mongoCollection) {
-    mongoEmitter = new Emitter(mongoCollection);
+    mongoEmitter = new Emitter(mongoCollection, "/", { addCreatedAtField: true });
 }
 
 export { mongoEmitter };

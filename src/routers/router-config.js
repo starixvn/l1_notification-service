@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { Server } from "socket.io";
 import MsgpackParser from "socket.io-msgpack-parser";
 import { initMongoAdapter, initMongoEmitter } from "../adapters/socket-adapter";
-import appConfigs from "../app-configs";
+import appConfigs from "../app-configs.js";
 import { isAllowAccess } from "../features/domain/cors-helper";
 import * as SocketServerHandler from "../features/socket-server/socket-server-handler";
 import * as Metrics from "../metrics";
@@ -50,7 +50,6 @@ const initRouter = async (app, socketServer) => {
 
 const initAdapter = async (socketServer) => {
     const collection = mongoose.connection.db.collection("notification_service_events");
-    await collection.createIndex({ createdAt: 1 }, { expireAfterSeconds: 3600, background: true });
 
     initMongoAdapter(socketServer, collection);
     initMongoEmitter(collection);
