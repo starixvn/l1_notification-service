@@ -27,7 +27,7 @@ describe("jackpotRepository", () => {
                 {
                     _id: false,
                     gameId: true,
-                    pool: true,
+                    pool: "$prize",
                     winnerName: true,
                     amount: true,
                     winningRatio: true,
@@ -60,7 +60,7 @@ describe("jackpotRepository", () => {
                 {
                     _id: false,
                     gameId: true,
-                    pool: true,
+                    pool: "$prize",
                     amount: true,
                 },
                 {
