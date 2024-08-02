@@ -8,7 +8,7 @@ const getJackPotWinners = async (gameIds, limit) => {
     const jackpotWinnersProjection = {
         _id: false,
         gameId: true,
-        pool: true,
+        pool: "$prize",
         winnerName: true,
         amount: true,
         winningRatio: true,
@@ -30,7 +30,7 @@ const getRunningPools = async (gameIds) => {
     const projection = {
         _id: false,
         gameId: true,
-        pool: true,
+        pool: "$prize",
         amount: true,
     };
 
