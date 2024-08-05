@@ -288,7 +288,7 @@ describe("jackpotHandler", () => {
         const validateParamsFunc = handler.default.__get__("validateParams");
         const validParams = {
             gameId: chance.integer({ min: 1, max: 100 }),
-            pool: chance.integer({ min: 1, max: 50 }),
+            pool: chance.pickone(["minor", "major", "grand"]),
             winnerName: chance.name_suffix(),
             amount: chance.natural(),
         };
