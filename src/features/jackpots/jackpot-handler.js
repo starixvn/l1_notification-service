@@ -34,11 +34,11 @@ const validateParams = (params) => {
 export const sendAllUserExceptExclusionSite = async (payload) => {
     const sockets = getLocalSockets();
     const { gameId } = payload;
-    
+
     if (gameId === jackpotGames[0]) {
         await updateFourGuardianRecords([payload]);
     }
-    
+
     await Promise.all(sockets.map((socket) => sendJackpotWinnerWhenNotExcluded(socket, payload)));
 };
 
@@ -139,7 +139,7 @@ async function queryJackpotWinners(session, limit) {
     const offeredGames = await getOfferedGames(session);
 
     const jackpotWinners = await jackpotRepository.getJackPotWinners(
-        offeredGames.filter((game) => game.stakeLevels?.length > 0).map((game) => game.gameId),
+        offeredGames.filter((game) => game.stakeLevels?.length > 0 || game.betLevels?.length > 0).map((game) => game.gameId),
         limit
     );
 
@@ -170,7 +170,11 @@ export const getPools = async (socket, payload) => {
         ? []
         : await jackpotRepository.getRunningPools(
               offeredGames
-                  .filter((game) => game.stakeLevels?.length > 0 && (!payload?.gameId || game.gameId === payload.gameId))
+                  .filter(
+                      (game) =>
+                          (game.stakeLevels?.length > 0 || game.betLevels?.length > 0) &&
+                          (!payload?.gameId || game.gameId === payload.gameId)
+                  )
                   .map((game) => game.gameId)
           );
 

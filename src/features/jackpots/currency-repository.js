@@ -12,7 +12,7 @@ const getCurrencyGroup = async (groupId) => {
 };
 
 const getOfferedGames = async (groupId) => {
-    return CurrencyGroupGame.find({ groupId: new mongoose.Types.ObjectId(groupId), enabled: true }, "gameId gameName stakeLevels")
+    return CurrencyGroupGame.find({ groupId: new mongoose.Types.ObjectId(groupId), enabled: true }, "gameId gameName stakeLevels betLevels")
         .lean()
         .exec();
 };

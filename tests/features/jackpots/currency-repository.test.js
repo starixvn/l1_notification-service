@@ -52,7 +52,7 @@ describe("currencyRepository", () => {
             await getOfferedGames(groupId);
 
             // Assert
-            expect(currencyGroupGame.find).toBeCalledWith({ groupId: new mongoose.Types.ObjectId(groupId), enabled: true }, "gameId gameName stakeLevels");
+            expect(currencyGroupGame.find).toBeCalledWith({ groupId: new mongoose.Types.ObjectId(groupId), enabled: true }, "gameId gameName stakeLevels betLevels");
         });
     });
 });
