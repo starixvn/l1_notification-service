@@ -118,7 +118,7 @@ const updateFourGuardianRecords = async (records) => {
     if (fourGuardiansRecords.length > 0) {
         const currency = await currencyRepository.getCurrency("INH", "ONEworksVGCash");
         for (const record of fourGuardiansRecords) {
-            record.pool = poolMapping[record.p];
+            record.pool = poolMapping[record.p ?? record.pool];
             if (currency) {
                 record.amount *= currency.multiplier;
             }
