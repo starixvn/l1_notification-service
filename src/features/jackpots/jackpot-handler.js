@@ -109,11 +109,17 @@ const getJackpotWinnersMapAvatar = async (jackpotWinners) => {
 
 const updateFourGuardianRecords = async (records) => {
     const fourGuardiansRecords = records.filter((x) => x.gameId === jackpotGames[0]);
+    const poolMapping = {
+        1: "minor",
+        5: "major",
+        10: "grand",
+    };
 
     if (fourGuardiansRecords.length > 0) {
         const currency = await currencyRepository.getCurrency("INH", "ONEworksVGCash");
-        if (currency) {
-            for (const record of fourGuardiansRecords) {
+        for (const record of fourGuardiansRecords) {
+            record.pool = poolMapping[record.p];
+            if (currency) {
                 record.amount *= currency.multiplier;
             }
         }

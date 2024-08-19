@@ -9,6 +9,7 @@ const getJackPotWinners = async (gameIds, limit) => {
         _id: false,
         gameId: true,
         pool: "$prize",
+        p: "$pool",
         winnerName: true,
         amount: true,
         winningRatio: true,
@@ -31,6 +32,7 @@ const getRunningPools = async (gameIds) => {
         _id: false,
         gameId: true,
         pool: "$prize",
+        p: "$pool",
         amount: true,
     };
 
