@@ -14,7 +14,7 @@ const jackpotGames = [29];
 const validateParams = (params) => {
     const schema = Joi.object({
         gameId: Joi.number().required(),
-        pool: Joi.string().required(),
+        pool: jackpotGames.includes(params.gameId) ? Joi.number().required() : Joi.string().required(),
         winnerName: Joi.string().required(),
         amount: Joi.number().required(),
     });
