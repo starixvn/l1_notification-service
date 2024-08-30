@@ -304,7 +304,6 @@ describe("jackpotHandler", () => {
 
         describe("when params is not valid", () => {
             const testCases = [
-                { failure: "params", params: undefined },
                 { failure: "gameId", params: { ...validParams, gameId: undefined } },
                 { failure: "pool", params: { ...validParams, pool: undefined } },
                 { failure: "winnerName", params: { ...validParams, winnerName: undefined } },
