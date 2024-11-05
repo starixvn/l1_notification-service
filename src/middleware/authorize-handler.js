@@ -6,7 +6,7 @@ import { logger } from "sc-common";
 import { mongoEmitter } from "../adapters/socket-adapter";
 import appConfigs from "../app-configs";
 import emitEvents from "../constants/emit-events";
-import system from "../constants/system";
+import appType from "../constants/app-type";
 
 export const authenticate = async (socket, next) => {
     try {
@@ -40,7 +40,7 @@ export const authenticate = async (socket, next) => {
 
         socket.emit("auth", { authorized: true });
 
-        if (session.system !== system.instant) {
+        if (session.system !== appType.instant) {
             const UID = session.userId;
             //disconnect other socket sessions having same UID
             mongoEmitter.serverSideEmit(emitEvents.kickedOut, { UID, sid: socket.id });

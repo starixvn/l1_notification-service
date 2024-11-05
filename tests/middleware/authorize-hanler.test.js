@@ -7,7 +7,7 @@ import * as roundTimerHandler from "../../src/features/round-timer/round-timer-h
 import { mongoEmitter } from "../../src/adapters/socket-adapter";
 import appConfigs from "../../src/app-configs";
 import emitEvents from "../../src/constants/emit-events";
-import system from "../../src/constants/system";
+import appType from "../../src/constants/app-type";
 import { authenticate } from "../../src/middleware/authorize-handler";
 
 jest.mock("axios");
@@ -40,7 +40,7 @@ describe("authenticate", () => {
     const next = jest.fn();
 
     afterEach(() => jest.clearAllMocks());
-        roundTimerHandler.getRoundTimerGameOffered = jest.fn().mockReturnValueOnce([1, 2, 4]);
+    roundTimerHandler.getRoundTimerGameOffered = jest.fn().mockReturnValueOnce([1, 2, 4]);
 
     it("should call authorize to user service", async () => {
         // Arrange
@@ -111,7 +111,7 @@ describe("authenticate", () => {
             userSessions
                 .findOne()
                 .lean()
-                .exec.mockResolvedValue(UserSession({ system: system.instant }));
+                .exec.mockResolvedValue(UserSession({ system: appType.instant }));
 
             axios.post.mockResolvedValueOnce({ data: { isSuccessful: true } });
 

@@ -72,4 +72,5 @@ export default {
         },
         parameters: { jobName: "notification-service", groupings: { instance: hostname() } },
     },
+    systemType: "GN",
 };

@@ -2,10 +2,11 @@ import { createAdapter } from "@socket.io/mongo-adapter";
 import { Emitter } from "@socket.io/mongo-emitter";
 import { Server } from "socket.io";
 import emitEvents from "../constants/emit-events";
-import system from "../constants/system";
+import appType from "../constants/app-type";
 import { sendAllUserExceptExclusionSite } from "../features/jackpots/jackpot-handler";
 import { sendAllUserExpectRoundTimer } from "../features/round-timer/round-timer-handler";
 import { handleUMEvent } from "../features/um/um-handler";
+import { isGN } from "../constants/system-type";
 
 /** @type {Emitter}  */
 let mongoEmitter;
@@ -25,10 +26,18 @@ function registerEvents(socketServer) {
     });
 
     nsp.on(emitEvents.kickedOut, ({ UID, sid }) => {
+        const kickOutSocket = (socket) => {
+            socket.emit("kickedOut", true);
+            socket.disconnect(true);
+        };
+
         for (const socket of nsp.sockets.values()) {
-            if (socket.data.UID === UID && socket.id !== sid && socket.data.session.system !== system.instant) {
-                socket.emit("kickedOut", true);
-                socket.disconnect(true);
+            const isConnectedUser = socket.data.UID === UID && socket.id !== sid;
+            const isInstant = socket.data.session.system !== appType.instant;
+            const shouldKickOut = isGN ? isConnectedUser : isConnectedUser && isInstant;
+
+            if (shouldKickOut) {
+                kickOutSocket(socket);
             }
         }
     });

@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
-import system from "../../constants/system";
-
+import appType from "../../constants/app-type";
+import { isGN } from "../../constants/system-type";
 /** @type {Server} */
 let socketServer = null;
 
@@ -22,8 +22,11 @@ async function getConnectedClients() {
 }
 
 function getLocalSockets(nsp = "/") {
-    return Array.from(socketServer.of(nsp).sockets.values()).filter((socket) => socket.data.session.system !== system.instant);
+    let sockets = Array.from(socketServer.of(nsp).sockets.values());
+    if (!isGN) {
+        return sockets.filter((socket) => socket.data.session.system !== appType.instant);
+    }
+    return sockets;
 }
 
 export { broadcastAll, broadcastLocal, getConnectedClients, getLocalSockets, init };
-
