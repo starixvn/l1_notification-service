@@ -5,11 +5,12 @@ import * as SocketServerHandler from "../socket-server/socket-server-handler";
 const notificationType = 1;
 const minuteToMillisecond = 60 * 1000;
 const timeToDisplayMessage = appConfigs.marqueeDurations.timeToDisplayMessageInMinute * minuteToMillisecond;
-let intervalTime = appConfigs.marqueeDurations.intervalTimeInMinute * minuteToMillisecond;
-let marqueeInterval = 0;
+const defaultMarqueeTimeout = appConfigs.marqueeDurations.timeOutInMinute * minuteToMillisecond;
+let setMarqueeDelay = defaultMarqueeTimeout;
+let marqueeTimeout = 0;
 
 const setMarquee = () => {
-    marqueeInterval = setInterval(proceed, intervalTime);
+    marqueeTimeout = setTimeout(proceed, setMarqueeDelay);
 };
 
 const proceed = async () => {
@@ -18,12 +19,11 @@ const proceed = async () => {
         setTimeout(() => proceedMessage(notification.messages), index * timeToDisplayMessage);
     });
 
-    clearInterval(marqueeInterval);
-    intervalTime = notifications.length * timeToDisplayMessage;
+    clearTimeout(marqueeTimeout);
+    setMarqueeDelay = notifications.length ? notifications.length * timeToDisplayMessage : defaultMarqueeTimeout;
     setMarquee();
 };
 
 const proceedMessage = async (message) => SocketServerHandler.broadcastLocal("marquee", message);
 
 export { proceed, proceedMessage, setMarquee };
-

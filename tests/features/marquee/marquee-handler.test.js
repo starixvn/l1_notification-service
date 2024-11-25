@@ -11,7 +11,7 @@ jest.mock("../../../src/features/socket-server/socket-server-handler", () => ({
 jest.mock("../../../src/app-configs", () => {
     return {
         marqueeDurations: {
-            intervalTimeInMinute: 0.25,
+            timeOutInMinute: 0.25,
             timeToDisplayMessageInMinute: 0.25,
         },
     };
@@ -29,15 +29,15 @@ describe("MarqueeHandler", () => {
     });
 
     describe("setMarquee", () => {
-        it("should setInterval to procceed notifications", () => {
+        it("should setTimeout to procceed notifications", () => {
             // Arrange
-            jest.spyOn(global, "setInterval");
+            jest.spyOn(global, "setTimeout");
 
             // Act
             setMarquee();
 
             // Assert
-            expect(global.setInterval).toHaveBeenCalledWith(proceed, 15000);
+            expect(global.setTimeout).toHaveBeenCalledWith(proceed, 15000);
         });
     });
 
@@ -60,8 +60,8 @@ describe("MarqueeHandler", () => {
             jest.spyOn(global, "setTimeout").mockImplementationOnce((cb) => {
                 cb();
             });
-            jest.spyOn(global, "clearInterval");
-            jest.spyOn(global, "setInterval");
+            jest.spyOn(global, "clearTimeout");
+            jest.spyOn(global, "setTimeout");
             notifications
                 .find()
                 .lean()
@@ -73,17 +73,28 @@ describe("MarqueeHandler", () => {
 
         it("should setTimeout to emit messages", () => {
             // Assert
-            expect(global.setTimeout).toHaveBeenCalledTimes(3);
+            expect(global.setTimeout).toHaveBeenCalledTimes(5);
         });
 
-        it("should clear previous interval", () => {
+        it("should clear previous time out", () => {
             // Assert
-            expect(global.clearInterval).toHaveBeenCalled();
+            expect(global.clearTimeout).toHaveBeenCalled();
         });
 
-        it("should set new setInterval with time = notifications.length * this.timeToDisplayMessage", () => {
+        it("should set new setTimeout with time = notifications.length * this.timeToDisplayMessage", () => {
             // Assert
-            expect(global.setInterval).toHaveBeenCalledWith(proceed, 45000);
+            expect(global.setTimeout).toHaveBeenCalledWith(proceed, 45000);
+        });
+
+        it("should reset new setTimeout with notifications.length = 0", () => {
+            // Arrange
+            notifications.find().lean().exec.mockResolvedValueOnce([]);
+
+            // Act
+            setMarquee();
+
+            // Assert
+            expect(global.setTimeout).toHaveBeenCalledWith(proceed, 15000);
         });
     });
 });

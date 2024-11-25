@@ -51,7 +51,7 @@ export default {
     },
     enableMsgpackParser: false,
     marqueeDurations: {
-        intervalTimeInMinute: 0.5,
+        timeOutInMinute: 0.5,
         timeToDisplayMessageInMinute: 0.5,
     },
     promotionsDurations: {
