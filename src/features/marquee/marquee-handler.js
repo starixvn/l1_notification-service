@@ -21,6 +21,8 @@ const proceed = async () => {
 
     clearTimeout(marqueeTimeout);
     setMarqueeDelay = notifications.length ? notifications.length * timeToDisplayMessage : defaultMarqueeTimeout;
+
+    console.log(`setMarqueeDelay ${setMarqueeDelay / 1000}s`);
     setMarquee();
 };
 
