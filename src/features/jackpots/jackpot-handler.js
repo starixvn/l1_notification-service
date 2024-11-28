@@ -9,12 +9,10 @@ import { getExchangeRates } from "./exchange-rate-repository";
 import * as jackpotRepository from "./jackpot-repository";
 import * as partnerConfigRepository from "./partner-config-repository";
 
-const jackpotGames = [29];
-
 const validateParams = (params) => {
     const schema = Joi.object({
         gameId: Joi.number().required(),
-        pool: jackpotGames.includes(params.gameId) ? Joi.number().required() : Joi.string().required(),
+        pool: Joi.string().required(),
         winnerName: Joi.string().required(),
         amount: Joi.number().required(),
     });
@@ -33,11 +31,6 @@ const validateParams = (params) => {
 
 export const sendAllUserExceptExclusionSite = async (payload) => {
     const sockets = getLocalSockets();
-    const { gameId } = payload;
-
-    if (gameId === jackpotGames[0]) {
-        await updateFourGuardianRecords([payload]);
-    }
 
     await Promise.all(sockets.map((socket) => sendJackpotWinnerWhenNotExcluded(socket, payload)));
 };
@@ -61,9 +54,8 @@ export const getOfferedGames = async (session) => {
     if (currency?.enabled && currencyGroup?.enabled) {
         const groupOfferGames = await currencyRepository.getOfferedGames(session.currencyGroupId);
         const gamesExcludedBySite = await getGamesExcludedByPartnerSite(session.partnerId, session.siteName);
-        const gamesExcludedBySession = session.disableJackpotGames ? jackpotGames : [];
-        const excludedGames = [...gamesExcludedBySite, ...gamesExcludedBySession];
-        return groupOfferGames?.filter((game) => !excludedGames.includes(game.gameId)) ?? [];
+
+        return groupOfferGames?.filter((game) => !gamesExcludedBySite.includes(game.gameId)) ?? [];
     }
 
     return [];
@@ -107,27 +99,6 @@ const getJackpotWinnersMapAvatar = async (jackpotWinners) => {
     });
 };
 
-const updateFourGuardianRecords = async (records) => {
-    const fourGuardiansRecords = records.filter((x) => x.gameId === jackpotGames[0]);
-    const poolMapping = {
-        1: "minor",
-        5: "major",
-        10: "grand",
-    };
-
-    if (fourGuardiansRecords.length > 0) {
-        const currency = await currencyRepository.getCurrency("INH", "ONEworksVGCash");
-        for (const record of fourGuardiansRecords) {
-            record.pool = poolMapping[record.p ?? record.pool];
-            if (currency) {
-                record.amount *= currency.multiplier;
-            }
-        }
-    }
-
-    return records;
-};
-
 export const getWinners = async (socket, { limit }) => {
     const { session } = socket.data;
     if (!session.disableJackpotGames) {
@@ -149,7 +120,7 @@ async function queryJackpotWinners(session, limit) {
         limit
     );
 
-    return updateFourGuardianRecords(jackpotWinners);
+    return jackpotWinners;
 }
 
 async function updateExchangeRateCode(session, winners) {
@@ -184,9 +155,7 @@ export const getPools = async (socket, payload) => {
                   .map((game) => game.gameId)
           );
 
-    const result = await updateFourGuardianRecords(jackpotPools);
-
-    socket.emit(payload?.gameId ? "jackpotPoolsOnGame" : "jackpotPools", result);
+    socket.emit(payload?.gameId ? "jackpotPoolsOnGame" : "jackpotPools", jackpotPools);
 };
 
 export const notifyJackpotWinner = (req, res) => {
