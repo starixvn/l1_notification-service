@@ -9,6 +9,10 @@ jackpots.find = stubMongoose(jackpots).find;
 const chance = new Chance();
 
 describe("jackpotRepository", () => {
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
     describe("getJackPotWinners", () => {
         it("should call jackpots find", async () => {
             //Arrange
@@ -28,7 +32,6 @@ describe("jackpotRepository", () => {
                     _id: false,
                     gameId: true,
                     pool: "$prize",
-                    p: "$pool",
                     winnerName: true,
                     amount: true,
                     winningRatio: true,

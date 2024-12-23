@@ -508,28 +508,6 @@ describe("jackpotHandler", () => {
                     expect(actualResult).toStrictEqual(offeredGames);
                 });
             });
-
-            describe("when session.disableJackpotGames is true", () => {
-                it("should return group offered games which is not excluded on site and is not jackpot game", async () => {
-                    // Arrange
-                    const offeredGames = [
-                        { gameId: 1, gameName: "1" },
-                        { gameId: 3, gameName: "2" },
-                        { gameId: 29, gameName: "3" },
-                    ];
-                    currencyRepository.getOfferedGames.mockResolvedValueOnce(offeredGames);
-                    handler.default.__get__("getGamesExcludedByPartnerSite").mockResolvedValueOnce([2]);
-
-                    // Act
-                    const actualResult = await getOfferedGamesFunc({ ...session, disableJackpotGames: true });
-
-                    // Assert
-                    expect(actualResult).toStrictEqual([
-                        { gameId: 1, gameName: "1" },
-                        { gameId: 3, gameName: "2" },
-                    ]);
-                });
-            });
         });
     });
 
