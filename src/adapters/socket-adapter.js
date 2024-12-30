@@ -26,7 +26,12 @@ function registerEvents(socketServer) {
 
     nsp.on(emitEvents.kickedOut, ({ UID, sid }) => {
         for (const socket of nsp.sockets.values()) {
-            if (socket.data.UID === UID && socket.id !== sid && socket.data.session.system !== system.instant) {
+            if (
+                socket.data.UID === UID &&
+                socket.id !== sid &&
+                socket.data.session.system !== system.instant &&
+                socket.data.session.system !== system.mobileDirect
+            ) {
                 socket.emit("kickedOut", true);
                 socket.disconnect(true);
             }
@@ -55,4 +60,3 @@ export function initMongoEmitter(mongoCollection) {
 }
 
 export { mongoEmitter };
-

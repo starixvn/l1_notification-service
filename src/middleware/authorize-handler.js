@@ -40,7 +40,7 @@ export const authenticate = async (socket, next) => {
 
         socket.emit("auth", { authorized: true });
 
-        if (session.system !== system.instant) {
+        if (session.system !== system.instant && session.system !== system.mobileDirect) {
             const UID = session.userId;
             //disconnect other socket sessions having same UID
             mongoEmitter.serverSideEmit(emitEvents.kickedOut, { UID, sid: socket.id });
