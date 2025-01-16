@@ -37,7 +37,7 @@ export default {
     sentry: {
         sentryUrl: "https://13f39b8359404ed5aec23655e64ccf78@sentry.lumigame.com/2",
         logIdentifier: "notification-service",
-        env: "LOCAL-1",
+        env: "LOCAL_1",
     },
     userService: {
         url: "http://l1-user-service-local1-service:5000/",

@@ -10,8 +10,8 @@ export default {
     },
     apiSettings: {
         enabledApi: true,
-        apiUrl: "http://l1_game_api_local_3:5000",
-        authUrl: "http://l1_auth_api_local_3:5000",
+        apiUrl: "http://l1-game-api-local3-service:5000",
+        authUrl: "http://l1-auth-api-local3-service:5000",
         client: {
             id: "game-server",
             secret: "gameserver@20luminet&",
@@ -37,13 +37,13 @@ export default {
     sentry: {
         sentryUrl: "https://13f39b8359404ed5aec23655e64ccf78@sentry.lumigame.com/2",
         logIdentifier: "notification-service",
-        env: "LOCAL-3",
+        env: "LOCAL_3",
     },
     userService: {
-        url: "http://l1_user_service_local_3:5000/",
+        url: "http://l1-user-service-local3-service:5000/",
     },
     roundWatcherService: {
-        url: "http://l1_round_watcher_service_local_3:5000/",
+        url: "http://l1-round-watcher-service-local3-service:5000/",
     },
     metrics: {
         enable: true,
