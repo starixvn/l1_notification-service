@@ -4,8 +4,8 @@ export default {
     hostingPort: 5000,
     apiSettings: {
         enabledApi: true,
-        apiUrl: "http://l2_game_api_local:5000",
-        authUrl: "http://l2_auth_api_local:5000",
+        apiUrl: "http://l2-game-api-local-service:5000",
+        authUrl: "http://l2-auth-api-local-service:5000",
         client: {
             id: "game-server",
             secret: "gameserver@20luminet&",
@@ -40,10 +40,10 @@ export default {
         env: "LOCAL",
     },
     userService: {
-        url: "http://l2_user_service_local:5000/",
+        url: "http://l2-user-service-local-service:5000/",
     },
     roundWatcherService: {
-        url: "http://l2_round_watcher_service_local:5000/",
+        url: "http://l2-round-watcher-service-local-service:5000/",
     },
     metrics: {
         enable: true,
