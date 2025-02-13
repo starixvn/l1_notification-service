@@ -10,8 +10,8 @@ export default {
     },
     apiSettings: {
         enabledApi: true,
-        apiUrl: "http://l1_game_api_uat:5000",
-        authUrl: "http://l1_auth_api_uat:5000",
+        apiUrl: "http://l1-game-api-uat-service:5000",
+        authUrl: "http://l1-auth-api-uat-service:5000",
         client: {
             id: "game-server",
             secret: "gameserver@20luminet&",
@@ -40,10 +40,10 @@ export default {
         env: "UAT",
     },
     userService: {
-        url: "http://l1_user_service_uat:5000/",
+        url: "http://l1-user-service-uat-service:5000/",
     },
     roundWatcherService: {
-        url: "http://l1_round_watcher_service_uat:5000/",
+        url: "http://l1-round-watcher-service-uat-service:5000/",
     },
     metrics: {
         enable: true,
