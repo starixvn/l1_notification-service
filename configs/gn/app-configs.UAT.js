@@ -10,8 +10,8 @@ export default {
     },
     apiSettings: {
         enabledApi: true,
-        apiUrl: "http://gn_game_api_uat:5000",
-        authUrl: "http://gn_auth_api_uat:5000",
+        apiUrl: "http://gn-game-api-uat-service:5000",
+        authUrl: "http://gn-auth-api-uat-service:5000",
         client: {
             id: "game-server",
             secret: "gameserver@20luminet&",
@@ -40,10 +40,10 @@ export default {
         env: "UAT",
     },
     userService: {
-        url: "http://gn_user_service_uat:5000/",
+        url: "http://gn-user-service-uat-service:5000/",
     },
     roundWatcherService: {
-        url: "http://gn_round_watcher_service_uat:5000/",
+        url: "http://gn-round-watcher-service-uat-service:5000/",
     },
     metrics: {
         enable: true,
