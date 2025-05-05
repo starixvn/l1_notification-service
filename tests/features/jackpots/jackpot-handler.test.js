@@ -36,6 +36,8 @@ const socketClient = {
         session: {
             disableJackpotGames: false,
             currencyCode: "US",
+            operatorId: "operator",
+            siteName: "site",
         },
     },
 };
@@ -83,7 +85,12 @@ describe("jackpotHandler", () => {
             await handler.getWinners(socketClient, { limit });
 
             // Assert
-            expect(jackpotRepository.getJackPotWinners).toBeCalledWith(offerGameIds, limit);
+            expect(jackpotRepository.getJackPotWinners).toBeCalledWith(
+                offerGameIds,
+                limit,
+                socketClient.data.session.operatorId,
+                socketClient.data.session.siteName
+            );
         });
 
         it("should call getJackpotWinnersMapAvatar", async () => {
@@ -172,7 +179,11 @@ describe("jackpotHandler", () => {
             await handler.getPools(socketClient);
 
             // Assert
-            expect(jackpotRepository.getRunningPools).toBeCalledWith(offerGameIds);
+            expect(jackpotRepository.getRunningPools).toBeCalledWith(
+                offerGameIds,
+                socketClient.data.session.operatorId,
+                socketClient.data.session.siteName
+            );
         });
 
         it("should emit jackpotPools to client", async () => {
@@ -336,7 +347,7 @@ describe("jackpotHandler", () => {
 
     describe("sendJackpotWinnerWhenNotExcluded", () => {
         const sendJackpotWinnerWhenNotExcludedFunc = handler.default.__get__("sendJackpotWinnerWhenNotExcluded");
-        const payload = { gameId: chance.integer({ min: 1, max: 100 }) };
+        const payload = { gameId: chance.integer({ min: 1, max: 100 }), operatorId: "operator", siteNames: [] };
 
         beforeEach(() => {
             handler.default.__set__("isExcludeOnGame", jest.fn());
@@ -372,6 +383,7 @@ describe("jackpotHandler", () => {
             const partnerId = chance.string();
             const siteName = chance.url();
             const session = UserSession({ partnerId, siteName });
+            session.operatorId = payload.operatorId;
             const client = {
                 data: {
                     session,

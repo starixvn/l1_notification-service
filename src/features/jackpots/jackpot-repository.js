@@ -1,9 +1,11 @@
 import jackpots from "./jackpot";
 
-const getJackPotWinners = async (gameIds, limit) => {
+const getJackPotWinners = async (gameIds, limit, operatorId, siteName) => {
     const winnersFilter = {
         winnerName: { $exists: true },
         gameId: { $in: gameIds },
+        operatorId,
+        $or: [{ siteNames: { $elemMatch: { $eq: siteName } } }, { siteNames: { $size: 0 } }],
     };
     const jackpotWinnersProjection = {
         _id: false,
@@ -21,10 +23,12 @@ const getJackPotWinners = async (gameIds, limit) => {
     return jackpots.find(winnersFilter, jackpotWinnersProjection, { sort, limit }).lean().exec();
 };
 
-const getRunningPools = async (gameIds) => {
+const getRunningPools = async (gameIds, operatorId, siteName) => {
     const runningPoolsFilter = {
         winnerName: { $exists: false },
         gameId: { $in: gameIds },
+        operatorId,
+        $or: [{ siteNames: { $elemMatch: { $eq: siteName } } }, { siteNames: { $size: 0 } }],
     };
 
     const projection = {
@@ -34,7 +38,7 @@ const getRunningPools = async (gameIds) => {
         p: "$pool",
         amount: true,
     };
-    
+
     return jackpots
         .find(runningPoolsFilter, projection, { sort: { gameId: 1, pool: 1 } })
         .lean()

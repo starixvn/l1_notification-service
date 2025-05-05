@@ -39,7 +39,12 @@ const sendJackpotWinnerWhenNotExcluded = async (socket, payload) => {
     const { session } = socket.data;
     const { gameId } = payload;
 
-    if (session && !session.disableJackpotGames) {
+    if (
+        session &&
+        !session.disableJackpotGames &&
+        session.operatorId === payload.operatorId &&
+        (payload.siteNames.length === 0 || payload.siteNames.includes(session.siteName))
+    ) {
         const offeredGames = await getOfferedGames(session);
         const isOffered = offeredGames.some((game) => game.gameId === gameId);
 
@@ -117,7 +122,9 @@ async function queryJackpotWinners(session, limit) {
 
     const jackpotWinners = await jackpotRepository.getJackPotWinners(
         offeredGames.filter((game) => game.stakeLevels?.length > 0 || game.betLevels?.length > 0).map((game) => game.gameId),
-        limit
+        limit,
+        session.operatorId,
+        session.siteName
     );
 
     return jackpotWinners;
@@ -152,7 +159,9 @@ export const getPools = async (socket, payload) => {
                           (game.stakeLevels?.length > 0 || game.betLevels?.length > 0) &&
                           (!payload?.gameId || game.gameId === payload.gameId)
                   )
-                  .map((game) => game.gameId)
+                  .map((game) => game.gameId),
+              session.operatorId,
+              session.siteName
           );
 
     socket.emit(payload?.gameId ? "jackpotPoolsOnGame" : "jackpotPools", jackpotPools);

@@ -18,15 +18,19 @@ describe("jackpotRepository", () => {
             //Arrange
             const gameIds = chance.unique(chance.integer, chance.integer({ min: 0, max: 100 }), { min: 0, max: 100 });
             const limit = chance.integer({ min: 0, max: 500 });
-
+            const operatorId = chance.string();
+            const siteName = chance.string();
+            
             // Act
-            await getJackPotWinners(gameIds, limit);
+            await getJackPotWinners(gameIds, limit, operatorId, siteName);
 
             // Assert
             expect(jackpots.find).toBeCalledWith(
                 {
                     winnerName: { $exists: true },
                     gameId: { $in: gameIds },
+                    operatorId,
+                    $or: [{ siteNames: { $elemMatch: { $eq: siteName } } }, { siteNames: { $size: 0 } }],
                 },
                 {
                     _id: false,
@@ -51,15 +55,18 @@ describe("jackpotRepository", () => {
         it("should call jackpots find", async () => {
             // Arrange
             const gameIds = chance.unique(chance.integer, chance.integer({ min: 0, max: 100 }), { min: 0, max: 100 });
-
+            const operatorId = chance.string();
+            const siteName = chance.string();
             // Act
-            await getRunningPools(gameIds);
+            await getRunningPools(gameIds, operatorId, siteName);
 
             // Assert
             expect(jackpots.find).toBeCalledWith(
                 {
                     winnerName: { $exists: false },
                     gameId: { $in: gameIds },
+                    operatorId,
+                    $or: [{ siteNames: { $elemMatch: { $eq: siteName } } }, { siteNames: { $size: 0 } }],
                 },
                 {
                     _id: false,
