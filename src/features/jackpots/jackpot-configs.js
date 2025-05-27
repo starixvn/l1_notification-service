@@ -10,7 +10,7 @@ async function getJackpotConfigs(gameIds, operatorId, siteName) {
     const configFilter = (config) =>
         gameIds.includes(config.gameId) &&
         config.operatorId === operatorId &&
-        (config.SiteNames.includes(siteName) || config.SiteNames.length === 0);
+        (config.siteNames.includes(siteName) || config.siteNames.length === 0);
 
     if (cachedResult) {
         return cachedResult.filter(configFilter);
@@ -20,7 +20,7 @@ async function getJackpotConfigs(gameIds, operatorId, siteName) {
 
     if (response.isSuccessful) {
         const jackpotConfigs = response.data;
-        jackpotConfigsCache.set("jackpot-configs", response.data);
+        jackpotConfigsCache.set("jackpot-configs", jackpotConfigs);
         return jackpotConfigs.filter(configFilter);
     }
 
