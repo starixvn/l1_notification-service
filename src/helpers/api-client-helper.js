@@ -14,6 +14,7 @@ const init = async (configs) => {
 };
 
 const get = async (endpoint, params, options) => {
+    console.log("get");
     if (!bearerAuthenticator) {
         logger.logError("authentication-helper has not been initialized properly.");
 
@@ -30,6 +31,8 @@ const get = async (endpoint, params, options) => {
     if (useAuthenticate) {
         requestConfigs.headers.Authorization = bearerAuthenticator.formatToken();
     }
+
+    console.log(requestConfigs.headers.Authorization);
 
     return (await Axios.get(endpoint, { params, ...requestConfigs })).data;
 };

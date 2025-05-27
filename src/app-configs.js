@@ -75,12 +75,12 @@ export default {
     oidc: {
         clientId: "api",
         clientSecret: "api@20luminet&",
-        issuer: "http://l2-auth-api-local-service:5000",
+        issuer: "https://l2-auth.lumigame.com",
         requestTimeout: 10000,
         useAuthenticate: true,
     },
     gameManagementApiSettings: {
-        baseUrl: "http://l2-game-management-service-local-service:5000",
+        baseUrl: "https://l2-proxy.lumigame.com/game-management-service",
     },
     natsOptions: {
         connectionOptions: {
