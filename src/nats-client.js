@@ -40,6 +40,7 @@ export async function consumeRunningPools(natsOptions) {
         try {
             const data = JSON.parse(msg.string());
             const gameId = parseInt(msg.subject.split(".")[1].split("-")[0]);
+            console.log("process running pools", gameId, msg.subject);
             await updateJackpotPools(gameId, data);
             msg.ack();
         } catch (error) {
