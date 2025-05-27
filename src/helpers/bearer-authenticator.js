@@ -1,8 +1,11 @@
-import { clientCredentialsGrant, discovery } from "openid-client";
+import OpenIdClient from "openid-client";
 import { logger } from "sc-common";
 
+const { Issuer, custom } = OpenIdClient;
 const beforeTokenExpired = 60 * 5;
 const timeout = 60000;
+
+custom.setHttpOptionsDefaults({ timeout });
 
 export default class BearerAuthenticator {
     constructor(authConfigs) {
@@ -10,7 +13,6 @@ export default class BearerAuthenticator {
     }
 
     async autoUpdateToken() {
-        console.log("autoUpdateToken");
         await this.updateToken();
         setTimeout(this.refresh.bind(this), timeout);
     }
@@ -41,8 +43,14 @@ export default class BearerAuthenticator {
     }
 
     async getBearerToken() {
-        const config = await discovery(new URL(this.authConfigs.issuer), this.authConfigs.clientId, this.authConfigs.clientSecret);
-        const token = await clientCredentialsGrant(config);
+        const clientMetadata = {
+            grant_type: "client_credentials",
+            client_id: this.authConfigs.clientId,
+            client_secret: this.authConfigs.clientSecret,
+        };
+        const issuer = await Issuer.discover(this.authConfigs.issuer);
+        const client = new issuer.Client(clientMetadata);
+        const token = await client.grant(clientMetadata);
 
         return token.access_token
             ? {

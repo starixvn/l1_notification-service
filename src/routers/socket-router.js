@@ -3,8 +3,8 @@ import { findNotifications } from "../features/game-notifications";
 import * as JackpotHandler from "../features/jackpots/jackpot-handler";
 import * as promotionNotificationHandler from "../features/promotion-notifications/promotion-notification-handler";
 import * as promotionsHandler from "../features/promotions/promotions-handler";
-import { authenticate } from "../middleware/authorize-handler";
 import { getRoundTimerLatestData } from "../features/round-timer/round-timer-handler";
+import { authenticate } from "../middleware/authorize-handler";
 
 /** @param {Server} socketServer */
 const init = (socketServer) => {
@@ -18,7 +18,6 @@ const init = (socketServer) => {
         /** @param {Socket} socket */
         (socket) => {
             initSocketClient(socket);
-            console.log(`${socket.id} connected`);
         }
     );
 };
@@ -42,4 +41,3 @@ const initSocketClient = (socketClient) => {
 };
 
 export { init };
-

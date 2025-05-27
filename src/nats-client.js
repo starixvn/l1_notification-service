@@ -22,14 +22,14 @@ export async function consumeRunningPools(natsOptions) {
     const { jackpotPools } = natsOptions.consumerOptions;
 
     await jsm.consumers.add(jackpotPools.stream, {
-        name: "notification-service-consumer",
+        name: `notification-service-consumer-${process.pid}`,
         ack_policy: AckPolicy.Explicit,
         deliver_policy: DeliverPolicy.All,
         filter_subject: jackpotPools.filterSubject,
     });
 
     const js = jsm.jetstream();
-    const consumer = await js.consumers.get("vg_local_slots_jackpot_pools", "notification-service-consumer");
+    const consumer = await js.consumers.get("vg_local_slots_jackpot_pools", `notification-service-consumer-${process.pid}`);
 
     const messages = await consumer.consume({
         max_messages: 1,
