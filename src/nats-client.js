@@ -1,6 +1,7 @@
 import { AckPolicy, DeliverPolicy, jetstreamManager } from "@nats-io/jetstream";
 import { connect } from "@nats-io/transport-node";
-
+import { logger } from "sc-common";
+import { updateJackpotPools } from "./features/jackpots/jackpot-repository";
 /**
  * @type {import("@nats-io/transport-node").NatsConnection}
  */
@@ -11,34 +12,37 @@ let nats;
 let jsm;
 
 export async function initNats(natsOptions) {
-    nats = await connect({ servers: "nats://10.10.50.122:4222" });
+    nats = await connect(natsOptions.connectionOptions);
     jsm = await jetstreamManager(nats);
 
-    await jsm.consumers.add("vg_local_slots_jackpot_pools", {
+    await consumeRunningPools(natsOptions);
+}
+
+export async function consumeRunningPools(natsOptions) {
+    const { jackpotPools } = natsOptions.consumerOptions;
+
+    await jsm.consumers.add(jackpotPools.stream, {
         name: "notification-service-consumer",
         ack_policy: AckPolicy.Explicit,
         deliver_policy: DeliverPolicy.All,
-        filter_subject: "jackpot-pools.>",
+        filter_subject: jackpotPools.filterSubject,
     });
-    await consumeRunningPools();
-}
 
-export async function consumeRunningPools() {
     const js = jsm.jetstream();
     const consumer = await js.consumers.get("vg_local_slots_jackpot_pools", "notification-service-consumer");
 
     const messages = await consumer.consume({
         max_messages: 1,
-        expires: 100000,
     });
 
     for await (const msg of messages) {
         try {
             const data = JSON.parse(msg.string());
-            console.log("Processing message:", msg.subject, data[0]);
+            const gameId = parseInt(msg.subject.split(".")[1].split("-")[0]);
+            await updateJackpotPools(gameId, data);
             msg.ack();
         } catch (error) {
-            console.error("Error processing message:", error);
+            logger.logError(error);
             msg.nak();
         }
     }

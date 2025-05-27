@@ -2361,6 +2361,11 @@ clone-response@^1.0.2:
   dependencies:
     mimic-response "^1.0.0"
 
+clone@2.x:
+  version "2.1.2"
+  resolved "http://npm.lumigame.com/clone/-/clone-2.1.2.tgz#1b7f4b9f591f1e8f83670401600345a02887435f"
+  integrity sha1-G39Ln1kfHo+DZwQBYANFoCiHQ18=
+
 co@^4.6.0:
   version "4.6.0"
   resolved "https://npm.lumigame.com/co/-/co-4.6.0.tgz"
@@ -4483,6 +4488,11 @@ joi@^17.6.0:
     "@sideway/formula" "^3.0.0"
     "@sideway/pinpoint" "^2.0.0"
 
+jose@^6.0.10:
+  version "6.0.11"
+  resolved "http://npm.lumigame.com/jose/-/jose-6.0.11.tgz#0b7ea8b3b21a1bda5e00255a044c3a0e43270882"
+  integrity sha512-QxG7EaliDARm1O1S8BGakqncGT9s25bKL1WSf6/oa17Tkqwi8D2ZNglqCF+DsYF88/rV66Q/Q2mFAy697E1DUg==
+
 js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://npm.lumigame.com/js-tokens/-/js-tokens-4.0.0.tgz"
@@ -5054,6 +5064,13 @@ nice-try@^1.0.4:
   resolved "https://npm.lumigame.com/nice-try/-/nice-try-1.0.5.tgz"
   integrity sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==
 
+node-cache@^5.1.2:
+  version "5.1.2"
+  resolved "http://npm.lumigame.com/node-cache/-/node-cache-5.1.2.tgz#f264dc2ccad0a780e76253a694e9fd0ed19c398d"
+  integrity sha512-t1QzWwnk4sjLWaQAS8CHgOJ+RAfmHpxFWmc36IWTiWHQfs0w5JDMBS1b1ZxQteo0vVVuWJvIUKHDkkeK7vIGCg==
+  dependencies:
+    clone "2.x"
+
 node-int64@^0.4.0:
   version "0.4.0"
   resolved "https://npm.lumigame.com/node-int64/-/node-int64-0.4.0.tgz"
@@ -5155,6 +5172,11 @@ nwsapi@^2.2.0:
   resolved "https://npm.lumigame.com/nwsapi/-/nwsapi-2.2.0.tgz"
   integrity sha512-h2AatdwYH+JHiZpv7pt/gSX1XoRGb7L/qSIeuqA6GwYoF9w1vP1cw42TO0aI2pNyshRK5893hNSl+1//vHK7hQ==
 
+oauth4webapi@^3.5.1:
+  version "3.5.1"
+  resolved "http://npm.lumigame.com/oauth4webapi/-/oauth4webapi-3.5.1.tgz#93154323df5c2e09bf8884c26693596eaaafc17a"
+  integrity sha512-txg/jZQwcbaF7PMJgY7aoxc9QuCxHVFMiEkDIJ60DwDz3PbtXPQnrzo+3X4IRYGChIwWLabRBRpf1k9hO9+xrQ==
+
 object-assign@^4:
   version "4.1.1"
   resolved "https://npm.lumigame.com/object-assign/-/object-assign-4.1.1.tgz"
@@ -5223,6 +5245,14 @@ onetime@^5.1.0, onetime@^5.1.2:
   integrity sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==
   dependencies:
     mimic-fn "^2.1.0"
+
+openid-client@^6.5.0:
+  version "6.5.0"
+  resolved "http://npm.lumigame.com/openid-client/-/openid-client-6.5.0.tgz#434bdc1a98cf2f1e54536f897c702cac78c2ec70"
+  integrity sha512-fAfYaTnOYE2kQCqEJGX9KDObW2aw7IQy4jWpU/+3D3WoCFLbix5Hg6qIPQ6Js9r7f8jDUmsnnguRNCSw4wU/IQ==
+  dependencies:
+    jose "^6.0.10"
+    oauth4webapi "^3.5.1"
 
 optional-require@1.0.x:
   version "1.0.3"
