@@ -72,4 +72,29 @@ export default {
         },
         parameters: { jobName: "notification-service", groupings: { instance: hostname() } },
     },
+    oidc: {
+        clientId: "api",
+        clientSecret: "api@20luminet&",
+        issuer: "http://l2-auth-api-local-service:5000",
+        requestTimeout: 10000,
+        useAuthenticate: true,
+    },
+    gameManagementApiSettings: {
+        baseUrl: "http://l2-game-management-service-local-service:5000",
+    },
+    natsOptions: {
+        connectionOptions: {
+            servers: ["nats://10.10.50.122:4222"],
+        },
+        consumerOptions: {
+            jackpotPools: {
+                stream: "vg_local_slots_jackpot_pools",
+                filterSubject: "jackpot-pools.>",
+            },
+            jackpotWinners: {
+                stream: "vg_local_slots_jackpot_winners",
+                filterSubject: "jackpot-winners.>",
+            },
+        },
+    },
 };

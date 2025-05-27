@@ -36,6 +36,8 @@
         "jest-micro-auto-stub": "^1.0.9",
         "joi": "^17.6.0",
         "morgan": "^1.10.0",
+        "node-cache": "^5.1.2",
+        "openid-client": "^6.5.0",
         "ramda": "^0.28.0",
         "sc-base-database": "^1.9.2",
         "sc-common": "^1.8.1",
