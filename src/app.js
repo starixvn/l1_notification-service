@@ -10,6 +10,7 @@ import { isAllowAccess, startCorsCron } from "./features/domain/cors-helper";
 import { setMarquee } from "./features/marquee/marquee-handler";
 import { setPromotionNotifications } from "./features/promotion-notifications/promotion-notification-handler";
 import { setPromotions } from "./features/promotions/promotions-handler";
+import { initNats } from "./nats-client";
 import * as RouterConfig from "./routers/router-config";
 const run = async () => {
     const app = express();
@@ -54,6 +55,7 @@ const configureServices = async (app) => {
 
     await initBaseDatabase(appConfigs.database);
     startCorsCron();
+    initNats();
 };
 
 run();

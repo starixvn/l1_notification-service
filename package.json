@@ -20,6 +20,9 @@
         "indent": 4
     },
     "dependencies": {
+        "@nats-io/jetstream": "^3.0.2",
+        "@nats-io/nats-core": "^3.0.2",
+        "@nats-io/transport-node": "^3.0.2",
         "@socket.io/mongo-adapter": "0.3.0",
         "@socket.io/mongo-emitter": "0.2.0",
         "axios": "^0.26.1",
@@ -50,5 +53,6 @@
         "jest-junit": "^13.0.0",
         "jest-sonar-reporter": "^2.0.0",
         "nodemon": "^2.0.15"
-    }
+    },
+    "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
