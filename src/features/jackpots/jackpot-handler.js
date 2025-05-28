@@ -6,6 +6,7 @@ import emitEvents from "../../constants/emit-events";
 import { getLocalSockets } from "../socket-server/socket-server-handler";
 import * as currencyRepository from "./currency-repository";
 import { getExchangeRates } from "./exchange-rate-repository";
+import { getJackpotConfigs } from "./jackpot-configs";
 import * as jackpotRepository from "./jackpot-repository";
 import * as partnerConfigRepository from "./partner-config-repository";
 
@@ -39,20 +40,19 @@ const sendJackpotWinnerWhenNotExcluded = async (socket, payload) => {
     const { session } = socket.data;
     const { gameId } = payload;
 
-    if (
-        session &&
-        !session.disableJackpotGames &&
-        session.operatorId === payload.operatorId &&
-        (payload.siteNames.length === 0 || payload.siteNames.includes(session.siteName))
-    ) {
+    if (session && !session.disableJackpotGames) {
+        const jackpotConfigs = await getJackpotConfigs([gameId], session.operatorId, session.siteName);
+
         const offeredGames = await getOfferedGames(session);
-        const isOffered = offeredGames.some((game) => game.gameId === gameId);
+        const isOffered =
+            offeredGames.some((game) => game.gameId === gameId) && jackpotConfigs.some((config) => config._id === payload.jackpotConfigId);
 
         isOffered && socket.emit("jackpotWinner", payload);
     }
 };
 
 export const getOfferedGames = async (session) => {
+    console.log(123);
     const currencyGroup = await currencyRepository.getCurrencyGroup(session.currencyGroupId);
     const currency = await currencyRepository.getCurrency(session.currencyName, session.partnerId);
 
@@ -91,12 +91,11 @@ const getJackpotWinnersMapAvatar = async (jackpotWinners) => {
 
     return jackpotWinners.map((winner) => {
         const avatarId = avatars.find((avatar) => avatar.name === winner.winnerName)?.avatarId ?? 0;
-        const winningAmount = winner.amount * winner.winningRatio;
 
         return {
             gameId: winner.gameId,
             pool: winner.pool,
-            amount: winningAmount,
+            amount: winner.amount,
             winnerName: winner.winnerName,
             avatarId,
             exchangeRateId: winner.exchangeRateId,

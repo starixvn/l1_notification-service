@@ -17,7 +17,6 @@ const getJackPotWinners = async (gameIds, limit, operatorId, siteName) => {
         pool: "$prize",
         winnerName: true,
         amount: true,
-        winningRatio: true,
         exchangeRateId: true,
     };
     const sort = {

@@ -6,6 +6,7 @@ import { logger } from "sc-common";
 import { mongoEmitter } from "../../../src/adapters/socket-adapter";
 import emitEvents from "../../../src/constants/emit-events";
 import * as currencyRepository from "../../../src/features/jackpots/currency-repository";
+import { getJackpotConfigs } from "../../../src/features/jackpots/jackpot-configs";
 import * as handler from "../../../src/features/jackpots/jackpot-handler";
 import * as jackpotRepository from "../../../src/features/jackpots/jackpot-repository";
 import * as partnerConfigRepository from "../../../src/features/jackpots/partner-config-repository";
@@ -27,6 +28,10 @@ jest.mock("../../../src/features/jackpots/exchange-rate-repository", () => ({
 }));
 jest.mock("sc-common");
 userInfos.find = stubMongoose(userInfos).find;
+
+jest.mock("../../../src/features/jackpots/jackpot-configs", () => ({
+    getJackpotConfigs: jest.fn(() => []),
+}));
 
 const chance = new Chance();
 const socketClient = {
@@ -347,7 +352,7 @@ describe("jackpotHandler", () => {
 
     describe("sendJackpotWinnerWhenNotExcluded", () => {
         const sendJackpotWinnerWhenNotExcludedFunc = handler.default.__get__("sendJackpotWinnerWhenNotExcluded");
-        const payload = { gameId: chance.integer({ min: 1, max: 100 }), operatorId: "operator", siteNames: [] };
+        const payload = { gameId: chance.integer({ min: 1, max: 100 }), operatorId: "operator", jackpotConfigId: chance.guid() };
 
         beforeEach(() => {
             handler.default.__set__("isExcludeOnGame", jest.fn());
@@ -411,6 +416,7 @@ describe("jackpotHandler", () => {
                 it("should call getOfferedGames ", async () => {
                     // Arrange
                     handler.default.__set__("getOfferedGames", jest.fn().mockResolvedValueOnce([{ gameId: payload.gameId }]));
+                    getJackpotConfigs.mockResolvedValueOnce([{ _id: payload.jackpotConfigId }]);
                     // Act
                     await sendJackpotWinnerWhenNotExcludedFunc(client, payload);
 
@@ -604,7 +610,6 @@ describe("jackpotHandler", () => {
             const avatarId = chance.integer({ min: 1, max: 200 });
             const winnerNames = winners.map((winner) => winner.winnerName);
             winners[0].amount = 100;
-            winners[0].winningRatio = 4;
             userInfos
                 .find()
                 .lean()
@@ -614,7 +619,7 @@ describe("jackpotHandler", () => {
             const actualResult = await getJackpotWinnersMapAvatarsFunc(winners);
 
             // Assert
-            expect(actualResult[0].amount).toBe(400);
+            expect(actualResult[0].amount).toEqual(100);
         });
     });
 });

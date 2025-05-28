@@ -33,7 +33,6 @@
         "express": "^4.17.3",
         "helmet": "^5.0.2",
         "http": "^0.0.1-security",
-        "jest-micro-auto-stub": "^1.0.9",
         "joi": "^17.6.0",
         "morgan": "^1.10.0",
         "node-cache": "^5.1.2",
@@ -53,6 +52,7 @@
         "jest": "^27.5.1",
         "jest-auto-fixture": "^1.0.6",
         "jest-junit": "^13.0.0",
+        "jest-micro-auto-stub": "^1.0.9",
         "jest-sonar-reporter": "^2.0.0",
         "nodemon": "^2.0.15"
     },
