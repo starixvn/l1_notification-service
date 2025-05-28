@@ -4,16 +4,10 @@ import { get } from "../../helpers/api-client-helper";
 
 const jackpotConfigsCache = new NodeCache({ stdTTL: 60 });
 
-async function getJackpotConfigs(gameIds, operatorId, siteName) {
+async function getFromCache() {
     const cachedResult = jackpotConfigsCache.get("jackpot-configs");
-
-    const configFilter = (config) =>
-        gameIds.includes(config.gameId) &&
-        config.operatorId === operatorId &&
-        (config.siteNames.includes(siteName) || config.siteNames.length === 0);
-
     if (cachedResult) {
-        return cachedResult.filter(configFilter);
+        return cachedResult;
     }
 
     const response = await get(`${appConfigs.gameManagementApiSettings.baseUrl}/jackpot-config`);
@@ -21,10 +15,20 @@ async function getJackpotConfigs(gameIds, operatorId, siteName) {
     if (response.isSuccessful) {
         const jackpotConfigs = response.data;
         jackpotConfigsCache.set("jackpot-configs", jackpotConfigs);
-        return jackpotConfigs.filter(configFilter);
+        return jackpotConfigs;
     }
 
     return [];
+}
+
+async function getJackpotConfigs(gameIds, operatorId, siteName) {
+    const jackpotConfigs = await getFromCache();
+    const configFilter = (config) =>
+        gameIds.includes(config.gameId) &&
+        config.operatorId === operatorId &&
+        (config.siteNames.includes(siteName) || config.siteNames.length === 0);
+
+    return jackpotConfigs.filter(configFilter);
 }
 
 export { getJackpotConfigs };

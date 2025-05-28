@@ -7,7 +7,6 @@ const schema = new mongoose.Schema({
     winnerName: { type: String },
     hitTime: { type: Date },
 
-    rate: { type: Number },
     exchangeRateId: { type: Number },
     operatorId: { type: String },
     jackpotConfigId: { type: String },
