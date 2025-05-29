@@ -53,8 +53,8 @@ const updateJackpotPools = async (gameId, pools) => {
     await jackpot_pools_notification.insertMany(pools.map((pool) => ({ ...pool, gameId })));
 };
 
-const insertJackpotWinners = async (gameId, winner) => {
-    await jackpot_winners_notification.create({ gameId, ...winner });
+const insertJackpotWinners = async (winner) => {
+    await jackpot_winners_notification.create(winner);
 };
 
 export { getJackPotWinners, getRunningPools, insertJackpotWinners, updateJackpotPools };

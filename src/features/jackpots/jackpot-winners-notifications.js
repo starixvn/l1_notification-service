@@ -8,7 +8,6 @@ const schema = new mongoose.Schema({
     hitTime: { type: Date },
 
     exchangeRateId: { type: Number },
-    operatorId: { type: String },
     jackpotConfigId: { type: String },
 });
 
