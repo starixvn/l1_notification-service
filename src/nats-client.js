@@ -42,7 +42,6 @@ async function consumeRunningPools(natsOptions) {
         try {
             const data = JSON.parse(msg.string());
             const gameId = parseInt(msg.subject.split(".")[1].split("-")[0]);
-            console.log("process running pools", gameId, msg.subject);
             await updateJackpotPools(gameId, data);
             msg.ack();
         } catch (error) {
@@ -74,8 +73,7 @@ async function consumeJackpotWinners(natsOptions) {
     for await (const msg of messages) {
         try {
             const data = JSON.parse(msg.string());
-            const gameId = parseInt(msg.subject.split(".")[1].split("-")[0]);
-            await insertJackpotWinners(gameId, data);
+            await insertJackpotWinners(data);
             msg.ack();
             mongoEmitter.serverSideEmit(emitEvents.jackpotWinner, data);
         } catch (error) {

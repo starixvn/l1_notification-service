@@ -227,20 +227,19 @@ describe("jackpotRepository", () => {
     describe("insertJackpotWinners", () => {
         it("should call create with gameId and winner data", async () => {
             // Arrange
-            const gameId = chance.integer();
             const winner = {
+                gameId: chance.integer(),
                 winnerName: chance.string(),
                 amount: chance.integer(),
                 exchangeRateId: chance.string(),
             };
-            const expectedData = { gameId, ...winner };
             jackpot_winners_notification.create.mockResolvedValue();
 
             // Act
-            await insertJackpotWinners(gameId, winner);
+            await insertJackpotWinners(winner);
 
             // Assert
-            expect(jackpot_winners_notification.create).toHaveBeenCalledWith(expectedData);
+            expect(jackpot_winners_notification.create).toHaveBeenCalledWith(winner);
         });
     });
 });
