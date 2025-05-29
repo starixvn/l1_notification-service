@@ -14,7 +14,6 @@ const init = async (configs) => {
 };
 
 const get = async (endpoint, params, options) => {
-    console.log("get");
     if (!bearerAuthenticator) {
         logger.logError("authentication-helper has not been initialized properly.");
 

@@ -52,7 +52,6 @@ const sendJackpotWinnerWhenNotExcluded = async (socket, payload) => {
 };
 
 export const getOfferedGames = async (session) => {
-    console.log(123);
     const currencyGroup = await currencyRepository.getCurrencyGroup(session.currencyGroupId);
     const currency = await currencyRepository.getCurrency(session.currencyName, session.partnerId);
 
