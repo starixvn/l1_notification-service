@@ -209,15 +209,13 @@ describe("jackpotRepository", () => {
             // Arrange
             const gameId = chance.integer();
             const pools = [
-                { pool: chance.string(), amount: chance.integer() },
-                { pool: chance.string(), amount: chance.integer() },
+                { prize: chance.string(), amount: chance.integer() },
+                { prize: chance.string(), amount: chance.integer() },
             ];
             const expectedPools = pools.map((pool) => ({ ...pool, gameId }));
-            jackpot_pools_notification.deleteMany.mockResolvedValue();
-            jackpot_pools_notification.insertMany.mockResolvedValue();
 
             // Act
-            await updateJackpotPools(gameId, pools);
+            await updateJackpotPools(gameId, expectedPools);
 
             // Assert
             expect(jackpot_pools_notification.insertMany).toHaveBeenCalledWith(expectedPools);
