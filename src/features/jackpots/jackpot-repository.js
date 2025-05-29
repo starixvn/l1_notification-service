@@ -50,7 +50,7 @@ const getRunningPools = async (gameIds, operatorId, siteName) => {
 
 const updateJackpotPools = async (gameId, pools) => {
     await jackpot_pools_notification.deleteMany({ gameId });
-    await jackpot_pools_notification.insertMany(pools.map((pool) => ({ ...pool, gameId })));
+    await jackpot_pools_notification.insertMany(pools);
 };
 
 const insertJackpotWinners = async (winner) => {

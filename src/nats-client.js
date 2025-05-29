@@ -2,6 +2,7 @@ import { AckPolicy, DeliverPolicy, jetstreamManager } from "@nats-io/jetstream";
 import { connect } from "@nats-io/transport-node";
 import { logger } from "sc-common";
 import { mongoEmitter } from "./adapters/socket-adapter";
+import emitEvents from "./constants/emit-events";
 import { insertJackpotWinners, updateJackpotPools } from "./features/jackpots/jackpot-repository";
 /**
  * @type {import("@nats-io/transport-node").NatsConnection}
@@ -74,8 +75,8 @@ async function consumeJackpotWinners(natsOptions) {
         try {
             const data = JSON.parse(msg.string());
             await insertJackpotWinners(data);
-            msg.ack();
             mongoEmitter.serverSideEmit(emitEvents.jackpotWinner, data);
+            msg.ack();
         } catch (error) {
             logger.logError(error);
             msg.nak();
