@@ -84,16 +84,16 @@ export default {
     },
     natsOptions: {
         connectionOptions: {
-            servers: ["nats://10.10.50.122:4222"],
+            servers: "nats://10.10.50.122:4222",
         },
         consumerOptions: {
             jackpotPools: {
                 stream: "vg_local_slots_jackpot_pools",
-                filterSubject: "jackpot-pools.>",
+                filterSubject: "vg-local-jackpot-pools.>",
             },
             jackpotWinners: {
                 stream: "vg_local_slots_jackpot_winners",
-                filterSubject: "jackpot-winners.>",
+                filterSubject: "vg-local-jackpot-winners.>",
             },
         },
     },
