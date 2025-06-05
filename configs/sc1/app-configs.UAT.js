@@ -72,4 +72,19 @@ export default {
         },
         parameters: { jobName: "notification-service", groupings: { instance: hostname() } },
     },
+    natsOptions: {
+        connectionOptions: {
+            servers: "nats://vn-sc-nats-uat.nebula.prod",
+        },
+        consumerOptions: {
+            jackpotPools: {
+                stream: "sg_uat_slots_jackpot_pools",
+                filterSubject: "sg-uat-jackpot-pools.>",
+            },
+            jackpotWinners: {
+                stream: "sg_uat_slots_jackpot_winners",
+                filterSubject: "sg-uat-jackpot-winners.>",
+            },
+        },
+    },
 };

@@ -72,4 +72,19 @@ export default {
         },
         parameters: { jobName: "notification-service", groupings: { instance: hostname() } },
     },
+    natsOptions: {
+        connectionOptions: {
+            servers: "nats://10.10.50.122:4222",
+        },
+        consumerOptions: {
+            jackpotPools: {
+                stream: "sg_local2_slots_jackpot_pools",
+                filterSubject: "sg-local2-jackpot-pools.>",
+            },
+            jackpotWinners: {
+                stream: "sg_local2_slots_jackpot_winners",
+                filterSubject: "sg-local2-jackpot-winners.>",
+            },
+        },
+    },
 };
