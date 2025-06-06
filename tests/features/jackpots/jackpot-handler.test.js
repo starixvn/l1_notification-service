@@ -421,7 +421,8 @@ describe("jackpotHandler", () => {
                     await sendJackpotWinnerWhenNotExcludedFunc(client, payload);
 
                     // Assert
-                    expect(client.emit).toBeCalledWith("jackpotWinner", payload);
+                    const { jackpotConfigId, ...expectedPayload } = payload;
+                    expect(client.emit).toBeCalledWith("jackpotWinner", expectedPayload);
                 });
             });
         });
