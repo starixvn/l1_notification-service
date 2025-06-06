@@ -76,8 +76,7 @@ async function consumeJackpotWinners(natsOptions) {
             const data = JSON.parse(msg.string());
             await insertJackpotWinners(data);
 
-            const { jackpotConfigId, ...notificationData } = data;
-            mongoEmitter.serverSideEmit(emitEvents.jackpotWinner, notificationData);
+            mongoEmitter.serverSideEmit(emitEvents.jackpotWinner, data);
             msg.ack();
         } catch (error) {
             logger.logError(error);

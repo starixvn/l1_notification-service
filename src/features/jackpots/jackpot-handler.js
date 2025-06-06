@@ -41,13 +41,15 @@ const sendJackpotWinnerWhenNotExcluded = async (socket, payload) => {
     const { gameId } = payload;
 
     if (session && !session.disableJackpotGames) {
+        const { jackpotConfigId, ...notificationData } = payload;
+
         const jackpotConfigs = await getJackpotConfigs([gameId], session.operatorId, session.siteName);
 
         const offeredGames = await getOfferedGames(session);
         const isOffered =
-            offeredGames.some((game) => game.gameId === gameId) && jackpotConfigs.some((config) => config._id === payload.jackpotConfigId);
+            offeredGames.some((game) => game.gameId === gameId) && jackpotConfigs.some((config) => config._id === jackpotConfigId);
 
-        isOffered && socket.emit("jackpotWinner", payload);
+        isOffered && socket.emit("jackpotWinner", notificationData);
     }
 };
 
