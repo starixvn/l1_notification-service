@@ -72,6 +72,9 @@ export default {
         },
         parameters: { jobName: "notification-service", groupings: { instance: hostname() } },
     },
+    gameManagementApiSettings: {
+        baseUrl: "http://l1-game-management-service-uat-service:5000",
+    },
     natsOptions: {
         connectionOptions: {
             servers: "nats://vn-sc-nats-uat.nebula.prod",
