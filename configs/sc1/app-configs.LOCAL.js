@@ -72,6 +72,9 @@ export default {
         },
         parameters: { jobName: "notification-service", groupings: { instance: hostname() } },
     },
+    gameManagementApiSettings: {
+        baseUrl: "http://l1-game-management-service-local-service:5000",
+    },
     natsOptions: {
         connectionOptions: {
             servers: "nats://10.10.50.122:4222",
