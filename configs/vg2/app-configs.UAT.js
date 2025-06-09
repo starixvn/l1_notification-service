@@ -72,6 +72,13 @@ export default {
         },
         parameters: { jobName: "notification-service", groupings: { instance: hostname() } },
     },
+    oidc: {
+        clientId: "api",
+        clientSecret: "api@20luminet&",
+        issuer: "http://l2-auth-api-uat-service:5000",
+        requestTimeout: 10000,
+        useAuthenticate: true,
+    },
     gameManagementApiSettings: {
         baseUrl: "http://l2-game-management-service-uat-service:5000",
     },

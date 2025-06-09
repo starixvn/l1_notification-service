@@ -53,7 +53,6 @@ async function consumeRunningPools(natsOptions) {
 }
 
 async function consumeJackpotWinners(natsOptions) {
-    console.log("consumeJackpotWinners");
     const { jackpotWinners } = natsOptions.consumerOptions;
 
     await jsm.consumers.add(jackpotWinners.stream, {
