@@ -12,17 +12,6 @@ describe("isAllowAccess", () => {
     });
 
     describe("when mainDomain does not has subdomain", () => {
-        it("should allow access if configuredDomains includes mainDomain", async () => {
-            // Arrange
-            updateConfiguredDomains("xyz.com;abcd.com;abd.com");
-
-            // Act
-            const result = isAllowAccess("abd.com");
-
-            // Assert
-            expect(result).toBe(true);
-        });
-
         it("should not allow access if configuredDomains does not include mainDomain", async () => {
             // Arrange
             updateConfiguredDomains("xyz.com;abcd.com;abd.com");
@@ -32,6 +21,16 @@ describe("isAllowAccess", () => {
 
             // Assert
             expect(result).toBe(false);
+        });
+        it("should allow access if configuredDomains includes mainDomain", async () => {
+            // Arrange
+            updateConfiguredDomains("xyz.com;abcd.com;abd.com");
+
+            // Act
+            const result = isAllowAccess("abd.com");
+
+            // Assert
+            expect(result).toBe(true);
         });
     });
 
