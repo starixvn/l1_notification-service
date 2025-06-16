@@ -1,13 +1,13 @@
 import { isAllowAccess, getMainDomain, updateConfiguredDomains } from "../../../src/features/domain/cors-helper";
 
 describe("isAllowAccess", () => {
-    it("should allow access if origin is undefined", async () => {
-        const result = isAllowAccess();
+    it("should allow access if configuredDomains is falsy", async () => {
+        const result = isAllowAccess("origin");
         expect(result).toBe(true);
     });
 
-    it("should allow access if configuredDomains is falsy", async () => {
-        const result = isAllowAccess("origin");
+    it("should allow access if origin is undefined", async () => {
+        const result = isAllowAccess();
         expect(result).toBe(true);
     });
 
