@@ -2,9 +2,6 @@ import Chance from "chance";
 import { UserSession } from "jest-auto-fixture/src/models/index";
 import { stubMongoose } from "jest-micro-auto-stub";
 import { userInfos } from "sc-base-database";
-import { logger } from "sc-common";
-import { mongoEmitter } from "../../../src/adapters/socket-adapter";
-import emitEvents from "../../../src/constants/emit-events";
 import * as currencyRepository from "../../../src/features/jackpots/currency-repository";
 import { getJackpotConfigs } from "../../../src/features/jackpots/jackpot-configs";
 import * as handler from "../../../src/features/jackpots/jackpot-handler";
@@ -254,99 +251,6 @@ describe("jackpotHandler", () => {
 
             // Assert
             expect(socketClient.emit).toBeCalledWith("jackpotPoolsOnGame", jackpotPools);
-        });
-    });
-
-    describe("notifyJackpotWinner", () => {
-        const req = { body: {} };
-        const res = { send: jest.fn() };
-
-        beforeEach(() => {
-            handler.default.__set__("validateParams", jest.fn());
-            handler.default.__set__("sendAllUserExceptExclusionSite", jest.fn());
-        });
-
-        it("should call validateParams", () => {
-            // Arrange
-            const validateParamsFunc = handler.default.__get__("validateParams");
-
-            // Act
-            handler.notifyJackpotWinner(req, res);
-
-            // Assert
-            expect(validateParamsFunc).toBeCalledWith(req.body);
-        });
-
-        describe("when request params is valid", () => {
-            beforeEach(() => {
-                handler.default.__get__("validateParams").mockReturnValueOnce(true);
-            });
-
-            it("should call mongoEmitter.serverSideEmit", () => {
-                // Act
-                handler.notifyJackpotWinner(req, res);
-
-                // Assert
-                expect(mongoEmitter.serverSideEmit).toBeCalledWith(emitEvents.jackpotWinner, req.body);
-            });
-
-            it("should send received message to client", () => {
-                // Act
-                handler.notifyJackpotWinner(req, res);
-
-                // Assert
-                expect(res.send).toBeCalledWith({ received: true });
-            });
-        });
-    });
-
-    describe("validateParams", () => {
-        const validateParamsFunc = handler.default.__get__("validateParams");
-        const validParams = {
-            gameId: chance.integer({ min: 1, max: 100 }),
-            pool: chance.pickone(["minor", "major", "grand"]),
-            winnerName: chance.name_suffix(),
-            amount: chance.natural(),
-        };
-        describe("when params is valid", () => {
-            it("should return true", () => {
-                // Act
-                const actualResult = validateParamsFunc(validParams);
-
-                // Assert
-                expect(actualResult).toBeTruthy();
-            });
-        });
-
-        describe("when params is not valid", () => {
-            const testCases = [
-                { failure: "gameId", params: { ...validParams, gameId: undefined } },
-                { failure: "pool", params: { ...validParams, pool: undefined } },
-                { failure: "winnerName", params: { ...validParams, winnerName: undefined } },
-                { failure: "amount", params: { ...validParams, amount: undefined } },
-            ];
-
-            testCases.forEach(({ failure, params }) => {
-                describe(`when ${failure} is not valid`, () => {
-                    it("should return false", () => {
-                        // Act
-                        const actualResult = validateParamsFunc(params);
-
-                        // Assert
-                        expect(actualResult).toBeFalsy();
-                    });
-
-                    it("should log critical", () => {
-                        // Act
-                        validateParamsFunc(params);
-
-                        // Assert
-                        expect(logger.logCritical).toBeCalledWith(
-                            `The jackpot winner information is invalid, details: ${JSON.stringify(params)}`
-                        );
-                    });
-                });
-            });
         });
     });
 

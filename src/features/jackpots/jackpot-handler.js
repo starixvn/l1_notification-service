@@ -1,34 +1,11 @@
-import Joi from "joi";
 import { userInfos } from "sc-base-database";
-import { logger } from "sc-common";
 import { mongoEmitter } from "../../adapters/socket-adapter";
-import emitEvents from "../../constants/emit-events";
 import { getLocalSockets } from "../socket-server/socket-server-handler";
 import * as currencyRepository from "./currency-repository";
 import { getExchangeRates } from "./exchange-rate-repository";
 import { getJackpotConfigs } from "./jackpot-configs";
 import * as jackpotRepository from "./jackpot-repository";
 import * as partnerConfigRepository from "./partner-config-repository";
-
-const validateParams = (params) => {
-    const schema = Joi.object({
-        gameId: Joi.number().required(),
-        pool: Joi.string().required(),
-        winnerName: Joi.string().required(),
-        amount: Joi.number().required(),
-    });
-
-    const { error } = schema.validate(params);
-    const valid = error == null;
-
-    if (params && valid) {
-        return true;
-    }
-
-    logger.logCritical(`The jackpot winner information is invalid, details: ${JSON.stringify(params)}`);
-
-    return false;
-};
 
 export const sendAllUserExceptExclusionSite = async (payload) => {
     const sockets = getLocalSockets();
@@ -167,13 +144,6 @@ export const getPools = async (socket, payload) => {
     socket.emit(payload?.gameId ? "jackpotPoolsOnGame" : "jackpotPools", jackpotPools);
 };
 
-export const notifyJackpotWinner = (req, res) => {
-    const isValidParams = validateParams(req.body);
-
-    if (isValidParams) {
-        mongoEmitter.serverSideEmit(emitEvents.jackpotWinner, req.body);
-        res.send({ received: true });
-    } else {
-        res.send({ error: true });
-    }
+export const notifyJackpotWinner = (data) => {
+    mongoEmitter.serverSideEmit(emitEvents.jackpotWinner, data);
 };
