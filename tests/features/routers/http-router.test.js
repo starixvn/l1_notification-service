@@ -1,6 +1,5 @@
 import { utils } from "sc-common";
 import appConfigs from "../../../src/app-configs";
-import { notifyJackpotWinner } from "../../../src/features/jackpots/jackpot-handler";
 import { broadcastReload } from "../../../src/features/reload/reload-handler";
 import { getTotalClients } from "../../../src/features/socket-clients/socket-client-handler";
 import { handleUmRequest } from "../../../src/features/um/um-handler";
@@ -23,14 +22,6 @@ describe("httpRouter", () => {
         audiences: appConfigs.authenticateSettings.audiences,
     };
 
-    it("should register api/jackpotWinner handler", () => {
-        // Act
-        httpRouter.init(app);
-
-        // Assert
-        expect(app.post).toBeCalledWith("/api/jackpotWinner", utils.authentication.useAuthenticate(authConfig), notifyJackpotWinner);
-    });
-    
     it("should register api/reload handler", () => {
         // Act
         httpRouter.init(app);
