@@ -11,6 +11,23 @@ import { handleUMEvent } from "../features/um/um-handler";
 let mongoEmitter;
 
 /**
+ * Handle promotion progress event - target specific client by playerId
+ * @param {Object} progressData - The progress data containing playerId and notification data
+ */
+function handlePromotionProgressEvent(progressData, socketServer) {
+    const { playerId, operatorId, siteName, ...notificationData } = progressData;
+
+    const nsp = socketServer.of("/");
+
+    for (const socket of nsp.sockets.values()) {
+        if (socket.data.session.playerId === playerId) {
+            socket.emit("promotionProgress", notificationData);
+            break;
+        }
+    }
+}
+
+/**
  * @param {Server} socketServer
  */
 function registerEvents(socketServer) {
@@ -40,6 +57,10 @@ function registerEvents(socketServer) {
 
     nsp.on(emitEvents.roundTimer, (data) => {
         sendAllUserExpectRoundTimer(data);
+    });
+
+    nsp.on(emitEvents.promotionProgress, (data) => {
+        handlePromotionProgressEvent(data, socketServer);
     });
 }
 

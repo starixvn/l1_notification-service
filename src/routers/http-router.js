@@ -6,6 +6,7 @@ import { broadcastReload } from "../features/reload/reload-handler";
 import { handleRoundTimerWatcherData } from "../features/round-timer/round-timer-handler";
 import { getTotalClients } from "../features/socket-clients/socket-client-handler";
 import { handleUmRequest } from "../features/um/um-handler";
+import { notifyPromotionProgress } from "../features/promotion-progress/promotion-progress-handler";
 
 /**
  * @param {express.Express} app
@@ -21,7 +22,7 @@ const init = (app) => {
     app.post("/api/um", utils.authentication.useAuthenticate(authConfig), handleUmRequest);
     app.get("/api/connectedClients", utils.authentication.useAuthenticate(authConfig), getTotalClients);
     app.post("/api/roundTimer", utils.authentication.useAuthenticate(authConfig), handleRoundTimerWatcherData);
+    app.post("/api/promotionProgress", utils.authentication.useAuthenticate(authConfig), notifyPromotionProgress);
 };
 
 export { init };
-

@@ -4,5 +4,6 @@ const emitEvents = {
     um: "um",
     kickedOut: "kickedOut",
     roundTimer: "roundTimer",
+    promotionProgress: "promotionProgress",
 };
 export default emitEvents;
