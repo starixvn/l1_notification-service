@@ -40,10 +40,9 @@ describe("authenticate", () => {
     const next = jest.fn();
 
     afterEach(() => jest.clearAllMocks());
-        roundTimerHandler.getRoundTimerGameOffered = jest.fn().mockReturnValueOnce([1, 2, 4]);
+    roundTimerHandler.getRoundTimerGameOffered = jest.fn().mockReturnValueOnce([1, 2, 4]);
 
     it("should call authorize to user service", async () => {
-        // Arrange
         const actualRequest = {
             session: socketClient.handshake.auth.ss,
             username: socketClient.handshake.auth.username,
@@ -51,10 +50,8 @@ describe("authenticate", () => {
         };
         axios.post.mockResolvedValueOnce({ data: {} });
 
-        // Act
         await authenticate(socketClient, next);
 
-        // Assert
         expect(axios.post).toBeCalledWith(`${appConfigs.userService.url}auth/session/verify`, actualRequest);
     });
 

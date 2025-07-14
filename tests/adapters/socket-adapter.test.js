@@ -1,11 +1,8 @@
 import Chance from "chance";
 import { Server } from "socket.io";
+import clientEvents from "../../src/constants/client-events";
 import emitEvents from "../../src/constants/emit-events";
-import * as socketAdapter from "../../src/adapters/socket-adapter";
-
-// We need to access the private handlePromotionProgressEvent function for testing
-// This follows the same pattern used in other test files
-const { handlePromotionProgressEvent } = socketAdapter;
+import { handlePromotionProgressEvent } from "../../src/adapters/socket-adapter";
 
 const chance = new Chance();
 
@@ -17,7 +14,6 @@ describe("socket-adapter", () => {
     let mockSocket3;
 
     beforeEach(() => {
-        // Mock socket objects
         mockSocket1 = {
             id: chance.guid(),
             data: {
@@ -45,7 +41,6 @@ describe("socket-adapter", () => {
             emit: jest.fn(),
         };
 
-        // Mock namespace with socket values
         mockNamespace = {
             sockets: {
                 values: jest.fn(() => [mockSocket1, mockSocket2, mockSocket3]),
@@ -53,7 +48,6 @@ describe("socket-adapter", () => {
             on: jest.fn(),
         };
 
-        // Mock socket server
         socketServer = {
             of: jest.fn(() => mockNamespace),
         };
@@ -88,22 +82,12 @@ describe("socket-adapter", () => {
         };
 
         it("should find and emit to correct client by playerId", () => {
-            // Since we can't directly import handlePromotionProgressEvent,
-            // let's simulate the functionality by testing the logic
-            const targetPlayerId = progressData.playerId;
+            // Act
+            handlePromotionProgressEvent(progressData, socketServer);
+
+            // Assert
             const { playerId, operatorId, siteName, ...notificationData } = progressData;
-
-            // Find the socket with matching playerId
-            const targetSocket = [mockSocket1, mockSocket2, mockSocket3].find((socket) => socket.data.session?.playerId === targetPlayerId);
-
-            // Simulate the emit call
-            if (targetSocket) {
-                targetSocket.emit("promotionProgress", notificationData);
-            }
-
-            // Verify the correct socket was found and emit was called
-            expect(targetSocket).toBe(mockSocket1);
-            expect(mockSocket1.emit).toBeCalledWith("promotionProgress", notificationData);
+            expect(mockSocket1.emit).toBeCalledWith(clientEvents.promotionProgress, notificationData);
             expect(mockSocket2.emit).not.toHaveBeenCalled();
             expect(mockSocket3.emit).not.toHaveBeenCalled();
         });
@@ -115,61 +99,33 @@ describe("socket-adapter", () => {
                 playerId: "unknownPlayer",
             };
 
-            const targetPlayerId = progressDataWithUnknownPlayer.playerId;
-            const { playerId, operatorId, siteName, ...notificationData } = progressDataWithUnknownPlayer;
+            // Act
+            handlePromotionProgressEvent(progressDataWithUnknownPlayer, socketServer);
 
-            // Find the socket with matching playerId
-            const targetSocket = [mockSocket1, mockSocket2, mockSocket3].find((socket) => socket.data.session?.playerId === targetPlayerId);
-
-            // Simulate the emit call
-            if (targetSocket) {
-                targetSocket.emit("promotionProgress", notificationData);
-            }
-
-            // Verify no socket was found and no emit was called
-            expect(targetSocket).toBeUndefined();
+            // Assert
             expect(mockSocket1.emit).not.toHaveBeenCalled();
             expect(mockSocket2.emit).not.toHaveBeenCalled();
             expect(mockSocket3.emit).not.toHaveBeenCalled();
         });
 
         it("should only emit once when target is found", () => {
-            // Test that the function breaks after finding the first match
-            const targetPlayerId = progressData.playerId;
+            // Act
+            handlePromotionProgressEvent(progressData, socketServer);
+
+            // Assert
             const { playerId, operatorId, siteName, ...notificationData } = progressData;
-
-            let foundCount = 0;
-
-            // Simulate the loop behavior
-            for (const socket of [mockSocket1, mockSocket2, mockSocket3]) {
-                if (socket.data.session?.playerId === targetPlayerId) {
-                    socket.emit("promotionProgress", notificationData);
-                    foundCount++;
-                    break; // This simulates the break in the actual implementation
-                }
-            }
-
-            // Verify only one match was processed
-            expect(foundCount).toBe(1);
-            expect(mockSocket1.emit).toBeCalledWith("promotionProgress", notificationData);
+            expect(mockSocket1.emit).toBeCalledWith(clientEvents.promotionProgress, notificationData);
             expect(mockSocket2.emit).not.toHaveBeenCalled();
             expect(mockSocket3.emit).not.toHaveBeenCalled();
         });
 
         it("should exclude sensitive data from notification", () => {
-            const targetPlayerId = progressData.playerId;
+            // Act
+            handlePromotionProgressEvent(progressData, socketServer);
+
+            // Assert
             const { playerId, operatorId, siteName, ...notificationData } = progressData;
-
-            // Find the socket with matching playerId
-            const targetSocket = [mockSocket1, mockSocket2, mockSocket3].find((socket) => socket.data.session?.playerId === targetPlayerId);
-
-            // Simulate the emit call
-            if (targetSocket) {
-                targetSocket.emit("promotionProgress", notificationData);
-            }
-
-            // Verify sensitive data is excluded
-            expect(mockSocket1.emit).toBeCalledWith("promotionProgress", notificationData);
+            expect(mockSocket1.emit).toBeCalledWith(clientEvents.promotionProgress, notificationData);
             expect(notificationData).not.toHaveProperty("playerId");
             expect(notificationData).not.toHaveProperty("operatorId");
             expect(notificationData).not.toHaveProperty("siteName");
@@ -185,7 +141,7 @@ describe("socket-adapter", () => {
         });
 
         it("should handle multiple sockets with same playerId correctly", () => {
-            // Create additional socket with same playerId
+            // Arrange
             const duplicateSocket = {
                 id: chance.guid(),
                 data: {
@@ -195,20 +151,14 @@ describe("socket-adapter", () => {
                 emit: jest.fn(),
             };
 
-            const allSockets = [mockSocket1, mockSocket2, mockSocket3, duplicateSocket];
-            const targetPlayerId = progressData.playerId;
+            mockNamespace.sockets.values.mockReturnValue([mockSocket1, mockSocket2, mockSocket3, duplicateSocket]);
+
+            // Act
+            handlePromotionProgressEvent(progressData, socketServer);
+
+            // Assert
             const { playerId, operatorId, siteName, ...notificationData } = progressData;
-
-            // Simulate the loop behavior with break
-            for (const socket of allSockets) {
-                if (socket.data.session?.playerId === targetPlayerId) {
-                    socket.emit("promotionProgress", notificationData);
-                    break; // First match wins
-                }
-            }
-
-            // Verify only the first matching socket received the emit
-            expect(mockSocket1.emit).toBeCalledWith("promotionProgress", notificationData);
+            expect(mockSocket1.emit).toBeCalledWith(clientEvents.promotionProgress, notificationData);
             expect(duplicateSocket.emit).not.toHaveBeenCalled();
         });
     });

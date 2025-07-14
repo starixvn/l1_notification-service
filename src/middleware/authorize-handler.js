@@ -5,6 +5,7 @@ import * as roundTimerHandler from "../features/round-timer/round-timer-handler"
 import { logger } from "sc-common";
 import { mongoEmitter } from "../adapters/socket-adapter";
 import appConfigs from "../app-configs";
+import clientEvents from "../constants/client-events";
 import emitEvents from "../constants/emit-events";
 import system from "../constants/system";
 
@@ -21,7 +22,7 @@ export const authenticate = async (socket, next) => {
         const authResponse = await axios.post(`${appConfigs.userService.url}auth/session/verify`, request);
 
         if (!authResponse.data.isSuccessful) {
-            socket.emit("auth", { authorized: false, ...authResponse.data });
+            socket.emit(clientEvents.auth, { authorized: false, ...authResponse.data });
             socket.disconnect(true);
 
             return;
@@ -38,11 +39,10 @@ export const authenticate = async (socket, next) => {
             },
         };
 
-        socket.emit("auth", { authorized: true });
+        socket.emit(clientEvents.auth, { authorized: true });
 
         if (session.system !== system.instant && session.system !== system.mobileDirect) {
             const UID = session.userId;
-            //disconnect other socket sessions having same UID
             mongoEmitter.serverSideEmit(emitEvents.kickedOut, { UID, sid: socket.id });
         }
 

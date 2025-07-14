@@ -11,12 +11,10 @@ export const notifyPromotionProgress = (req, res) => {
     try {
         const progressData = req.body;
 
-        // Validate required fields
         if (!progressData.playerId) {
             return res.status(400).send({ error: "playerId is required" });
         }
 
-        // Emit to socket adapter to handle targeting specific client
         mongoEmitter.serverSideEmit(emitEvents.promotionProgress, progressData);
 
         res.send({ received: true });
@@ -34,9 +32,7 @@ export const notifyPromotionProgress = (req, res) => {
 export const handlePromotionProgressEvent = (progressData) => {
     const { playerId, operatorId, siteName, ...notificationData } = progressData;
 
-    // Find and emit to specific client by playerId (session.playerId)
     const targetPlayerId = playerId;
 
-    // This will be handled by the socket adapter registration
     return { targetPlayerId, notificationData };
 };

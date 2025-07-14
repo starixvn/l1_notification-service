@@ -1,6 +1,7 @@
 import { createAdapter } from "@socket.io/mongo-adapter";
 import { Emitter } from "@socket.io/mongo-emitter";
 import { Server } from "socket.io";
+import clientEvents from "../constants/client-events";
 import emitEvents from "../constants/emit-events";
 import system from "../constants/system";
 import { sendAllUserExceptExclusionSite } from "../features/jackpots/jackpot-handler";
@@ -19,11 +20,9 @@ function handlePromotionProgressEvent(progressData, socketServer) {
 
     const nsp = socketServer.of("/");
 
-    for (const socket of nsp.sockets.values()) {
-        if (socket.data.session.playerId === playerId) {
-            socket.emit("promotionProgress", notificationData);
-            break;
-        }
+    const targetSocket = [...nsp.sockets.values()].find((socket) => socket.data.session.playerId === playerId);
+    if (targetSocket) {
+        targetSocket.emit(clientEvents.promotionProgress, notificationData);
     }
 }
 
@@ -49,7 +48,7 @@ function registerEvents(socketServer) {
                 socket.data.session.system !== system.instant &&
                 socket.data.session.system !== system.mobileDirect
             ) {
-                socket.emit("kickedOut", true);
+                socket.emit(clientEvents.kickedOut, true);
                 socket.disconnect(true);
             }
         }
@@ -75,6 +74,8 @@ export function initMongoAdapter(socketServer, mongoCollection) {
     );
     registerEvents(socketServer);
 }
+
+export { handlePromotionProgressEvent };
 
 export function initMongoEmitter(mongoCollection) {
     mongoEmitter = new Emitter(mongoCollection, "/", { addCreatedAtField: true });
