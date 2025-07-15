@@ -46,7 +46,7 @@ export default {
         url: "http://gn-round-watcher-service-klprod-service:5000/",
     },
     metrics: {
-        enable: true,
+        enable: false,
         secretKey: "30d15293-c7de-4c77-9293-b85d6c5bfe1a",
     },
     enableMsgpackParser: true,
