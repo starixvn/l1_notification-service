@@ -26,7 +26,7 @@ export default {
     },
     enabledLogs: true,
     database: {
-        url: "mongodb://hotdog_backend:HotdogBackend%4022027@10.99.99.53:39520,10.99.99.54:39520,10.99.99.188:39520,10.99.99.187:39520/?authSource=admin&replicaSet=SP-UAT&appName=notificationservice",
+        url: "mongodb://hotdog_backend:HotdogBackend%4022027@10.146.34.28:39520/?replicaSet=SP-UAT&appName=notificationservice",
         options: {
             dbName: "hotdog_minigame",
             useNewUrlParser: true,
