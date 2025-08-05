@@ -26,7 +26,7 @@ export default {
     },
     enabledLogs: true,
     database: {
-        url: "mongodb://lmn_backend:LmnBackend%4022027@10.99.99.53:39420,10.99.99.54:39420,10.99.99.188:39420,10.99.99.187:39420/?replicaSet=SN-UAT&appName=notificationservice",
+        url: "mongodb://lmn_backend:LmnBackend%4022027@10.146.34.28:39420/?replicaSet=SN-UAT&appName=notificationservice",
         options: {
             dbName: "minigame",
             useNewUrlParser: true,
@@ -35,7 +35,7 @@ export default {
         },
     },
     sentry: {
-        sentryUrl: "http://817eba6db40b4010bbce8b66b3ca38bc@10.2.190.51:9009/288",
+        sentryUrl: "https://f457113be82441879a991096fce8c26c@sentry-ovs.sgamesuat.com/172",
         logIdentifier: "notification-service",
         env: "UAT",
     },
