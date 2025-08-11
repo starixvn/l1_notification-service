@@ -35,7 +35,7 @@ export default {
         },
     },
     sentry: {
-        sentryUrl: "http://817eba6db40b4010bbce8b66b3ca38bc@10.2.190.51:9009/288",
+        sentryUrl: "http://f4980024f65945179a125e7ce17286d0@sentrysc-ovs.ops-kluat.gamora.prod/178",
         logIdentifier: "notification-service",
         env: "UAT",
     },
