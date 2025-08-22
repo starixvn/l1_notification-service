@@ -37,7 +37,7 @@
         "sc-common": "2.0.0",
         "socket.io": "4.8.1",
         "socket.io-msgpack-parser": "^3.0.1",
-        "socket.io-prom-metrics": "1.0.14"
+        "socket.io-prom-metrics": "1.0.3"
     },
     "resolutions": {
         "sc-common": "2.0.0",

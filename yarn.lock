@@ -3045,6 +3045,11 @@ binary-extensions@^2.0.0:
   resolved "https://npm.lumigame.com/binary-extensions/-/binary-extensions-2.2.0.tgz"
   integrity sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==
 
+bintrees@1.0.2:
+  version "1.0.2"
+  resolved "http://npm.lumigame.com/bintrees/-/bintrees-1.0.2.tgz#49f896d6e858a4a499df85c38fb399b9aff840f8"
+  integrity sha1-SfiW1uhYpKSZ34XDj7OZua/4QPg=
+
 body-parser@1.19.2, body-parser@^1.19.2:
   version "1.19.2"
   resolved "https://npm.lumigame.com/body-parser/-/body-parser-1.19.2.tgz"
@@ -6524,6 +6529,13 @@ pretty-format@^27.0.0, pretty-format@^27.5.1:
     ansi-styles "^5.0.0"
     react-is "^17.0.1"
 
+prom-client@^11.2.1:
+  version "11.5.3"
+  resolved "http://npm.lumigame.com/prom-client/-/prom-client-11.5.3.tgz#5fedfce1083bac6c2b223738e966d0e1643756f8"
+  integrity sha512-iz22FmTbtkyL2vt0MdDFY+kWof+S9UB/NACxSn2aJcewtw+EERsen0urSkZ2WrHseNdydsvcxCTAnPcSMZZv4Q==
+  dependencies:
+    tdigest "^0.1.1"
+
 prompts@^2.0.1:
   version "2.4.2"
   resolved "https://npm.lumigame.com/prompts/-/prompts-2.4.2.tgz"
@@ -7049,12 +7061,15 @@ socket.io-parser@~4.2.4:
     "@socket.io/component-emitter" "~3.1.0"
     debug "~4.3.1"
 
-socket.io-prom-metrics@1.0.14:
-  version "1.0.14"
-  resolved "http://npm.lumigame.com/socket.io-prom-metrics/-/socket.io-prom-metrics-1.0.14.tgz#5a913cdaff5cc2ab9cd8d55471fa3f4006a59fa7"
-  integrity sha512-gkSTYlTENDo3TjA51DzM0AY5r2wQkLdRrvCmyfhdIYnd8Hy/RG8wvFzjWCeNACvPhb/p7ESllXilGO5T2C/rBg==
+socket.io-prom-metrics@1.0.3:
+  version "1.0.3"
+  resolved "http://npm.lumigame.com/socket.io-prom-metrics/-/socket.io-prom-metrics-1.0.3.tgz#c4865d821814a19a254f02caca3ac55fae58d907"
+  integrity sha512-a4WU+9kGIuWK8oSlAQCV6TJhAh03ssLollbi3hZ7kleuGaGrpnGL9EjTk64PikOlEFV6rhXObSTsQhvR7t70Mw==
+  dependencies:
+    prom-client "^11.2.1"
+    socket.io "^4.1.3"
 
-socket.io@4.8.1:
+socket.io@4.8.1, socket.io@^4.1.3:
   version "4.8.1"
   resolved "http://npm.lumigame.com/socket.io/-/socket.io-4.8.1.tgz#fa0eaff965cc97fdf4245e8d4794618459f7558a"
   integrity sha512-oZ7iUCxph8WYRHHcjBEc9unw3adt5CmSNlppj/5Q4k2RIrhl8Z5yY2Xr4j9zj0+wzVZ0bxmYoGSzKJnRl6A4yg==
@@ -7278,6 +7293,13 @@ symbol-tree@^3.2.4:
   version "3.2.4"
   resolved "https://npm.lumigame.com/symbol-tree/-/symbol-tree-3.2.4.tgz"
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
+
+tdigest@^0.1.1:
+  version "0.1.2"
+  resolved "http://npm.lumigame.com/tdigest/-/tdigest-0.1.2.tgz#96c64bac4ff10746b910b0e23b515794e12faced"
+  integrity sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==
+  dependencies:
+    bintrees "1.0.2"
 
 terminal-link@^2.0.0:
   version "2.1.1"
