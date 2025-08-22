@@ -30,17 +30,23 @@
         "express": "^4.17.3",
         "helmet": "^5.0.2",
         "http": "^0.0.1-security",
-        "jest-micro-auto-stub": "^1.0.9",
         "joi": "^17.6.0",
         "morgan": "^1.10.0",
         "ramda": "^0.28.0",
         "sc-base-database": "^1.9.2",
-        "sc-common": "^1.8.1",
-        "socket.io": "^4.4.1",
+        "sc-common": "2.0.0",
+        "socket.io": "4.8.1",
         "socket.io-msgpack-parser": "^3.0.1",
-        "socket.io-prom-metrics": "^1.0.3"
+        "socket.io-prom-metrics": "1.0.14"
+    },
+    "resolutions": {
+        "sc-common": "2.0.0",
+        "mongoose": "6.13.6",
+        "minimist": "1.2.6",
+        "form-data": "3.0.4"
     },
     "devDependencies": {
+        "@babel/core": "7.28.3",
         "@babel/preset-env": "^7.16.11",
         "@types/jest": "^27.4.1",
         "babel-jest": "^27.5.1",
@@ -48,6 +54,7 @@
         "jest": "^27.5.1",
         "jest-auto-fixture": "^1.0.6",
         "jest-junit": "^13.0.0",
+        "jest-micro-auto-stub": "^1.0.9",
         "jest-sonar-reporter": "^2.0.0",
         "nodemon": "^2.0.15"
     }
