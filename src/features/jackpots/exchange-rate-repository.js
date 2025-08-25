@@ -1,4 +1,4 @@
-import exchangeRate from "./exchange-rate";
+import { ExchangeRates } from "sc-base-database";
 
 const getExchangeRates = async (exIds) => {
     const filter = {
@@ -10,8 +10,7 @@ const getExchangeRates = async (exIds) => {
         code: true,
     };
 
-    return exchangeRate.find(filter, projection).lean().exec();
+    return ExchangeRates.find(filter, projection).lean().exec();
 };
 
 export { getExchangeRates };
-

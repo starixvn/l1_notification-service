@@ -1,12 +1,12 @@
-import { getSiteExclusions, getSiteExclusionByPartner } from "../../../src/features/jackpots/partner-config-repository";
-import partnerConfig from "../../../src/features/jackpots/partner-config";
-import { stubMongoose } from "jest-micro-auto-stub";
 import Chance from "chance";
+import { stubMongoose } from "jest-micro-auto-stub";
+import mongoose from "mongoose";
+import { PartnerConfigs } from "sc-base-database";
+import { getSiteExclusionByPartner, getSiteExclusions } from "../../../src/features/jackpots/partner-config-repository";
 
-jest.mock("../../../src/features/jackpots/partner-config");
-partnerConfig.findOne = stubMongoose(partnerConfig).findOne;
-partnerConfig.exists = stubMongoose(partnerConfig).exists;
-partnerConfig.find = stubMongoose(partnerConfig).find;
+PartnerConfigs.find = stubMongoose(mongoose.Model).find;
+PartnerConfigs.findOne = stubMongoose(mongoose.Model).findOne;
+PartnerConfigs.exists = jest.fn();
 
 const chance = new Chance();
 
@@ -17,7 +17,7 @@ describe("partnerConfigRepository", () => {
             await getSiteExclusions();
 
             // Assert
-            expect(partnerConfig.find).toBeCalledWith({ type: "game_site_exclusions" });
+            expect(PartnerConfigs.find).toBeCalledWith({ type: "game_site_exclusions" });
         });
     });
 
@@ -30,7 +30,7 @@ describe("partnerConfigRepository", () => {
             await getSiteExclusionByPartner(partnerId);
 
             // Assert
-            expect(partnerConfig.findOne).toBeCalledWith({ type: "game_site_exclusions", partnerId });
+            expect(PartnerConfigs.findOne).toBeCalledWith({ type: "game_site_exclusions", partnerId });
         });
     });
 });

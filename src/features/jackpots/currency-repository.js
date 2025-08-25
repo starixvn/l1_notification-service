@@ -1,21 +1,21 @@
 import mongoose from "mongoose";
-import Currency from "./currency";
-import CurrencyGroup from "./currency-group";
-import CurrencyGroupGame from "./currency-group-game";
+import { Currencies, CurrencyGroupGames, CurrencyGroups } from "sc-base-database";
 
 const getCurrency = async (currencyName, partnerId) => {
-    return Currency.findOne({ name: currencyName, partnerId: partnerId }).lean().exec();
+    return Currencies.findOne({ name: currencyName, partnerId: partnerId }).lean().exec();
 };
 
 const getCurrencyGroup = async (groupId) => {
-    return CurrencyGroup.findById(new mongoose.Types.ObjectId(groupId)).lean().exec();
+    return CurrencyGroups.findById(new mongoose.Types.ObjectId(groupId)).lean().exec();
 };
 
 const getOfferedGames = async (groupId) => {
-    return CurrencyGroupGame.find({ groupId: new mongoose.Types.ObjectId(groupId), enabled: true }, "gameId gameName stakeLevels betLevels")
+    return CurrencyGroupGames.find(
+        { groupId: new mongoose.Types.ObjectId(groupId), enabled: true },
+        "gameId gameName stakeLevels betLevels"
+    )
         .lean()
         .exec();
 };
 
 export { getCurrency, getCurrencyGroup, getOfferedGames };
-

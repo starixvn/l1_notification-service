@@ -1,17 +1,12 @@
 import Chance from "chance";
 import { stubMongoose } from "jest-micro-auto-stub";
 import mongoose from "mongoose";
-import currency from "../../../src/features/jackpots/currency";
-import currencyGroup from "../../../src/features/jackpots/currency-group";
-import currencyGroupGame from "../../../src/features/jackpots/currency-group-game";
+import { Currencies, CurrencyGroupGames, CurrencyGroups } from "sc-base-database";
 import { getCurrency, getCurrencyGroup, getOfferedGames } from "../../../src/features/jackpots/currency-repository";
 
-jest.mock("../../../src/features/jackpots/currency");
-jest.mock("../../../src/features/jackpots/currency-group");
-jest.mock("../../../src/features/jackpots/currency-group-game");
-currency.findOne = stubMongoose(currency).findOne;
-currencyGroup.findById = stubMongoose(currencyGroup).findById;
-currencyGroupGame.find = stubMongoose(currencyGroupGame).find;
+Currencies.findOne = stubMongoose(mongoose.Model).findOne;
+CurrencyGroups.findById = stubMongoose(mongoose.Model).findById;
+CurrencyGroupGames.find = stubMongoose(mongoose.Model).find;
 
 const chance = new Chance();
 
@@ -26,7 +21,7 @@ describe("currencyRepository", () => {
             await getCurrency(currencyName, partnerId);
 
             // Assert
-            expect(currency.findOne).toBeCalledWith({ name: currencyName, partnerId });
+            expect(Currencies.findOne).toBeCalledWith({ name: currencyName, partnerId });
         });
     });
 
@@ -39,7 +34,7 @@ describe("currencyRepository", () => {
             await getCurrencyGroup(groupId);
 
             // Assert
-            expect(currencyGroup.findById).toBeCalledWith(new mongoose.Types.ObjectId(groupId));
+            expect(CurrencyGroups.findById).toBeCalledWith(new mongoose.Types.ObjectId(groupId));
         });
     });
 
@@ -52,7 +47,10 @@ describe("currencyRepository", () => {
             await getOfferedGames(groupId);
 
             // Assert
-            expect(currencyGroupGame.find).toBeCalledWith({ groupId: new mongoose.Types.ObjectId(groupId), enabled: true }, "gameId gameName stakeLevels betLevels");
+            expect(CurrencyGroupGames.find).toBeCalledWith(
+                { groupId: new mongoose.Types.ObjectId(groupId), enabled: true },
+                "gameId gameName stakeLevels betLevels"
+            );
         });
     });
 });
