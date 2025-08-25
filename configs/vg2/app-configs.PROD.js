@@ -34,7 +34,7 @@ export default {
         },
     },
     sentry: {
-        sentryUrl: "http://2b5b82bf699543ddb296364568bc30be@10.2.189.50:9009/52",
+        sentryUrl: "http://8eb9632f2663e57c838ec83febbee14f@sentrypro-sc.ops-klprod.gamora.prod/4",
         logIdentifier: "notification-service",
         env: "PROD",
     },
