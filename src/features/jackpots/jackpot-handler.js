@@ -159,10 +159,12 @@ export const getPools = async (socket, payload) => {
 };
 
 export const notifyJackpotWinner = (req, res) => {
-    const isValidParams = validateParams(req.body);
+    const { gameId, pool, winnerName, amount } = req.body;
+
+    const isValidParams = validateParams({ gameId, pool, winnerName, amount });
 
     if (isValidParams) {
-        mongoEmitter.serverSideEmit(emitEvents.jackpotWinner, req.body);
+        mongoEmitter.serverSideEmit(emitEvents.jackpotWinner, { gameId, pool, winnerName, amount });
         res.send({ received: true });
     } else {
         res.send({ error: true });
